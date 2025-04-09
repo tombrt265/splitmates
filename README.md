@@ -10,15 +10,36 @@ SplitMates is a web application designed to simplify group expense tracking duri
 
 ## Getting Started
 
+### Setup
+
+* [Download](https://nodejs.org/en) node.js and npm into folder ```C:\Users\<USERNAME>\dev\runtimes\node```
+
+```bash
+#check for correct installation with
+node -v
+npm -v
+#should output version numbers
+```
+
+* Install IDE like VSCode
+* in your projects folder: 
+
+```bash
+# https
+git clone https://github.com/tombrt265/splitmates.git
+
+# ssh
+git clone git@github.com:tombrt265/splitmates.git
+```
+
+* How to setup ssh in GitHub [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+
+
 ### Dependencies
 
 * Describe any prerequisites, libraries, OS version, etc., needed before installing program.
 * ex. Windows 10
 
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
 
 ### Executing program
 
