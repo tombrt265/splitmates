@@ -12,22 +12,26 @@ the concept is, that you can make a group of the friends. then you can select wh
 ideally there should be a way to automatically pay using paypal or such.
 ```
 
-----
+---
+
 <br>
 
 ### 🧱 Core Features
 
-1. **Create a Group**  
+1. **Create a Group**
+
    - Name of the trip (e.g., "Italy 2025")
    - Add/remove friends by name or email
 
 2. **Add an Expense**
+
    - Who paid?
    - Total amount?
    - Description (e.g., “groceries”)
    - Who was involved (split among whom)? Equally or custom amounts?
 
 3. **Calculate Balances**
+
    - Show who owes whom and how much
    - Optional: simplify debts so it’s fewer transactions
 
@@ -40,17 +44,21 @@ ideally there should be a way to automatically pay using paypal or such.
 ### 🧰 Suggested Tech Stack (Beginner-Friendly)
 
 **Frontend (UI):**
+
 - HTML/CSS + JavaScript
 - Use a framework like **React** (lots of tutorials and flexibility)
 
 **Backend (optional for now):**
+
 - Firebase (Authentication + Realtime Database/Firestore) – great for beginners!
 - Or a simple Node.js + Express server with MongoDB
 
 **Authentication:**
+
 - Sign up / log in (could use Firebase Auth for easy integration)
 
 **Payments (optional / advanced):**
+
 - PayPal API or Stripe (can be added later)
 
 ---
@@ -58,23 +66,26 @@ ideally there should be a way to automatically pay using paypal or such.
 ### 🧪 MVP First (Minimum Viable Product)
 
 Start with:
+
 - [x] Create group
 - [x] Add expenses
 - [x] Split expenses and calculate balances
 
 Once that’s smooth, then add:
+
 - [ ] Settling up
 - [ ] Payment integrations
 - [ ] Fancy UI/UX
 
+---
 
-----
 <br>
 <br>
 
 ## 🌱 Step-by-Step Instructions (MVP)
 
 ### 1. ✅ Install Prerequisites
+
 Make sure you and your friend have these installed:
 
 - [Node.js & npm](https://nodejs.org/)
@@ -98,7 +109,7 @@ You now have a working local web app.
 ### 3. 🔥 Set Up Firebase
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Click **Add Project**, name it something like *Vacation Tracker*
+2. Click **Add Project**, name it something like _Vacation Tracker_
 3. Add a **Web App** to your project
 4. Copy the Firebase config (you'll paste this into your React app)
 5. In the Firebase console:
@@ -155,6 +166,7 @@ export const auth = getAuth(app);
 ### 6. 🧱 Build the UI (React)
 
 Break the app into components like:
+
 - `LoginPage.js` (authentication)
 - `Dashboard.js` (list of groups)
 - `GroupPage.js` (expenses + balances)
@@ -167,11 +179,13 @@ Use Firebase Auth to handle sign-in, and Firestore to store/retrieve data.
 ### 7. 🔁 Expense Logic (Basic Version)
 
 When a user adds an expense:
+
 1. Save it in Firestore
 2. Recalculate balances:
    - Each user owes `(amount / num of people)` to the one who paid
 
 Later, you can:
+
 - Auto-simplify debts
 - Show who pays whom the least amount of times
 
@@ -180,6 +194,7 @@ Later, you can:
 ### 8. ☁️ Optional: Deploy It Online
 
 Once you're happy with the MVP:
+
 ```bash
 npm install -g firebase-tools
 firebase login
@@ -194,16 +209,16 @@ Your app is now live on the web 🌐
 
 ### ✅ Summary: What You’ll Use
 
-| Purpose             | Tool                      |
-|---------------------|---------------------------|
-| UI Framework        | React                     |
-| Backend + Database  | Firebase (Firestore)      |
-| Auth                | Firebase Auth             |
-| Deployment          | Firebase Hosting          |
-| Payment Integration | (Later) PayPal API        |
+| Purpose             | Tool                 |
+| ------------------- | -------------------- |
+| UI Framework        | React                |
+| Backend + Database  | Firebase (Firestore) |
+| Auth                | Firebase Auth        |
+| Deployment          | Firebase Hosting     |
+| Payment Integration | (Later) PayPal API   |
 
+---
 
-----
 <br>
 <br>
 
@@ -213,7 +228,8 @@ Your app is now live on the web 🌐
 
 ### ✅ **PHASE 1: Planning (Day 1)**
 
-1. **Define the MVP (Minimum Viable Product)**  
+1. **Define the MVP (Minimum Viable Product)**
+
    - Create group
    - Add friends
    - Add expenses
@@ -221,6 +237,7 @@ Your app is now live on the web 🌐
    - Show balances
 
 2. **Decide Your Tools**
+
    - Frontend: React (with create-react-app)
    - Backend/Database: Firebase (Firestore + Auth)
    - Deployment: Firebase Hosting
@@ -232,8 +249,8 @@ Your app is now live on the web 🌐
 
 ### 🔧 **PHASE 2: Setup & Environment (Day 2)**
 
-1. Install Node.js, VS Code, Git  
-2. `npx create-react-app vacation-expense-tracker`  
+1. Install Node.js, VS Code, Git
+2. `npx create-react-app vacation-expense-tracker`
 3. Setup Firebase project in [console.firebase.google.com](https://console.firebase.google.com)
 4. Connect Firebase to your app (`firebase.js` setup)
 5. Setup Firebase Hosting (later)
@@ -255,13 +272,14 @@ Your app is now live on the web 🌐
 
 Break the app into **screens** or **pages**:
 
-| Page | Purpose |
-|------|---------|
-| `Dashboard` | List of user’s groups |
-| `GroupPage` | List of expenses, add expense, see balances |
-| `AddExpensePage` | Form to add new expense |
+| Page             | Purpose                                     |
+| ---------------- | ------------------------------------------- |
+| `Dashboard`      | List of user’s groups                       |
+| `GroupPage`      | List of expenses, add expense, see balances |
+| `AddExpensePage` | Form to add new expense                     |
 
 Set up **React Router** for page navigation:
+
 ```bash
 npm install react-router-dom
 ```
@@ -271,16 +289,19 @@ npm install react-router-dom
 ### 📊 **PHASE 5: Add Group & Expense Functionality (Week 2)**
 
 1. **Create Group**
+
    - Create group document in Firestore
    - Add members by email or ID
 
 2. **Add Expense**
+
    - Select payer
    - Input total amount
    - Select involved friends
    - Save to `/groups/{groupId}/expenses/`
 
 3. **Calculate Who Owes What**
+
    - Create a helper function that calculates:
      - how much each person owes
      - to whom
@@ -288,7 +309,7 @@ npm install react-router-dom
 4. **Display Balances**
    - On `GroupPage`, show summary like:
      ```
-     Alex owes Dana: $10  
+     Alex owes Dana: $10
      Dana owes Max: $5
      ```
 
@@ -297,10 +318,13 @@ npm install react-router-dom
 ### 💅 **PHASE 6: Styling and UI Polish (Week 3)**
 
 Use a CSS framework like:
+
 ```bash
 npm install tailwindcss
 ```
+
 or go with simple CSS modules. Add:
+
 - Color themes
 - Responsive layout
 - Friendly buttons and form validation
@@ -333,17 +357,17 @@ or go with simple CSS modules. Add:
 
 ### 🧑‍🤝‍🧑 Suggested Team Workflow
 
-| Task | Person A | Person B |
-|------|----------|----------|
-| Auth + Firebase Setup | ✅ | |
-| UI Components | | ✅ |
-| Routing & Pages | ✅ | |
-| Expense Logic | | ✅ |
-| Styling | ✅ | ✅ |
-| Deployment | ✅ | |
+| Task                  | Person A | Person B |
+| --------------------- | -------- | -------- |
+| Auth + Firebase Setup | ✅       |          |
+| UI Components         |          | ✅       |
+| Routing & Pages       | ✅       |          |
+| Expense Logic         |          | ✅       |
+| Styling               | ✅       | ✅       |
+| Deployment            | ✅       |          |
 
+---
 
-----
 <br>
 <br>
 
@@ -359,10 +383,11 @@ Here’s a **Notion Board Template** for your Vacation Expense Tracker project. 
 
 ## 🧾 How to Create This Board in Notion (Step-by-step)
 
-1. Open Notion → Create a new page  
-2. Choose **"Board"** as the layout  
-3. Name the page: `Vacation Expense Tracker`  
+1. Open Notion → Create a new page
+2. Choose **"Board"** as the layout
+3. Name the page: `Vacation Expense Tracker`
 4. Set up the following **columns** (statuses):
+
    - `To Do`
    - `In Progress`
    - `Done`
@@ -374,45 +399,47 @@ Here’s a **Notion Board Template** for your Vacation Expense Tracker project. 
 
 ### ✅ To Do
 
-- Set up GitHub repo and invite collaborator  
-- Install Node.js, VS Code, Git  
-- Create React app using `create-react-app`  
-- Set up Firebase project in console  
-- Add Firebase SDK & `firebase.js` config  
-- Enable Email/Password auth in Firebase  
-- Design simple wireframes (paper/Figma)  
-- Set up React Router for navigation  
-- Create login & signup pages  
+- Set up GitHub repo and invite collaborator
+- Install Node.js, VS Code, Git
+- Create React app using `create-react-app`
+- Set up Firebase project in console
+- Add Firebase SDK & `firebase.js` config
+- Enable Email/Password auth in Firebase
+- Design simple wireframes (paper/Figma)
+- Set up React Router for navigation
+- Create login & signup pages
 - Create Firestore collections: `users`, `groups`, `expenses`
 
 ---
 
 ### 🔧 In Progress
 
-- Build Firebase authentication logic  
-- Build `Dashboard` to list user’s groups  
-- Create group form (name + members)  
-- Store new group in Firestore  
+- Build Firebase authentication logic
+- Build `Dashboard` to list user’s groups
+- Create group form (name + members)
+- Store new group in Firestore
 
 ---
 
 ### ✅ Done
+
 _(Move tasks here when completed)_
 
 ---
 
 ### 🌟 Stretch Goals
 
-- Add expense form (amount, payer, split)  
-- Expense calculation logic  
-- Show who owes what  
-- “Settle up” functionality  
-- Use TailwindCSS for styling  
-- Deploy with Firebase Hosting  
-- PayPal integration  
-- Mobile-friendly layout  
+- Add expense form (amount, payer, split)
+- Expense calculation logic
+- Show who owes what
+- “Settle up” functionality
+- Use TailwindCSS for styling
+- Deploy with Firebase Hosting
+- PayPal integration
+- Mobile-friendly layout
 - Dark mode
 
-----
+---
+
 <br>
 <br>
