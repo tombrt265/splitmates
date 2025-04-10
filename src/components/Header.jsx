@@ -1,7 +1,7 @@
 function Header() {
     return (
         <div>
-            <h1>  ich furze die HWR voll  </h1>
+            <h1> Welcome to SplitMates </h1>
         </div>
     );
 }
