@@ -1,5 +1,5 @@
 import { PageLayout } from "../components/page-layout";
-import { useSignUp } from "../hooks/useSignup";
+import { useSignUp } from "../hooks/useSignUp";
 
 export const HomePage = () => {
   const { handleSignUp } = useSignUp();

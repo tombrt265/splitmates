@@ -1,4 +1,4 @@
-import { useSignUp } from "../../hooks/useSignup";
+import { useSignUp } from "../../hooks/useSignUp";
 
 export const SignupButton = () => {
   const { handleSignUp } = useSignUp();
