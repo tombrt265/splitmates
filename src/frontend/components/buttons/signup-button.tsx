@@ -1,18 +1,7 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useSignUp } from "../../hooks/useSignup";
 
 export const SignupButton = () => {
-  const { loginWithRedirect } = useAuth0();
-
-  const handleSignUp = async () => {
-    await loginWithRedirect({
-      authorizationParams: {
-        screen_hint: "signup",
-      },
-      appState: {
-        returnTo: "/profile",
-      },
-    });
-  };
+  const { handleSignUp } = useSignUp();
 
   return (
     <button className="button__sign-up" onClick={handleSignUp}>

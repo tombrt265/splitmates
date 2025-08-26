@@ -12,7 +12,7 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
     <div className="flex flex-col items-center h-full w-full">
       <NavBar />
       <MobileNavBar />
-      <div className="max-sm:mt-[0] flex-1 basis-auto shrink-0 flex flex-col h-[calc(100%_-_9.4rem)] w-full p-4">
+      <div className="max-sm:mt-[0] flex-1 basis-auto shrink-0 flex flex-col h-[calc(100%_-_9.4rem)] w-full">
         {children}
       </div>
       {/* <PageFooter /> */}
