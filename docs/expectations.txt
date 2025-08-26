@@ -1,0 +1,12 @@
+Anforderungen:
+
+must have:
+    - Benutzer können angelegt werden mit Konto / PayPal, Name, Username, E-mail
+    - Benutzer können Gruppen erstellen und deaktivieren 
+    - Innerhalb einer Gruppe werden Ausgaben einzelner Personen auf mehrere Gruppenmitglieder aufgeteilt
+nice to have:
+    - Ausgaben können kategorisiert werden
+    - Benutzer haben die möglichkeit mit Roulette die nächste Ausgabe von einer bestimmten Person zahlen lassen
+    - Statistiken (Gesamtausgaben + Ausgaben p.P. + Kategorisierung: Ausaben für Essen, Spaß usw...) können zu jeder Zeit eingesehen werden
+wish to have:
+    - Innerhalb der Anwendung sind Kontoabbuchungen möglich 
