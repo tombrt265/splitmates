@@ -10,10 +10,10 @@ export const NavBarBrand = ({
   const logo = "logo.svg";
   return (
     <div className="flex items-center h-15 gap-6 mb-12">
-      <a className="flex items-center h-full" onClick={onToggleCollapse}>
+      <button className="flex items-center h-full" onClick={onToggleCollapse}>
         <img className="h-full" src={logo} alt="SplitMates logo" />
         {!isCollapsed && <h4>Splitmates</h4>}
-      </a>
+      </button>
     </div>
   );
 };
