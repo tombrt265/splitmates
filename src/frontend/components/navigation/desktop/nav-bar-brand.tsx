@@ -1,22 +1,19 @@
-import { NavLink } from "react-router-dom";
+interface NavBarBrandProps {
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
 
-export const NavBarBrand = () => {
+export const NavBarBrand = ({
+  isCollapsed,
+  onToggleCollapse,
+}: NavBarBrandProps) => {
   const logo = "logo.svg";
   return (
-    <div className="flex items-center h-[3.2rem] max-[340px]:h-[2.8rem] gap-[1.6rem] ml-[1.6rem]">
-      <NavLink to="/" className="h-full flex items-center">
-        <img
-          className="h-full"
-          src={logo}
-          alt="Auth0 shield logo"
-          width="auto"
-          height="36"
-        />
-      </NavLink>
-
-      <NavLink to="/" className="h-full flex items-center">
-        <h1 className="translate-y-[-15%]">Splitmates</h1>
-      </NavLink>
+    <div className="flex items-center h-15 gap-6 mb-12">
+      <button className="flex items-center h-full" onClick={onToggleCollapse}>
+        <img className="h-full" src={logo} alt="SplitMates logo" />
+        {!isCollapsed && <h4>Splitmates</h4>}
+      </button>
     </div>
   );
 };
