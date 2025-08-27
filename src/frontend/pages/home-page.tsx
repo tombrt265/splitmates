@@ -1,11 +1,10 @@
-import { PageLayout } from "../components/page-layout";
 import { useSignUp } from "../hooks/useSignUp";
 
 export const HomePage = () => {
   const { handleSignUp } = useSignUp();
 
   return (
-    <PageLayout>
+    <div className="flex flex-col h-full">
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 bg-gradient-to-b from-indigo-50 to-white">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -109,6 +108,6 @@ export const HomePage = () => {
           Kostenlos starten
         </button>
       </section>
-    </PageLayout>
+    </div>
   );
 };

@@ -9,7 +9,7 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <div className="flex flex-row h-screen w-screen">
+    <div className="flex flex-row md:h-screen w-full">
       <NavBar />
       {/* <MobileNavBar /> */}
       <div className="flex-1 basis-auto shrink-0 flex flex-col">{children}</div>

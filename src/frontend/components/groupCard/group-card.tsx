@@ -1,29 +1,38 @@
-import { Spendings } from "./spendings";
-import { Debts } from "./debts";
-import { OpenClaims } from "./open-claims";
-import { GroupInfo } from "./group-info";
+import { GroupSpendings } from "./group-spendings";
 
 export const GroupCard = () => {
   return (
-    <div className="bg-indigo-300 rounded-xl md:row-span-2 p-4">
-      <div className="grid grid-rows-[1fr_5fr] gap-4 h-full">
-        {/* obere Zeile mit 3 Boxen */}
-        <div className="grid grid-cols-[2fr_1fr_1fr] gap-4">
-          <div className="bg-indigo-100 rounded-xl p-4">
-            <Spendings />
-          </div>
-          <div className="bg-indigo-100 rounded-xl p-4">
-            <Debts />
-          </div>
-          <div className="bg-indigo-100 rounded-xl p-4">
-            <OpenClaims />
-          </div>
+    <div className="bg-gray-100 rounded-xl md:row-span-1 p-4 order-1 md:order-0">
+      <div className="grid gap-4 h-full grid-cols-1 md:grid-cols-3 md:grid-rows-3">
+        {/* Debt by Person */}
+        <div className="bg-gray-200 rounded-md p-2">
+          <h4>Schulden nach Person</h4>
+          <p className="text-2xl">Balkendiagramm</p>
         </div>
 
-        {/* untere große Box */}
-        <div className="bg-indigo-200 rounded-xl p-4">
-          <GroupInfo />
+        {/* Debt by Category */}
+        <div className="bg-gray-200 rounded-md p-2">
+          <h4>Schulden nach Kategorie</h4>
+          <p className="text-2xl">Kreisdiagramm</p>
         </div>
+
+        {/* Money spent by Person */}
+        <div className="bg-gray-200 rounded-md p-2">
+          <h4>Ausgaben nach Person</h4>
+          <p className="text-2xl">Balkendiagramm</p>
+        </div>
+
+        {/* Overall Debt (volle Breite) */}
+        <div className="bg-gray-200 rounded-md p-2 md:col-span-3">
+          <h4>Schuldenübersicht</h4>
+          <p className="text-2xl">
+            Liniendiagramm - Schulden[€] in den letzten 30 Tagen (von ganz links
+            nach ganz rechts)
+          </p>
+        </div>
+
+        {/* Last Spendings */}
+        <GroupSpendings />
       </div>
     </div>
   );
