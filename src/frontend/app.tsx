@@ -6,6 +6,7 @@ import { CallbackPage } from "./pages/callback-page";
 import { HomePage } from "./pages/home-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { GuardedPage } from "./pages/guarded-page";
+import { GroupsPage } from "./pages/groups-page";
 
 export const App = () => {
   const { isLoading } = useAuth0();
@@ -25,6 +26,7 @@ export const App = () => {
         path="/profile"
         element={<AuthenticationGuard component={GuardedPage} />}
       />
+      <Route path="/groups" element={<GroupsPage />} />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

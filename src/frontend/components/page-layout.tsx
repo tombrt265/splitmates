@@ -12,7 +12,9 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
     <div className="flex flex-row md:h-screen w-full">
       <NavBar />
       {/* <MobileNavBar /> */}
-      <div className="flex-1 basis-auto shrink-0 flex flex-col">{children}</div>
+      <div className="flex-1 basis-auto shrink-0 flex flex-col h-full">
+        {children}
+      </div>
       {/* <PageFooter /> */}
     </div>
   );
