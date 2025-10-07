@@ -13,16 +13,13 @@ export const Auth0ProviderWithNavigate = ({
 
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
-  const redirectUrl =
-    import.meta.env.VITE_VERCEL_ENV === "production"
-      ? `https://${window.location.hostname}/callback`
-      : import.meta.env.VITE_AUTH0_CALLBACK_URL;
+  const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL;
 
   const onRedirectCallback = (appState: AppState | undefined) => {
     navigate(appState?.returnTo || window.location.pathname);
   };
 
-  if (!(domain && clientId && redirectUrl)) {
+  if (!(domain && clientId && redirectUri)) {
     console.error("Auth0 configuration is missing.");
     return null;
   }
@@ -32,7 +29,7 @@ export const Auth0ProviderWithNavigate = ({
       domain={domain}
       clientId={clientId}
       authorizationParams={{
-        redirect_uri: redirectUrl,
+        redirect_uri: redirectUri,
       }}
       onRedirectCallback={onRedirectCallback}
     >
