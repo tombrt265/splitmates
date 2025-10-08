@@ -4,7 +4,6 @@ import { LogoutButton } from "../../buttons/logout-button";
 
 export const NavBarButtons = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { isAuthenticated } = useAuth0();
-  const iconProfile = "icon-profile.svg";
 
   return (
     <div className="mt-auto flex flex-col items-center gap-4 w-full">
@@ -12,10 +11,6 @@ export const NavBarButtons = ({ isCollapsed }: { isCollapsed: boolean }) => {
         <LoginButton isCollapsed={isCollapsed} />
       ) : (
         <>
-          <button className="flex gap-2 items-center">
-            <img src={iconProfile} alt="Profile" className="h-12" />
-            {!isCollapsed && <h6>Profilname</h6>}
-          </button>
           <LogoutButton isCollapsed={isCollapsed} />
         </>
       )}
