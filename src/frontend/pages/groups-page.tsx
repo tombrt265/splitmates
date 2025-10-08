@@ -25,7 +25,6 @@ export const GroupsPage = () => {
     console.log("Group clicked:", group);
   };
 
-
   return (
     <PageLayout>
       <div className="flex flex-col items-center justify-center h-full">
@@ -45,11 +44,14 @@ export const GroupsPage = () => {
           </ul>
           <button
             className="bg-indigo-500 rounded-lg p-2 mt-4"
-            onClick={() => {setDialogOpen(true); console.log("Create Group clicked")}}
+            onClick={() => {
+              setDialogOpen(true);
+              console.log("Create Group clicked");
+            }}
           >
             <h6 className="text-white!">Gruppe erstellen</h6>
           </button>
-          <GroupsDialog 
+          <GroupsDialog
             dialogState={dialogOpen}
             onClose={() => setDialogOpen(false)}
           />

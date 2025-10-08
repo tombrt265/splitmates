@@ -29,7 +29,11 @@ export const Dialog = ({
     <dialog
       ref={dialogRef}
       onCancel={closeDialog}
-      className={"z-400 fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center flex-col justify-center bg-opacity-50 rounded-3xl p-4" + " " + className}
+      className={
+        "z-400 fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center flex-col justify-center bg-opacity-50 rounded-3xl p-4" +
+        " " +
+        className
+      }
     >
       {children}
     </dialog>
