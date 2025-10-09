@@ -1,0 +1,15 @@
+Stakeholderanalyse:
+
+1. Entwicklungsteam 
+	wollen wartbare und testbare Software
+2. Nutzer
+	erwartem benutzerfreundliche Software
+    Datenschutz
+3. Dozentin
+    stellt Bewertungskriterien
+4. Regierung 
+    Ordnungsgemäße Geld- und Kontoverwaltung 
+    Datenschutz
+    Impressum
+5. Matthias Sülzer 
+    möchte Software verkaufen, die bei Urlaubsausgaben hilft
