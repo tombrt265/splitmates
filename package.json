@@ -5,11 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node src/backend/server.js",
+    "start:server": "NODE_ENV=production node src/backend/server.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
     "@auth0/auth0-react": "^2.4.0",
     "@tailwindcss/vite": "^4.1.12",
     "react": "^19.1.1",

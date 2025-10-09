@@ -8,9 +8,14 @@ import { ImageUploader } from "./image-uploader";
 interface GroupsDialogProps {
   dialogState: boolean;
   onClose: () => void;
+  updateGroups: () => void;
 }
 
-export const GroupsDialog = ({ dialogState, onClose }: GroupsDialogProps) => {
+export const GroupsDialog = ({
+  dialogState,
+  onClose,
+  updateGroups,
+}: GroupsDialogProps) => {
   const link = "https://example.com/splitmates";
   const [groupSetUp, setGroupSetUp] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -23,21 +28,25 @@ export const GroupsDialog = ({ dialogState, onClose }: GroupsDialogProps) => {
       alert("Bitte füllen Sie alle Felder aus.");
       return;
     }
+    const res = await fetch("http://localhost:5000/api/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: groupName,
+        category: category,
+        avatar_url: "https://example.com/avatar.jpg",
+        auth0_sub: userId,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
+
+    const group = await res.json();
+    console.log("Neue Gruppe:", group);
+
     setGroupSetUp(true);
-    try {
-      const response = await fetch("/api/groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupName, category, userId }),
-      });
-      if (response.ok) {
-        console.log("Group created successfully");
-      } else {
-        console.error("Failed to create group");
-      }
-    } catch (error) {
-      console.error("Error creating group:", error);
-    }
+
+    updateGroups();
   };
 
   const handleClose = () => {

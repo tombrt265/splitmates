@@ -1,29 +1,38 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { PageLayout } from "../components/page-layout";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
 
+interface Group {
+  id: number;
+  name: string;
+  category: string;
+  avatar_url: string;
+  owner_id: number;
+}
+
 export const GroupsPage = () => {
-  const group = ["Gruppe 1", "Gruppe 2", "Grauppe 3"];
-  const userId = useAuth0().user?.sub;
-  const [groups, setGroups] = useState<string[]>(group);
+  const { user, isLoading } = useAuth0();
+  const userId = user?.sub;
+  const [groups, setGroups] = useState<Group[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      const res = await fetch(
-        `/api/groups?userId=${encodeURIComponent(userId || "")}`
-      );
-      if (!res.ok) throw new Error("Failed to fetch groups");
-      const json = await res.json();
-      setGroups(json);
-    };
-    fetchGroups();
-  });
+  const fetchGroups = useCallback(async () => {
+    const res = await fetch(
+      `http://localhost:5000/api/groups?user_id=${encodeURIComponent(
+        userId || ""
+      )}`
+    );
+    if (!res.ok) throw new Error("Failed to fetch groups");
+    const json = await res.json();
+    setGroups(json);
+  }, [userId]);
 
-  const handleGroupClick = (group: string) => {
-    console.log("Group clicked:", group);
-  };
+  useEffect(() => {
+    if (!isLoading && userId) {
+      fetchGroups();
+    }
+  }, [isLoading, userId, fetchGroups]);
 
   return (
     <PageLayout>
@@ -32,12 +41,9 @@ export const GroupsPage = () => {
           <h3>Meine Gruppen</h3>
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
-              <li key={group}>
-                <button
-                  className="w-full bg-white rounded-lg p-2 cursor-pointer"
-                  onClick={() => handleGroupClick(group)}
-                >
-                  <h6>{group}</h6>
+              <li key={group.id}>
+                <button className="w-full bg-white rounded-lg p-2 cursor-pointer">
+                  <h6>{group.name}</h6>
                 </button>
               </li>
             ))}
@@ -54,6 +60,7 @@ export const GroupsPage = () => {
           <GroupsDialog
             dialogState={dialogOpen}
             onClose={() => setDialogOpen(false)}
+            updateGroups={fetchGroups}
           />
         </div>
       </div>
