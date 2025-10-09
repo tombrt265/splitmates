@@ -2,6 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { PageLayout } from "../components/page-layout";
 import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
+import { useNavigate } from "react-router-dom";
 
 interface Group {
   id: number;
@@ -16,6 +17,7 @@ export const GroupsPage = () => {
   const userId = user?.sub;
   const [groups, setGroups] = useState<Group[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const fetchGroups = useCallback(async () => {
     const res = await fetch(
@@ -34,6 +36,10 @@ export const GroupsPage = () => {
     }
   }, [isLoading, userId, fetchGroups]);
 
+  const handleGroupClick = (groupId: number) => {
+    navigate(`/groups/${groupId}`);
+  };
+
   return (
     <PageLayout>
       <div className="flex flex-col items-center justify-center h-full">
@@ -42,7 +48,10 @@ export const GroupsPage = () => {
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
               <li key={group.id}>
-                <button className="w-full bg-white rounded-lg p-2 cursor-pointer">
+                <button
+                  onClick={() => handleGroupClick(group.id)}
+                  className="w-full bg-white rounded-lg p-2 cursor-pointer"
+                >
                   <h6>{group.name}</h6>
                 </button>
               </li>

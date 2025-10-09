@@ -25,9 +25,9 @@ export const App = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/dashboard" element={<GroupOverviewPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/groups" element={<GroupsPage />} />
+      <Route path="/groups/:groupId" element={<GroupOverviewPage />} />
       <Route path="/join" element={<JoinGroupPage />} />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotFoundPage />} />
