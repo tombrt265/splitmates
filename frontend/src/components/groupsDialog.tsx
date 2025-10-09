@@ -1,6 +1,6 @@
 import { FiCopy } from "react-icons/fi";
 import { FiCheck } from "react-icons/fi";
-import { Dialog } from "../components/shared/dialog";
+import { Dialog } from "./shared/dialog";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ImageUploader } from "./image-uploader";
