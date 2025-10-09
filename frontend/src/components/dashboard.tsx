@@ -1,5 +1,5 @@
-import { GroupCard } from "../src/components/groupCard/group-card";
-import { GroupMembers } from "../src/components/groupCard/group-members";
+import { GroupCard } from "./groupCard/group-card";
+import { GroupMembers } from "./groupCard/group-members";
 
 export const Dashboard = () => {
   return (

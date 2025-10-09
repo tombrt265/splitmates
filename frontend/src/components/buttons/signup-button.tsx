@@ -1,4 +1,4 @@
-import { useSignUp } from "../../src/hooks/useSignUp";
+import { useSignUp } from "../../hooks/useSignUp";
 
 export const SignupButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { handleSignUp } = useSignUp();

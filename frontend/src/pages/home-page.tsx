@@ -1,4 +1,4 @@
-import { useSignUp } from "../src/hooks/useSignUp";
+import { useSignUp } from "../hooks/useSignUp";
 
 export const HomePage = () => {
   const { handleSignUp } = useSignUp();
