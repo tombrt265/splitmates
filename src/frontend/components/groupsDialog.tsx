@@ -16,7 +16,7 @@ export const GroupsDialog = ({
   onClose,
   updateGroups,
 }: GroupsDialogProps) => {
-  const link = "https://example.com/splitmates";
+  const [link, setLink] = useState("");
   const [groupSetUp, setGroupSetUp] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -42,11 +42,10 @@ export const GroupsDialog = ({
     if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
 
     const group = await res.json();
-    console.log("Neue Gruppe:", group);
 
     setGroupSetUp(true);
-
     updateGroups();
+    getGroupLink(group.id);
   };
 
   const handleClose = () => {
@@ -55,6 +54,21 @@ export const GroupsDialog = ({
     setGroupSetUp(false);
     setCopySuccess(false);
     onClose();
+  };
+
+  const getGroupLink = async (groupId: string) => {
+    console.log("Gruppen-ID für Link:", groupId);
+    const res = await fetch(
+      "http://localhost:5000/api/groups/" + groupId + "/invite",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    if (!res.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
+
+    const data = await res.json();
+    setLink(data.invite_link);
   };
 
   return (

@@ -8,6 +8,7 @@ import { GroupsPage } from "./pages/groups-page";
 import { SettingsPage } from "./pages/settings-page";
 import { GroupOverviewPage } from "./pages/group-overview-page";
 import { ProfilePage } from "./pages/profile-page";
+import { JoinGroupPage } from "./pages/join-group-page";
 
 export const App = () => {
   const { isLoading } = useAuth0();
@@ -27,6 +28,7 @@ export const App = () => {
       <Route path="/dashboard" element={<GroupOverviewPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/groups" element={<GroupsPage />} />
+      <Route path="/join" element={<JoinGroupPage />} />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

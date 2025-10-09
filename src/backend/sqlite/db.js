@@ -79,6 +79,16 @@ function initSchema(instance) {
       unique (expense_id, user_id)
     );
 
+    create table if not exists invite_tokens (
+      id integer primary key autoincrement,
+      token text not null unique,
+      group_id integer not null references groups(id) on delete cascade,
+      max_uses integer,
+      current_uses integer not null default 0,
+      expires_at text not null,
+      created_at text not null default (datetime('now'))
+    );
+
     create index if not exists idx_groups_owner on groups(owner_id);
     create index if not exists idx_members_user on group_members(user_id);
     create index if not exists idx_expenses_group on expenses(group_id);

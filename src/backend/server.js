@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -18,6 +19,10 @@ app.use(
 );
 app.use(express.json());
 
+function generateToken(length = 32) {
+  return crypto.randomBytes(length).toString("hex");
+}
+
 // ##################
 //     API Routes
 // ##################
@@ -31,6 +36,86 @@ app.get("/api/health", (_req, res) => {
     status: "ok",
     sqlite: sqliteVersion,
     time: new Date().toISOString(),
+  });
+});
+
+// POST /api/groups/:groupId/invite
+// Creates an invite token for the group
+app.post("/api/groups/:groupId/invite", (req, res) => {
+  const db = getDb();
+  const { groupId } = req.params;
+
+  // Prüfen ob Gruppe existiert
+  const group = db.prepare("select * from groups where id = ?").get(groupId);
+  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+
+  // Token erzeugen
+  const token = generateToken(16);
+
+  // Ablaufdatum = jetzt + 2 Tage
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 2);
+  const expiresAtISO = expiresAt.toISOString();
+
+  // In DB speichern, max_uses = null → unlimitiert
+  db.prepare(
+    `
+    insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
+    values (?, ?, null, 0, ?)
+  `
+  ).run(token, groupId, expiresAtISO);
+
+  res.json({ invite_link: `https://meinewebseite.de/join?token=${token}` });
+});
+
+// POST /api/groups/join
+// Joins the user to the group associated with the invite token
+app.post("/api/groups/join", (req, res) => {
+  const db = getDb();
+  const { token, auth0_sub } = req.body;
+
+  if (!token || !auth0_sub)
+    return res.status(400).json({ error: "token und auth0_sub erforderlich" });
+
+  const invite = db
+    .prepare(`select * from invite_tokens where token = ?`)
+    .get(token);
+  if (!invite) return res.status(404).json({ error: "Ungültiger Token" });
+
+  // Prüfen Ablaufdatum
+  if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+    return res.status(400).json({ error: "Token abgelaufen" });
+  }
+
+  // Nutzer existiert ggf. erstellen
+  let user = db
+    .prepare("select id from users where auth0_sub = ?")
+    .get(auth0_sub);
+  if (!user) {
+    const result = db
+      .prepare(
+        "insert into users (auth0_sub, name, username, email) values (?, ?, ?, ?)"
+      )
+      .run(auth0_sub, "Neuer User", null, null);
+    user = { id: result.lastInsertRowid };
+  }
+
+  // Nutzer zur Gruppe hinzufügen
+  db.prepare(
+    `
+    insert or ignore into group_members (group_id, user_id, role, is_active)
+    values (?, ?, 'member', 1)
+  `
+  ).run(invite.group_id, user.id);
+
+  // Token Verwendung hochzählen (optional)
+  db.prepare(
+    `update invite_tokens set current_uses = current_uses + 1 where token = ?`
+  ).run(token);
+
+  res.json({
+    message: "Erfolgreich der Gruppe beigetreten",
+    group_id: invite.group_id,
   });
 });
 
