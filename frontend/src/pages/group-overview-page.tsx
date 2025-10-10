@@ -3,6 +3,7 @@ import { GroupCard } from "../components/groupCard/group-card";
 import { GroupMembers } from "../components/groupCard/group-members";
 import { PageLayout } from "../components/page-layout";
 import { useEffect, useState } from "react";
+import { API_BASE } from "../api";
 
 
 export const GroupOverviewPage = () => {
@@ -16,7 +17,7 @@ export const GroupOverviewPage = () => {
   useEffect(() => {
     if (!groupId) return;
     setLoading(true);
-    fetch(`/api/groups/${groupId}/overview`)
+    fetch(`${API_BASE}/api/groups/${groupId}/overview`)
       .then((res) => res.json())
       .then((data) => {
         setGroup(data);
