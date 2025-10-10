@@ -15,6 +15,8 @@ export const Auth0ProviderWithNavigate = ({
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
   const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL;
 
+  console.log("ENV", import.meta.env);
+
   const onRedirectCallback = (appState: AppState | undefined) => {
     navigate(appState?.returnTo || window.location.pathname);
   };
