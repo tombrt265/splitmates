@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { API_BASE } from "../api";
 
 export const JoinGroupPage = () => {
   const { user, isLoading } = useAuth0();
@@ -22,7 +23,7 @@ export const JoinGroupPage = () => {
       if (!userId) return; // Warte auf Auth0
 
       try {
-        const res = await fetch("http://localhost:5000/api/groups/join", {
+        const res = await fetch(`${API_BASE}/api/groups/join`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
