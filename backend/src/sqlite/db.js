@@ -67,7 +67,6 @@ function initSchema(instance) {
       currency text not null default 'EUR',
       description text,
       category text,
-      expense_date text not null default (date('now')),
       created_at text not null default (datetime('now'))
     );
 
