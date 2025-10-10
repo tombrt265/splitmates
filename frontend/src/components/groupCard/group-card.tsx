@@ -1,6 +1,10 @@
 import { GroupSpendings } from "./group-spendings";
 
-export const GroupCard = () => {
+interface GroupCardProps {
+  expenses?: { id: number; description: string; amount: number; paidBy: string; date: string }[];
+}
+
+export const GroupCard = ({expenses}:GroupCardProps) => {
   return (
     <div className="bg-gray-100 rounded-xl md:row-span-1 p-4 order-1 md:order-0">
       <div className="grid gap-4 h-full grid-cols-1 md:grid-cols-3 md:grid-rows-3">
@@ -32,7 +36,7 @@ export const GroupCard = () => {
         </div>
 
         {/* Last Spendings */}
-        <GroupSpendings />
+        <GroupSpendings expenses={expenses}/>
       </div>
     </div>
   );

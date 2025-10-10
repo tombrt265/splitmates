@@ -202,6 +202,43 @@ app.post("/api/groups", (req, res) => {
   }
 });
 
+app.get("/api/groups/:groupId/overview", (req, res) => {
+  const db = getDb();
+  const { groupId } = req.params;
+
+  // Gruppe holen
+  const group = db.prepare("select * from groups where id = ?").get(groupId);
+  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+
+  // Mitglieder holen
+  const members = db.prepare(`
+    select u.id, u.name, u.username, u.email
+    from group_members gm
+    join users u on u.id = gm.user_id
+    where gm.group_id = ?
+  `).all(groupId);
+
+  // Letzte 10 Ausgaben holen
+  const expenses = db.prepare(`
+    select e.id, e.description, e.amount_cents, e.currency, e.created_at, u.name as paidBy
+    from expenses e
+    join users u on u.id = e.payer_id
+    where e.group_id = ?
+    order by e.created_at desc
+    limit 10
+  `).all(groupId);
+
+  res.json({
+    id: group.id,
+    name: group.name,
+    category: group.category,
+    avatar_url: group.avatar_url,
+    created_at: group.created_at,
+    members,
+    expenses,
+  });
+});
+
 // Placeholder root
 app.get("/", (_req, res) => {
   res.send("Splitmates backend is running. See /api/health.");
