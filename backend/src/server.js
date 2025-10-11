@@ -44,7 +44,9 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
     [token, groupId, expiresAt]
   );
 
-  res.json({ invite_link: `https://meinewebseite.de/join?token=${token}` });
+  res.json({
+    invite_link: `https://splitmates.vercel.app/join?token=${token}`,
+  });
 });
 
 // POST /api/groups/join
@@ -53,14 +55,18 @@ app.post("/api/groups/join", async (req, res) => {
   if (!token || !auth0_sub)
     return res.status(400).json({ error: "token und auth0_sub erforderlich" });
 
-  const invite = await qOne(`select * from invite_tokens where token = $1`, [token]);
+  const invite = await qOne(`select * from invite_tokens where token = $1`, [
+    token,
+  ]);
   if (!invite) return res.status(404).json({ error: "Ungültiger Token" });
 
   if (invite.expires_at && new Date(invite.expires_at) < new Date())
     return res.status(400).json({ error: "Token abgelaufen" });
 
   // upsert user by auth0_sub (simplified)
-  let user = await qOne("select id from users where auth0_sub = $1", [auth0_sub]);
+  let user = await qOne("select id from users where auth0_sub = $1", [
+    auth0_sub,
+  ]);
   if (!user) {
     user = await qOne(
       `insert into users (auth0_sub, name, username, email)
@@ -84,15 +90,23 @@ app.post("/api/groups/join", async (req, res) => {
     [token]
   );
 
-  res.json({ message: "Erfolgreich der Gruppe beigetreten", group_id: invite.group_id });
+  res.json({
+    message: "Erfolgreich der Gruppe beigetreten",
+    group_id: invite.group_id,
+  });
 });
 
 // GET /api/groups?user_id=<auth0_sub>
 app.get("/api/groups", async (req, res) => {
   const { user_id } = req.query; // = auth0_sub
-  if (!user_id) return res.status(400).json({ error: "user_id query parameter is required" });
+  if (!user_id)
+    return res
+      .status(400)
+      .json({ error: "user_id query parameter is required" });
 
-  const user = await qOne("select id from users where auth0_sub = $1", [user_id]);
+  const user = await qOne("select id from users where auth0_sub = $1", [
+    user_id,
+  ]);
   if (!user) return res.json([]);
 
   const groups = await qAll(
@@ -118,7 +132,9 @@ app.post("/api/groups", async (req, res) => {
   }
 
   try {
-    let user = await qOne("select id from users where auth0_sub = $1", [auth0_sub]);
+    let user = await qOne("select id from users where auth0_sub = $1", [
+      auth0_sub,
+    ]);
     if (!user) {
       user = await qOne(
         `insert into users (auth0_sub, name, username, email)
@@ -186,7 +202,9 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
 
 // Root
 app.get("/", (_req, res) => {
-  res.send("Splitmates backend (Supabase Postgres) is running. See /api/health.");
+  res.send(
+    "Splitmates backend (Supabase Postgres) is running. See /api/health."
+  );
 });
 
 const port = Number(process.env.PORT || 5000);
