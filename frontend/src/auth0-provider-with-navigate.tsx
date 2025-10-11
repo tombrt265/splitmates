@@ -23,9 +23,18 @@ export const Auth0ProviderWithNavigate = ({
     navigate(appState?.returnTo || window.location.pathname);
   };
 
-  if (!redirectUri) console.warn("Redirect URI is not set.");
-  if (!domain) console.warn("Auth0 domain is not set.");
-  if (!clientId) console.warn("Auth0 client ID is not set.");
+  if (!redirectUri) {
+    console.warn("Redirect URI is not set.");
+    return null;
+  }
+  if (!domain) {
+    console.warn("Auth0 domain is not set.");
+    return null;
+  }
+  if (!clientId) {
+    console.warn("Auth0 client ID is not set.");
+    return null;
+  }
 
   return (
     <Auth0Provider
