@@ -2,9 +2,11 @@ import { GroupSpendings } from "./group-spendings";
 
 interface GroupCardProps {
   expenses?: { id: number; description: string; amount: number; paidBy: string; date: string }[];
+  updateExpenses: () => void;
+  members: { name: string; icon: string }[];
 }
 
-export const GroupCard = ({expenses}:GroupCardProps) => {
+export const GroupCard = ({ expenses, updateExpenses, members }: GroupCardProps) => {
   return (
     <div className="bg-gray-100 rounded-xl md:row-span-1 p-4 order-1 md:order-0">
       <div className="grid gap-4 h-full grid-cols-1 md:grid-cols-3 md:grid-rows-3">
@@ -36,7 +38,7 @@ export const GroupCard = ({expenses}:GroupCardProps) => {
         </div>
 
         {/* Last Spendings */}
-        <GroupSpendings expenses={expenses}/>
+        <GroupSpendings expenses={expenses} updateExpenses={updateExpenses} members={members}/>
       </div>
     </div>
   );
