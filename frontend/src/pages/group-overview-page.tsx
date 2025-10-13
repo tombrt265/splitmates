@@ -4,6 +4,7 @@ import { GroupMembers } from "../components/groupCard/group-members";
 import { PageLayout } from "../components/page-layout";
 import { use, useCallback, useEffect, useState } from "react";
 import { User } from "@auth0/auth0-react";
+import { API_BASE } from "../api";
 
 
 export const GroupOverviewPage = () => {
@@ -15,7 +16,7 @@ export const GroupOverviewPage = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchGroupInfo = useCallback(async () => {
-    const res = await fetch(`/api/groups/${groupId}/overview`);
+    const res = await fetch(`${API_BASE}/api/groups/${groupId}/overview`);
     if (!res.ok) throw new Error("Fehler beim Laden der Gruppendaten");
     const data = await res.json();
     setGroup(data);
@@ -24,7 +25,7 @@ export const GroupOverviewPage = () => {
 
   useEffect(() => {
     fetchGroupInfo();
-  }), [fetchGroupInfo];
+  }, [fetchGroupInfo]);
 
   if (loading) return <PageLayout>Lädt...</PageLayout>;
   if (!group) return <PageLayout>Gruppe nicht gefunden</PageLayout>;

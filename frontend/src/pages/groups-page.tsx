@@ -3,6 +3,7 @@ import { PageLayout } from "../components/page-layout";
 import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api";
 
 interface Group {
   id: number;
@@ -21,7 +22,7 @@ export const GroupsPage = () => {
 
   const fetchGroups = useCallback(async () => {
     const res = await fetch(
-      `http://localhost:5000/api/groups?user_id=${encodeURIComponent(
+      `${API_BASE}/api/groups?user_id=${encodeURIComponent(
         userId || ""
       )}`
     );

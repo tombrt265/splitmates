@@ -1,9 +1,9 @@
-import { FiCopy } from "react-icons/fi";
-import { FiCheck } from "react-icons/fi";
-import { Dialog } from "./shared/dialog";
-import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
+import { FiCheck, FiCopy } from "react-icons/fi";
+import { API_BASE } from "../api";
 import { ImageUploader } from "./image-uploader";
+import { Dialog } from "./shared/dialog";
 
 interface GroupsDialogProps {
   dialogState: boolean;
@@ -28,7 +28,7 @@ export const GroupsDialog = ({
       alert("Bitte füllen Sie alle Felder aus.");
       return;
     }
-    const res = await fetch("http://localhost:5000/api/groups", {
+    const res = await fetch(`${API_BASE}/api/groups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -59,7 +59,7 @@ export const GroupsDialog = ({
   const getGroupLink = async (groupId: string) => {
     console.log("Gruppen-ID für Link:", groupId);
     const res = await fetch(
-      "http://localhost:5000/api/groups/" + groupId + "/invite",
+      `${API_BASE}/api/groups/` + groupId + "/invite",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
