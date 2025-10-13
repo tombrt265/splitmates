@@ -29,9 +29,6 @@ export const GroupMembers = ({members, name, category, date}: GroupMembersProps)
           </li>
         ))}
       </ul>
-      <button className="mt-2 p-2 bg-blue-500 text-white rounded-md">
-        <span className="text-xl">Neues Mitglied hinzufügen</span>
-      </button>
       <button className="p-2 bg-red-500 text-white rounded-md mt-auto">
         <span className="text-xl">Gruppe entfernen</span>
       </button>

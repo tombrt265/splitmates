@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { GroupCard } from "../components/groupCard/group-card";
 import { GroupMembers } from "../components/groupCard/group-members";
 import { PageLayout } from "../components/page-layout";
+import { use, useCallback, useEffect, useState } from "react";
+import { User } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { API_BASE } from "../api";
 
@@ -14,17 +16,17 @@ export const GroupOverviewPage = () => {
   const [group, setGroup] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!groupId) return;
-    setLoading(true);
-    fetch(`${API_BASE}/api/groups/${groupId}/overview`)
-      .then((res) => res.json())
-      .then((data) => {
-        setGroup(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+  const fetchGroupInfo = useCallback(async () => {
+    const res = await fetch(`${API_BASE}/api/groups/${groupId}/overview`);
+    if (!res.ok) throw new Error("Fehler beim Laden der Gruppendaten");
+    const data = await res.json();
+    setGroup(data);
+    setLoading(false);
   }, [groupId]);
+
+  useEffect(() => {
+    fetchGroupInfo();
+  }, [fetchGroupInfo]);
 
   if (loading) return <PageLayout>Lädt...</PageLayout>;
   if (!group) return <PageLayout>Gruppe nicht gefunden</PageLayout>;
@@ -53,8 +55,8 @@ export const GroupOverviewPage = () => {
   return (
     <PageLayout>
       <div className="h-full p-4 grid gap-4 md:grid-cols-[4fr_1fr] md:grid-rows-1">
-        <GroupCard expenses={expenses} />
-        <GroupMembers members={groupMembers} name={groupName} category={category} date={creationDate}/>
+        <GroupCard expenses={expenses} updateExpenses={fetchGroupInfo} members={groupMembers} />
+        <GroupMembers members={groupMembers} name={groupName} category={category} date={creationDate} />
       </div>
     </PageLayout>
   );
