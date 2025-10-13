@@ -13,21 +13,15 @@ export const NavBarTabs = ({ isCollapsed }: { isCollapsed: boolean }) => {
         <>
           <NavBarTab
             path="/groups"
-            label="Gruppen"
+            label="Groups"
             isCollapsed={isCollapsed}
             icon={iconGroups}
           />
           <NavBarTab
-            path="/profile"
-            label="Profil"
+            path="/account"
+            label="My Account"
             isCollapsed={isCollapsed}
             icon={iconProfile}
-          />
-          <NavBarTab
-            path="/settings"
-            label="Einstellungen"
-            isCollapsed={isCollapsed}
-            icon={iconSettings}
           />
         </>
       )}

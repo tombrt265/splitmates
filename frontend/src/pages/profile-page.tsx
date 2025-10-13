@@ -4,9 +4,11 @@ import { ProfileView } from "../components/profile-page/profile-view";
 import { SecurityView } from "../components/profile-page/security-view";
 import { BillingView } from "../components/profile-page/billing-view";
 import { NotificationsView } from "../components/profile-page/notifications-view";
+import { GeneralView } from "../components/profile-page/general-view";
 
 enum ViewMode {
   PROFILE = "My Profile",
+  GENERAL = "General",
   SECURITY = "Security",
   NOTIFICATIONS = "Notifications",
   BILLING = "Billing",
@@ -19,6 +21,8 @@ export const ProfilePage = () => {
     switch (view) {
       case ViewMode.PROFILE:
         return <ProfileView />;
+      case ViewMode.GENERAL:
+        return <GeneralView />;
       case ViewMode.SECURITY:
         return <SecurityView />;
       case ViewMode.NOTIFICATIONS:
