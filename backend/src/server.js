@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import crypto from "crypto";
-import { qOne, qAll, exec } from "./db.js";
+import { qOne, qAll, exec, pool } from "./db.js";
 
 dotenv.config();
 
@@ -189,7 +189,37 @@ app.get("/", (_req, res) => {
   res.send("Splitmates backend (Supabase Postgres) is running. See /api/health.");
 });
 
+async function waitForDatabase() {
+  const retries = Number.parseInt(process.env.DB_CONNECT_RETRIES ?? "", 10) || 5;
+  const delayMs = Number.parseInt(process.env.DB_CONNECT_RETRY_DELAY_MS ?? "", 10) || 2000;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await pool.query("select 1");
+      const attemptInfo = attempt > 1 ? ` after ${attempt} attempts` : "";
+      console.log(`Database connection established${attemptInfo}`);
+      return;
+    } catch (err) {
+      console.error(
+        `Database connection attempt ${attempt} of ${retries} failed: ${err.message}`
+      );
+      if (attempt === retries) {
+        throw err;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
 const port = Number(process.env.PORT || 5000);
-app.listen(port, () => {
-  console.log(`Server listening on :${port}`);
-});
+
+waitForDatabase()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server listening on :${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to the database, shutting down.", err);
+    process.exit(1);
+  });
