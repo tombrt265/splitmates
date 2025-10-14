@@ -7,11 +7,10 @@ import { qOne, qAll, exec } from "./db.js";
 dotenv.config();
 
 const app = express();
-app.set("trust proxy", 1);
 
 // CORS: für Beta reicht eine Domain oder alles offen
 const allowedOrigin = process.env.CORS_ORIGIN || "*";
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+app.use(cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true }));
 app.use(express.json());
 
 // -------- Helpers ----------
