@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export const LogoutButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { logout } = useAuth0();
-  const iconLogout = "icon-logout.svg";
+  const iconLogout = "/icon-logout.svg";
 
   const handleLogout = () => {
     logout({

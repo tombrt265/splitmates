@@ -22,9 +22,7 @@ export const GroupsPage = () => {
 
   const fetchGroups = useCallback(async () => {
     const res = await fetch(
-      `${API_BASE}/api/groups?user_id=${encodeURIComponent(
-        userId || ""
-      )}`
+      `${API_BASE}/api/groups?user_id=${encodeURIComponent(userId || "")}`
     );
     if (!res.ok) throw new Error("Failed to fetch groups");
     const json = await res.json();
@@ -45,7 +43,7 @@ export const GroupsPage = () => {
     <PageLayout>
       <div className="flex flex-col items-center justify-center h-full">
         <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h3>Meine Gruppen</h3>
+          <h3>My Groups</h3>
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
               <li key={group.id}>
@@ -65,7 +63,7 @@ export const GroupsPage = () => {
               console.log("Create Group clicked");
             }}
           >
-            <h6 className="text-white!">Gruppe erstellen</h6>
+            <h6 className="text-white!">Create Group</h6>
           </button>
           <GroupsDialog
             dialogState={dialogOpen}
