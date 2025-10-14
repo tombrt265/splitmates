@@ -69,6 +69,7 @@ export const GroupsPage = () => {
             dialogState={dialogOpen}
             onClose={() => setDialogOpen(false)}
             updateGroups={fetchGroups}
+            viewGroup={handleGroupClick}
           />
         </div>
       </div>
