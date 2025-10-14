@@ -5,7 +5,6 @@ import { CallbackPage } from "./pages/callback-page";
 import { HomePage } from "./pages/home-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { GroupsPage } from "./pages/groups-page";
-import { SettingsPage } from "./pages/settings-page";
 import { GroupOverviewPage } from "./pages/group-overview-page";
 import { ProfilePage } from "./pages/profile-page";
 import { JoinGroupPage } from "./pages/join-group-page";
@@ -24,8 +23,7 @@ export const App = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/account" element={<ProfilePage />} />
       <Route path="/groups" element={<GroupsPage />} />
       <Route path="/groups/:groupId" element={<GroupOverviewPage />} />
       <Route path="/join" element={<JoinGroupPage />} />

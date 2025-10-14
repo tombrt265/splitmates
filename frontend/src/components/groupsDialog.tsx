@@ -58,13 +58,10 @@ export const GroupsDialog = ({
 
   const getGroupLink = async (groupId: string) => {
     console.log("Gruppen-ID für Link:", groupId);
-    const res = await fetch(
-      `${API_BASE}/api/groups/` + groupId + "/invite",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const res = await fetch(`${API_BASE}/api/groups/` + groupId + "/invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
     if (!res.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
 
     const data = await res.json();
@@ -80,7 +77,7 @@ export const GroupsDialog = ({
       <ImageUploader />
       <input
         type="text"
-        placeholder="Gruppenname"
+        placeholder="Group Name"
         className="border border-gray-300 rounded p-2 w-full mt-4 mb-5"
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
@@ -91,18 +88,18 @@ export const GroupsDialog = ({
         onChange={(e) => setCategory(e.target.value)}
       >
         <option value="" disabled selected>
-          Kategorie Auswählen
+          Select Category
         </option>
-        <option value="Essen">Essen</option>
-        <option value="Reisen">Reisen</option>
-        <option value="Wohnen">Wohnen</option>
-        <option value="Freizeit">Freizeit</option>
-        <option value="Sonstiges">Sonstiges</option>
+        <option value="food">Food</option>
+        <option value="travel">Travel</option>
+        <option value="housing">Housing</option>
+        <option value="leisure">Leisure</option>
+        <option value="other">Other</option>
       </select>
       {groupSetUp ? (
         <div className="flex flex-col items-center">
           <p className="mb-4 text-center">
-            Teile den Link unten, um Mitglieder einzuladen:
+            Share this link to invite others to the group:
           </p>
           <div className="bg-white p-2 rounded w-full text-center break-all">
             {link}
@@ -124,7 +121,7 @@ export const GroupsDialog = ({
             }
             className="bg-indigo-500 rounded-lg p-2 mt-4"
           >
-            <h6 className="text-white!">Gruppe Einsehen</h6>
+            <h6 className="text-white!">View Group</h6>
           </button>
         </div>
       ) : (
@@ -132,14 +129,14 @@ export const GroupsDialog = ({
           onClick={() => handleGroupCreation()}
           className="bg-indigo-500 rounded-lg p-2 mt-4"
         >
-          <h6 className="text-white!">Fertig</h6>
+          <h6 className="text-white!">Create Group</h6>
         </button>
       )}
       <button
         onClick={handleClose}
-        className="mt-4 bg-red-500 text-white p-1 rounded"
+        className="mt-4 bg-red-500 text-white py-1 px-4 rounded"
       >
-        <h6>Schließen</h6>
+        <h6>Close</h6>
       </button>
     </Dialog>
   );

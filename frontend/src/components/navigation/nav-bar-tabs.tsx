@@ -3,9 +3,8 @@ import { NavBarTab } from "./nav-bar-tab";
 
 export const NavBarTabs = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { isAuthenticated } = useAuth0();
-  const iconGroups = "icon-groups.svg";
-  const iconSettings = "icon-settings.svg";
-  const iconProfile = "icon-profile.svg";
+  const iconGroups = "/icon-groups.svg";
+  const iconProfile = "/icon-profile.svg";
 
   return (
     <div className="flex flex-col items-start gap-4">
@@ -13,21 +12,15 @@ export const NavBarTabs = ({ isCollapsed }: { isCollapsed: boolean }) => {
         <>
           <NavBarTab
             path="/groups"
-            label="Gruppen"
+            label="Groups"
             isCollapsed={isCollapsed}
             icon={iconGroups}
           />
           <NavBarTab
-            path="/profile"
-            label="Profil"
+            path="/account"
+            label="My Account"
             isCollapsed={isCollapsed}
             icon={iconProfile}
-          />
-          <NavBarTab
-            path="/settings"
-            label="Einstellungen"
-            isCollapsed={isCollapsed}
-            icon={iconSettings}
           />
         </>
       )}

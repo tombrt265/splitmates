@@ -9,7 +9,7 @@ export const useSignUp = () => {
         screen_hint: "signup",
       },
       appState: {
-        returnTo: "/profile",
+        returnTo: "/groups",
       },
     });
   };

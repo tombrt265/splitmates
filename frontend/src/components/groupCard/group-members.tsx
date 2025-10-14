@@ -5,14 +5,18 @@ interface GroupMembersProps {
   category: string;
 }
 
-export const GroupMembers = ({members, name, category, date}: GroupMembersProps) => {
-
+export const GroupMembers = ({
+  members,
+  name,
+  category,
+  date,
+}: GroupMembersProps) => {
   return (
     <div className="bg-gray-200 rounded-xl flex flex-col items-center py-8 order-0 md:order-1">
       <h3>{name}</h3>
       <p>{category}</p>
       <p>{date}</p>
-      <h4>Mitglieder</h4>
+      <h4>Members</h4>
       <ul
         className="w-full flex flex-col items-center overflow-auto"
         style={{
@@ -29,11 +33,8 @@ export const GroupMembers = ({members, name, category, date}: GroupMembersProps)
           </li>
         ))}
       </ul>
-      <button className="mt-2 p-2 bg-blue-500 text-white rounded-md">
-        <span className="text-xl">Neues Mitglied hinzufügen</span>
-      </button>
       <button className="p-2 bg-red-500 text-white rounded-md mt-auto">
-        <span className="text-xl">Gruppe entfernen</span>
+        <span className="text-xl">Delete Group</span>
       </button>
     </div>
   );

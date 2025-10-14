@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export const LoginButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { loginWithRedirect } = useAuth0();
-  const iconLogin = "icon-login.svg";
+  const iconLogin = "/icon-login.svg";
 
   const handleLogin = async () => {
     await loginWithRedirect({
