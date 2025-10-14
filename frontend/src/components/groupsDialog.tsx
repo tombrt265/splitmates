@@ -118,8 +118,9 @@ export const GroupsDialog = ({
             </button>
           </div>
           <button
-            onClick={() => viewGroup(groupId!)}
+            onClick={() => groupId != null && viewGroup(groupId)}
             className="bg-indigo-500 rounded-lg p-2 mt-4"
+            disabled={groupId == null}
           >
             <h6 className="text-white!">View Group</h6>
           </button>
