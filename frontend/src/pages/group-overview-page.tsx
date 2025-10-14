@@ -6,6 +6,25 @@ import { useCallback, useEffect, useState } from "react";
 import { API_BASE } from "../api";
 import { PageLoader } from "../components/page-loader";
 
+interface Group {
+  id: string;
+  name: string;
+  category: string;
+  avatarUrl: string;
+  created_at: string;
+  members: { name: string;
+  avatarUrl: string;
+  userID: string; }[];
+  expenses: {
+    id: number;
+    description: string;
+    amount_cents: number;
+    paidBy: string;
+    created_at: string;
+  }[];
+}
+
+
 export const GroupOverviewPage = () => {
   const { groupId } = useParams();
 
