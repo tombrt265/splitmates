@@ -39,6 +39,10 @@ export const GroupsPage = () => {
     navigate(`/groups/${groupId}`);
   };
 
+  const viewGroup = (groupId: number) => {
+    navigate(`/groups/${groupId}`);
+  };
+
   return (
     <PageLayout>
       <div className="flex flex-col items-center justify-center h-full">
@@ -69,6 +73,7 @@ export const GroupsPage = () => {
             dialogState={dialogOpen}
             onClose={() => setDialogOpen(false)}
             updateGroups={fetchGroups}
+            viewGroup={viewGroup}
           />
         </div>
       </div>

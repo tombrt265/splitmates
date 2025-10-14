@@ -9,14 +9,17 @@ interface GroupsDialogProps {
   dialogState: boolean;
   onClose: () => void;
   updateGroups: () => void;
+  viewGroup: (groupId: number) => void;
 }
 
 export const GroupsDialog = ({
   dialogState,
   onClose,
   updateGroups,
+  viewGroup,
 }: GroupsDialogProps) => {
   const [link, setLink] = useState("");
+  const [groupId, setGroupId] = useState<number | null>(null);
   const [groupSetUp, setGroupSetUp] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -46,6 +49,7 @@ export const GroupsDialog = ({
     setGroupSetUp(true);
     updateGroups();
     getGroupLink(group.id);
+    setGroupId(group.id);
   };
 
   const handleClose = () => {
@@ -114,11 +118,7 @@ export const GroupsDialog = ({
             </button>
           </div>
           <button
-            onClick={() =>
-              console.log(
-                '"' + groupName + '"' + " einsehen mit Kategorie: " + category
-              )
-            }
+            onClick={() => viewGroup(groupId!)}
             className="bg-indigo-500 rounded-lg p-2 mt-4"
           >
             <h6 className="text-white!">View Group</h6>
