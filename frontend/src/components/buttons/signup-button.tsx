@@ -2,7 +2,7 @@ import { useSignUp } from "../../hooks/useSignUp";
 
 export const SignupButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { handleSignUp } = useSignUp();
-  const iconSignUp = "icon-signup.svg";
+  const iconSignUp = "/icon-signup.svg";
 
   return !isCollapsed ? (
     <button className="button__sign-up" onClick={handleSignUp}>

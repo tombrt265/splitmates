@@ -7,7 +7,7 @@ export const NavBarBrand = ({
   isCollapsed,
   onToggleCollapse,
 }: NavBarBrandProps) => {
-  const logo = "logo.svg";
+  const logo = "/logo.svg";
   return (
     <div className="flex items-center h-15 gap-6 mb-12">
       <button className="flex items-center h-full" onClick={onToggleCollapse}>
