@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface Option {
@@ -7,20 +7,20 @@ interface Option {
   avatarUrl?: string;
 }
 
-interface MultiSelectDropdownProps {
+interface SingleSelectDropdownProps {
   options: Option[];
   headline: string;
   width?: string;
-  returnSelected: (selected: string[]) => void;
+  returnSelected: (selected: string | null) => void;
 }
 
-export const MultiSelectDropdown = ({
+export const SingleSelectDropdown = ({
   options,
   headline,
   width,
   returnSelected,
-}: MultiSelectDropdownProps) => {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+}: SingleSelectDropdownProps) => {
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -38,13 +38,15 @@ export const MultiSelectDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleSelect = (id: string) => {
-    setSelectedOptions((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-    returnSelected(selectedOptions);
-    console.log(selectedOptions);
+  const handleSelect = (id: string) => {
+    const newSelection = id === selectedOption ? null : id;
+    setSelectedOption(newSelection);
+    returnSelected(newSelection);
+    setIsOpen(false);
   };
+
+  const selectedLabel =
+    options.find((opt) => opt.id === selectedOption)?.name || headline;
 
   return (
     <div ref={dropdownRef} className={`relative ${width || "w-64"} my-4`}>
@@ -53,7 +55,7 @@ export const MultiSelectDropdown = ({
         onClick={() => setIsOpen((prev) => !prev)}
         className="w-full flex justify-between items-center border border-gray-300 rounded-2xl px-4 py-2 bg-white shadow-sm hover:shadow-md transition"
       >
-        <span>{headline}</span>
+        <span>{selectedLabel}</span>
         <ChevronDown
           className={`h-4 w-4 text-gray-500 transition-transform ${
             isOpen ? "rotate-180" : ""
@@ -67,17 +69,18 @@ export const MultiSelectDropdown = ({
             <li
               key={option.id}
               className="flex items-center px-2 py-1 hover:bg-gray-50 rounded-lg cursor-pointer"
-              onClick={() => toggleSelect(option.id)}
+              onClick={() => handleSelect(option.id)}
             >
               <input
-                type="checkbox"
-                checked={selectedOptions.includes(option.id)}
+                type="radio"
+                name="singleselect"
+                checked={selectedOption === option.id}
                 readOnly
                 className="mr-2 accent-indigo-500"
               />
               {option.avatarUrl && (
                 <div
-                  className="rounded-full aspect-square h-20 bg-cover bg-center"
+                  className="rounded-full aspect-square h-20 bg-cover bg-center mr-2"
                   style={{ backgroundImage: `url(${option.avatarUrl})` }}
                 ></div>
               )}

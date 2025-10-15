@@ -12,24 +12,20 @@ interface Group {
   category: string;
   avatarUrl: string;
   created_at: string;
-  members: { name: string;
-  avatarUrl: string;
-  userID: string; }[];
+  members: { name: string; avatarUrl: string; userID: string }[];
   expenses: {
     id: number;
     description: string;
     amount_cents: number;
     paidBy: string;
+    debtors: { name: string; avatarUrl: string; userID: string }[];
     created_at: string;
   }[];
 }
 
-
 export const GroupOverviewPage = () => {
   const { groupId } = useParams();
-
-  // States für die geladenen Daten
-  const [group, setGroup] = useState<any>(null);
+  const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchGroupInfo = useCallback(async () => {
@@ -38,6 +34,7 @@ export const GroupOverviewPage = () => {
     const data = await res.json();
     setGroup(data);
     setLoading(false);
+    console.log(data);
   }, [groupId]);
 
   useEffect(() => {
@@ -57,7 +54,6 @@ export const GroupOverviewPage = () => {
       </div>
     );
 
-  // Daten für die Komponenten aufbereiten
   const groupName = group.name;
   const creationDate = new Date(group.created_at).toLocaleDateString("en-EN", {
     year: "numeric",
@@ -72,10 +68,7 @@ export const GroupOverviewPage = () => {
     paidBy: e.paidBy,
     date: new Date(e.created_at).toLocaleDateString("en-EN"),
   }));
-  const groupMembers = (group.members || []).map((m: any) => ({
-    name: m.name,
-    icon: m.name?.[0] || "?",
-  }));
+  const groupMembers = group.members || [];
 
   return (
     <PageLayout>

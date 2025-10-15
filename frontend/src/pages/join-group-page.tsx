@@ -28,7 +28,9 @@ export const JoinGroupPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             token,
-            auth0_sub: userId,
+            auth0_sub: user.sub,
+            username: user.nickname,
+            email: user.email,
           }),
         });
 

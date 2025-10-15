@@ -1,5 +1,5 @@
 interface GroupMembersProps {
-  members: { name: string; icon: string }[];
+  members: { name: string; avatarUrl: string; userID: string }[];
   name: string;
   date: string;
   category: string;
@@ -25,9 +25,14 @@ export const GroupMembers = ({
         }}
       >
         {members.map((member) => (
-          <li className="w-4/5 py-1" key={member.name}>
+          <li className="w-4/5 py-1" key={member.userID}>
             <button className="w-full rounded-md p-2 bg-gray-300 flex">
-              <h6 className="px-2">{member.icon}</h6>
+              {member.avatarUrl && (
+                <div
+                  className="rounded-full aspect-square h-20 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${member.avatarUrl})` }}
+                ></div>
+              )}
               <h6>{member.name}</h6>
             </button>
           </li>
