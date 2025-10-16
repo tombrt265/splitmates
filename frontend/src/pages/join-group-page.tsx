@@ -5,7 +5,7 @@ import { API_BASE } from "../api";
 
 export const JoinGroupPage = () => {
   const { user, isLoading } = useAuth0();
-  const userId = user?.sub;
+  const auth0_sub = user?.sub;
   const [status, setStatus] = useState<string>("Beitreten...");
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export const JoinGroupPage = () => {
         setStatus("");
         return;
       }
-      if (!userId) return; // Warte auf Auth0
+      if (!auth0_sub) return; // Warte auf Auth0
 
       try {
         const res = await fetch(`${API_BASE}/api/groups/join`, {
@@ -28,9 +28,7 @@ export const JoinGroupPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             token,
-            auth0_sub: user.sub,
-            username: user.usernames,
-            email: user.email,
+            auth0_sub: auth0_sub,
           }),
         });
 
@@ -42,7 +40,6 @@ export const JoinGroupPage = () => {
         const data = await res.json();
         setStatus(`Erfolgreich der Gruppe beigetreten! (ID: ${data.group_id})`);
 
-        // Optional: nach dem Beitreten zur Gruppen-Übersicht weiterleiten
         setTimeout(() => navigate("/groups"), 1500);
       } catch {
         setError("Fehler beim Beitreten");
@@ -50,10 +47,10 @@ export const JoinGroupPage = () => {
       }
     };
 
-    if (!isLoading && userId) {
+    if (!isLoading && auth0_sub) {
       joinGroup();
     }
-  }, [token, userId, isLoading, navigate]);
+  }, [token, auth0_sub, isLoading, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen p-4">
