@@ -30,29 +30,35 @@ app.get("/api/health", async (_req, res) => {
 
 // POST /api/users/signup
 app.post("/api/users/signup", async (req, res) => {
-  const { username, email, auth0_sub } = req.body;
+  const { username, email, auth0_sub, picture } = req.body;
 
   if (!username || !email) {
     return res
       .status(400)
       .json({ error: "Username und Email sind erforderlich" });
   }
+
   try {
     let user = await qOne(
       "select * from users where username = $1 or email = $2",
       [username, email]
     );
+
     if (user) {
       return res
         .status(409)
         .json({ error: "Username oder Email bereits vergeben" });
     }
+
+    const avatarUrl = picture;
+
     user = await qOne(
-      `insert into users (username, email, auth0_sub)
-       values ($1, $2, $3)
-       returning id, username, email, auth0_sub, created_at`,
-      [username, email, auth0_sub || null]
+      `insert into users (username, email, auth0_sub, avatar_url)
+       values ($1, $2, $3, $4)
+       returning id, username, email, auth0_sub, avatar_url, created_at`,
+      [username, email, auth0_sub || null, avatarUrl]
     );
+
     res.status(201).json(user);
   } catch (err) {
     console.error(err);
@@ -84,11 +90,9 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
 
 // POST /api/groups/join
 app.post("/api/groups/join", async (req, res) => {
-  const { token, auth0_sub, username, email } = req.body;
-  if (!token || !auth0_sub || !username || !email)
-    return res
-      .status(400)
-      .json({ error: "token, auth0_sub, username und email erforderlich" });
+  const { token, auth0_sub } = req.body;
+  if (!token || !auth0_sub)
+    return res.status(400).json({ error: "token und auth0_sub erforderlich" });
 
   const invite = await qOne(`select * from invite_tokens where token = $1`, [
     token,
@@ -98,16 +102,13 @@ app.post("/api/groups/join", async (req, res) => {
   if (invite.expires_at && new Date(invite.expires_at) < new Date())
     return res.status(400).json({ error: "Token abgelaufen" });
 
-  let user = await qOne("select id from users where auth0_sub = $1", [
+  const user = await qOne("select id from users where auth0_sub = $1", [
     auth0_sub,
   ]);
   if (!user) {
-    user = await qOne(
-      `insert into users (auth0_sub, name, username, email)
-       values ($1, $2, $3, $4)
-       returning id`,
-      [auth0_sub, null, username, email]
-    );
+    return res
+      .status(404)
+      .json({ error: "User existiert nicht. Bitte vorher anmelden." });
   }
 
   await qOne(

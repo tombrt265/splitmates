@@ -12,7 +12,12 @@ export const CallbackPage = () => {
     const signupUser = async () => {
       if (isLoading || !isAuthenticated || !user) return;
 
-      if (!user?.email || !user?.nickname || !user?.sub) {
+      const username = user["https://splitmates.app/username"];
+      const email = user.email;
+      const auth0_sub = user.sub;
+      const picture = user.picture;
+
+      if (!email || !username || !auth0_sub) {
         console.error("Fehlende Userdaten von Auth0");
         return;
       }
@@ -22,9 +27,10 @@ export const CallbackPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            username: user.username,
-            email: user.email,
-            auth0_sub: user.sub,
+            username: username,
+            email: email,
+            auth0_sub: auth0_sub,
+            picture: picture,
           }),
         });
 
