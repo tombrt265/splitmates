@@ -1,24 +1,53 @@
+import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { NavBar } from "../components/navigation/nav-bar";
-import { PageLayout } from "../components/page-layout";
+import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api";
+import { PageLoader } from "../components/page-loader";
 
 export const CallbackPage = () => {
-  const { error } = useAuth0();
+  const { user, isAuthenticated, isLoading } = useAuth0();
+  const navigate = useNavigate();
 
-  if (error) {
-    return (
-      <PageLayout>
-        <p>
-          <span>{error.message}</span>
-        </p>
-      </PageLayout>
-    );
-  }
+  useEffect(() => {
+    const signupUser = async () => {
+      if (isLoading || !isAuthenticated || !user) return;
+
+      if (!user?.email || !user?.nickname || !user?.sub) {
+        console.error("Fehlende Userdaten von Auth0");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/users/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: user.nickname,
+            email: user.email,
+            auth0_sub: user.sub,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Fehler beim Signup");
+        }
+
+        const data = await res.json();
+        console.log("User erfolgreich registriert:", data);
+
+        navigate("/groups");
+      } catch (err) {
+        console.error("Signup-Fehler:", err);
+      }
+    };
+
+    signupUser();
+  }, [isLoading, isAuthenticated, user, navigate]);
 
   return (
     <div className="flex flex-col items-center h-full w-full">
-      <NavBar />
-      <div className="max-sm:mt-[6.4rem] flex-1 basis-auto shrink-0 flex flex-col mt-32 max-w-[120rem] w-full" />
+      <PageLoader />
     </div>
   );
 };

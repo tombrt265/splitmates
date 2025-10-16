@@ -10,7 +10,9 @@ const app = express();
 
 // CORS: für Beta reicht eine Domain oder alles offen
 const allowedOrigin = process.env.CORS_ORIGIN || "*";
-app.use(cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true }));
+app.use(
+  cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true })
+);
 app.use(express.json());
 
 // -------- Helpers ----------
@@ -25,6 +27,38 @@ app.get("/api/health", async (_req, res) => {
 });
 
 // -------- Routes -----------
+
+// POST /api/users/signup
+app.post("/api/users/signup", async (req, res) => {
+  const { username, email, auth0_sub } = req.body;
+
+  if (!username || !email) {
+    return res
+      .status(400)
+      .json({ error: "Username und Email sind erforderlich" });
+  }
+  try {
+    let user = await qOne(
+      "select * from users where username = $1 or email = $2",
+      [username, email]
+    );
+    if (user) {
+      return res
+        .status(409)
+        .json({ error: "Username oder Email bereits vergeben" });
+    }
+    user = await qOne(
+      `insert into users (username, email, auth0_sub)
+       values ($1, $2, $3)
+       returning id, username, email, auth0_sub, created_at`,
+      [username, email, auth0_sub || null]
+    );
+    res.status(201).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fehler beim Erstellen des Users" });
+  }
+});
 
 // POST /api/groups/:groupId/invite
 app.post("/api/groups/:groupId/invite", async (req, res) => {
@@ -50,9 +84,11 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
 
 // POST /api/groups/join
 app.post("/api/groups/join", async (req, res) => {
-  const { token, auth0_sub } = req.body;
-  if (!token || !auth0_sub)
-    return res.status(400).json({ error: "token und auth0_sub erforderlich" });
+  const { token, auth0_sub, username, email } = req.body;
+  if (!token || !auth0_sub || !username || !email)
+    return res
+      .status(400)
+      .json({ error: "token, auth0_sub, username und email erforderlich" });
 
   const invite = await qOne(`select * from invite_tokens where token = $1`, [
     token,
@@ -62,7 +98,6 @@ app.post("/api/groups/join", async (req, res) => {
   if (invite.expires_at && new Date(invite.expires_at) < new Date())
     return res.status(400).json({ error: "Token abgelaufen" });
 
-  // upsert user by auth0_sub (simplified)
   let user = await qOne("select id from users where auth0_sub = $1", [
     auth0_sub,
   ]);
@@ -71,11 +106,10 @@ app.post("/api/groups/join", async (req, res) => {
       `insert into users (auth0_sub, name, username, email)
        values ($1, $2, $3, $4)
        returning id`,
-      [auth0_sub, "Neuer User", null, null]
+      [auth0_sub, null, username, email]
     );
   }
 
-  // Mitglied hinzufügen, bei Konflikt ignorieren (unique (group_id, user_id))
   await qOne(
     `insert into group_members (group_id, user_id, role, is_active)
      values ($1, $2, 'member', true)
@@ -171,31 +205,200 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
   if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
 
   const members = await qAll(
-    `select u.id, u.name, u.username, u.email
+    `select u.id, u.username, u.avatar_url
      from group_members gm
      join users u on u.id = gm.user_id
      where gm.group_id = $1`,
     [groupId]
   );
 
+  const mappedMembers = members.map((m) => ({
+    name: m.username || "Unbekannt",
+    avatarUrl: m.avatar_url,
+    userID: m.id.toString(),
+  }));
+
   const expenses = await qAll(
-    `select e.id, e.description, e.amount_cents, e.currency, e.created_at, u.name as "paidBy"
+    `select e.id, e.description, e.amount_cents, e.currency, e.created_at,
+            payer.id as payer_id, payer.username as payer_name
      from expenses e
-     join users u on u.id = e.payer_id
+     join users payer on payer.id = e.payer_id
      where e.group_id = $1
      order by e.created_at desc
      limit 10`,
     [groupId]
   );
 
+  const mappedExpenses = await Promise.all(
+    expenses.map(async (e) => {
+      const debtors = await qAll(
+        `select ed.debtor_id, u.username, u.avatar_url
+         from expense_debtors ed
+         join users u on u.id = ed.debtor_id
+         where ed.expense_id = $1`,
+        [e.id]
+      );
+
+      return {
+        id: e.id,
+        description: e.description,
+        amount_cents: e.amount_cents,
+        paidBy: e.payer_name,
+        created_at: e.created_at,
+        debtors: debtors.map((d) => ({
+          name: d.username || "Unbekannt",
+          avatarUrl: d.avatar_url,
+          userID: d.debtor_id.toString(),
+        })),
+      };
+    })
+  );
+
   res.json({
-    id: group.id,
+    id: group.id.toString(),
     name: group.name,
     category: group.category,
-    avatar_url: group.avatar_url,
+    avatarUrl: group.avatar_url,
     created_at: group.created_at,
-    members,
-    expenses,
+    members: mappedMembers,
+    expenses: mappedExpenses,
+  });
+});
+
+// POST /api/groups/:groupId/expenses
+app.post("/api/groups/:groupId/expenses", async (req, res) => {
+  const { groupId } = req.params;
+  const { payerId, amount, currency, category, description, debtors } =
+    req.body;
+
+  if (
+    !payerId ||
+    !amount ||
+    !currency ||
+    !category ||
+    !description ||
+    !Array.isArray(debtors)
+  ) {
+    return res.status(400).json({ error: "Fehlende Felder im Request" });
+  }
+
+  const group = await qOne("select id from groups where id = $1", [groupId]);
+  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+
+  try {
+    const expense = await qOne(
+      `insert into expenses (group_id, payer_id, amount_cents, currency, category, description)
+       values ($1, $2, $3, $4, $5, $6)
+       returning id, group_id, payer_id, amount_cents, currency, category, description, created_at`,
+      [
+        groupId,
+        payerId,
+        Math.round(amount * 100),
+        currency,
+        category,
+        description,
+      ]
+    );
+
+    // Share per debtor in cents
+    const share = Math.round((amount * 100) / debtors.length);
+
+    for (const debtorId of debtors) {
+      await exec(
+        `insert into expense_debtors (expense_id, debtor_id, share_cents)
+         values ($1, $2, $3)`,
+        [expense.id, debtorId, share]
+      );
+    }
+
+    res.status(201).json({ ...expense, debtors });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fehler beim Erstellen der Ausgabe" });
+  }
+});
+
+// GET /api/groups/:groupId/balances/:userId
+app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
+  const { groupId, userId } = req.params;
+
+  const group = await qOne("select id from groups where id = $1", [groupId]);
+  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+
+  const members = await qAll(
+    `select u.id, coalesce(u.username, u.name, 'Unbekannt') as name
+     from group_members gm
+     join users u on u.id = gm.user_id
+     where gm.group_id = $1`,
+    [groupId]
+  );
+
+  const balances = {};
+  members.forEach((m) => (balances[m.id] = 0));
+
+  const paid = await qAll(
+    `select payer_id, sum(amount_cents) as paid
+       from expenses
+      where group_id = $1
+      group by payer_id`,
+    [groupId]
+  );
+  paid.forEach((p) => (balances[p.payer_id] += Number(p.paid)));
+
+  const owed = await qAll(
+    `select debtor_id, sum(share_cents) as owed
+       from expense_debtors ed
+       join expenses e on e.id = ed.expense_id
+      where e.group_id = $1
+      group by debtor_id`,
+    [groupId]
+  );
+  owed.forEach((o) => (balances[o.debtor_id] -= Number(o.owed)));
+
+  const creditors = [];
+  const debtors = [];
+
+  for (const [id, balance] of Object.entries(balances)) {
+    if (balance > 0) creditors.push({ id, balance });
+    else if (balance < 0) debtors.push({ id, balance });
+  }
+
+  const settlements = [];
+  let i = 0,
+    j = 0;
+
+  while (i < creditors.length && j < debtors.length) {
+    const creditor = creditors[i];
+    const debtor = debtors[j];
+    const amount = Math.min(creditor.balance, -debtor.balance);
+
+    settlements.push({
+      from: debtor.id,
+      to: creditor.id,
+      amount_cents: amount,
+    });
+
+    creditor.balance -= amount;
+    debtor.balance += amount;
+
+    if (creditor.balance === 0) i++;
+    if (debtor.balance === 0) j++;
+  }
+
+  const userSettlements = settlements
+    .filter((s) => s.from === userId || s.to === userId)
+    .map((s) => ({
+      direction: s.from === userId ? "outgoing" : "incoming",
+      counterparty:
+        members.find((m) => m.id === (s.from === userId ? s.to : s.from))
+          ?.name || "Unbekannt",
+      amount: (s.amount_cents / 100).toFixed(2),
+      currency: "EUR",
+    }));
+
+  res.json({
+    userId,
+    balances: userSettlements,
   });
 });
 

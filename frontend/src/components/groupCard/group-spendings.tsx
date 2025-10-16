@@ -10,7 +10,9 @@ interface GroupSpendingProps {
     date: string;
   }[];
   updateExpenses: () => void;
-  members: { name: string; icon: string }[];
+  members: { name: string;
+  avatarUrl: string;
+  userID: string; }[];
 }
 
 export const GroupSpendings = ({
