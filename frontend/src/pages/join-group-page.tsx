@@ -29,7 +29,7 @@ export const JoinGroupPage = () => {
           body: JSON.stringify({
             token,
             auth0_sub: user.sub,
-            username: user.nickname,
+            username: user.usernames,
             email: user.email,
           }),
         });

@@ -22,7 +22,7 @@ export const CallbackPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            username: user.nickname,
+            username: user.username,
             email: user.email,
             auth0_sub: user.sub,
           }),
