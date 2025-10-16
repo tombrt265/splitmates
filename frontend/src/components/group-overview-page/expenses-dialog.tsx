@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Dialog } from "./shared/dialog";
-import { MultiSelectDropdown } from "./shared/multi-select-dropdown";
-import { SingleSelectDropdown } from "./shared/single-select-dropdown";
+import { Dialog } from "../shared/dialog";
+import { MultiSelectDropdown } from "../shared/multi-select-dropdown";
+import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
-import { API_BASE } from "../api";
+import { API_BASE } from "../../api";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -86,7 +86,9 @@ export const ExpensesDialog = ({
   // Add effect to remove payer from indebted members when selected
   useEffect(() => {
     if (payer) {
-      setIndebtedMembers((prev) => prev.filter((memberId) => memberId !== payer));
+      setIndebtedMembers((prev) =>
+        prev.filter((memberId) => memberId !== payer)
+      );
     }
   }, [payer]);
 
@@ -94,60 +96,74 @@ export const ExpensesDialog = ({
   const indebtedOptions = options.filter((member) => member.id !== payer);
 
   return (
-    <Dialog isDialogOpen={dialogState} closeDialog={onClose} className="p-20">
-      <h3 className="text-2xl mb-4">Create New Entry</h3>
-      <div className="flex flex-row gap-4 justify-center">
+    <Dialog
+      isDialogOpen={dialogState}
+      closeDialog={onClose}
+      className="p-8 w-[36rem]"
+    >
+      <h3 className="text-2xl font-semibold mb-6 text-center">
+        Create New Entry
+      </h3>
+
+      <div className="flex flex-row gap-4 mb-4 w-full">
         <input
-          type="text"
-          size={6}
-          placeholder="00,00"
+          type="number"
+          placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
-          className="border p-2 my-4"
+          className="flex-1 border rounded-lg p-3 text-[1.6rem]"
         />
         <SingleSelectDropdown
           options={currencyOptions}
-          headline="Select Currency"
-          width="w-24"
+          headline="Currency"
+          width="w-32"
           returnSelected={setCurrency}
         />
       </div>
+
       <SingleSelectDropdown
         options={categoryOptions}
-        headline="Select Category"
-        width="w-56"
+        headline="Category"
+        width="w-full"
         returnSelected={setCategory}
       />
+
       <input
         type="text"
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        maxLength={20}
-        className="border p-2 my-4"
+        maxLength={50}
+        className="border rounded-lg p-3 mb-4 w-full text-[1.6rem]"
       />
+
       <SingleSelectDropdown
         options={options}
-        headline="Select Payer"
+        headline="Payer"
+        width="w-full"
         returnSelected={setPayer}
       />
+
       <MultiSelectDropdown
         options={indebtedOptions}
-        headline="Select Participants"
+        headline="Participants"
         returnSelected={setIndebtedMembers}
       />
-      <button
-        onClick={() => handleExpensesCreation()}
-        className="bg-indigo-500 rounded-lg py-1 px-4 mt-4"
-      >
-        <h6 className="text-white!">Submit</h6>
-      </button>
-      <button
-        onClick={onClose}
-        className="mt-4 bg-red-500 text-white py-1 px-4 rounded"
-      >
-        <h6>Close</h6>
-      </button>
+
+      <div className="flex gap-4 justify-center w-full">
+        <button
+          onClick={handleExpensesCreation}
+          className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+        >
+          Submit
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+        >
+          Close
+        </button>
+      </div>
     </Dialog>
   );
 };

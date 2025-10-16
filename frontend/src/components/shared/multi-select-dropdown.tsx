@@ -47,7 +47,7 @@ export const MultiSelectDropdown = ({
   };
 
   return (
-    <div ref={dropdownRef} className={`relative ${width || "w-64"} my-4`}>
+    <div ref={dropdownRef} className={`relative ${width || "w-full"} mb-6`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -66,7 +66,7 @@ export const MultiSelectDropdown = ({
           {options.map((option) => (
             <li
               key={option.id}
-              className="flex items-center px-2 py-1 hover:bg-gray-50 rounded-lg cursor-pointer"
+              className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
               onClick={() => toggleSelect(option.id)}
             >
               <input
@@ -77,11 +77,11 @@ export const MultiSelectDropdown = ({
               />
               {option.avatarUrl && (
                 <div
-                  className="rounded-full aspect-square h-20 bg-cover bg-center"
+                  className="rounded-full h-8 w-8 bg-cover bg-center mr-2 flex-shrink-0"
                   style={{ backgroundImage: `url(${option.avatarUrl})` }}
                 ></div>
               )}
-              <span className="text-gray-700">{option.name}</span>
+              <span className="text-gray-700 text-[1.6rem]">{option.name}</span>
             </li>
           ))}
         </ul>
