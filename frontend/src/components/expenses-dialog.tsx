@@ -126,15 +126,15 @@ export const ExpensesDialog = ({
         maxLength={20}
         className="border p-2 my-4"
       />
-      <MultiSelectDropdown
-        options={indebtedOptions}
-        headline="Select Indebting Members"
-        returnSelected={setIndebtedMembers}
-      />
       <SingleSelectDropdown
         options={options}
         headline="Select Payer"
         returnSelected={setPayer}
+      />
+      <MultiSelectDropdown
+        options={indebtedOptions}
+        headline="Select Participants"
+        returnSelected={setIndebtedMembers}
       />
       <button
         onClick={() => handleExpensesCreation()}
