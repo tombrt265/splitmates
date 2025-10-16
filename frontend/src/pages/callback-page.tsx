@@ -12,10 +12,14 @@ export const CallbackPage = () => {
     const signupUser = async () => {
       if (isLoading || !isAuthenticated || !user) return;
 
-      const username = user["https://splitmates.app/username"];
+      const username = user["https://splitmates.vercel.app/username"];
       const email = user.email;
       const auth0_sub = user.sub;
       const picture = user.picture;
+
+      if (!email) console.error("Email fehlt");
+      if (!username) console.error("Username fehlt");
+      if (!auth0_sub) console.error("Auth0 Sub fehlt");
 
       if (!email || !username || !auth0_sub) {
         console.error("Fehlende Userdaten von Auth0");
