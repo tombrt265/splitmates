@@ -9,9 +9,7 @@ interface GroupCardProps {
     date: string;
   }[];
   updateExpenses: () => void;
-  members: { name: string;
-  avatarUrl: string;
-  userID: string; }[];
+  members: { name: string; avatarUrl: string; userID: string }[];
 }
 
 export const GroupCard = ({
@@ -23,30 +21,34 @@ export const GroupCard = ({
     <div className="bg-gray-100 rounded-xl md:row-span-1 p-4 order-1 md:order-0">
       <div className="grid gap-4 h-full grid-cols-1 md:grid-cols-3 md:grid-rows-3">
         {/* Debt by Person */}
-        <div className="bg-gray-200 rounded-md p-2 !text-gray-400">
-          <h4 className="!text-gray-400">Schulden nach Person</h4>
-          <p className="text-2xl">Balkendiagramm</p>
+        <div className="bg-gray-200 rounded-md p-2 !text-gray-400 flex flex-col items-center justify-center">
+          {/* <h4 className="!text-gray-400">Schulden nach Person</h4>
+          <p className="text-2xl">Balkendiagramm</p> */}
+          <h4 className="!text-gray-400">Coming soon...</h4>
         </div>
 
         {/* Debt by Category */}
-        <div className="bg-gray-200 rounded-md p-2 !text-gray-400">
-          <h4 className="!text-gray-400">Schulden nach Kategorie</h4>
-          <p className="text-2xl">Kreisdiagramm</p>
+        <div className="bg-gray-200 rounded-md p-2 !text-gray-400 flex flex-col items-center justify-center">
+          {/* <h4 className="!text-gray-400">Schulden nach Kategorie</h4>
+              <p className="text-2xl">Kreisdiagramm</p> */}
+          <h4 className="!text-gray-400">Coming soon...</h4>
         </div>
 
         {/* Money spent by Person */}
-        <div className="bg-gray-200 rounded-md p-2 !text-gray-400">
-          <h4 className="!text-gray-400">Ausgaben nach Person</h4>
-          <p className="text-2xl">Balkendiagramm</p>
+        <div className="bg-gray-200 rounded-md p-2 !text-gray-400 flex flex-col items-center justify-center">
+          {/* <h4 className="!text-gray-400">Ausgaben nach Person</h4>
+          <p className="text-2xl">Balkendiagramm</p> */}
+          <h4 className="!text-gray-400">Coming soon...</h4>
         </div>
 
         {/* Overall Debt (volle Breite) */}
-        <div className="bg-gray-200 rounded-md p-2 md:col-span-3 !text-gray-400">
-          <h4 className="!text-gray-400">Schuldenübersicht</h4>
+        <div className="bg-gray-200 rounded-md p-2 md:col-span-3 !text-gray-400 flex flex-col items-center justify-center">
+          {/* <h4 className="!text-gray-400">Schuldenübersicht</h4>
           <p className="text-2xl">
             Liniendiagramm - Schulden[€] in den letzten 30 Tagen (von ganz links
             nach ganz rechts)
-          </p>
+          </p> */}
+          <h4 className="!text-gray-400">Coming soon...</h4>
         </div>
 
         {/* Last Spendings */}
