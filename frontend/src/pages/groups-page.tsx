@@ -20,9 +20,11 @@ export const GroupsPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
 
+  /** Lädt Gruppen des aktuellen Nutzers */
   const fetchGroups = useCallback(async () => {
+    if (!userId) return;
     const res = await fetch(
-      `${API_BASE}/api/groups?user_id=${encodeURIComponent(userId || "")}`
+      `${API_BASE}/api/groups?user_id=${encodeURIComponent(userId)}`
     );
     if (!res.ok) throw new Error("Failed to fetch groups");
     const json = await res.json();
@@ -35,6 +37,33 @@ export const GroupsPage = () => {
     }
   }, [isLoading, userId, fetchGroups]);
 
+  const handleCreateGroup = async (name: string, category: string) => {
+    const res = await fetch(`${API_BASE}/api/groups`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        category,
+        avatar_url: "https://example.com/avatar.jpg",
+        auth0_sub: userId,
+      }),
+    });
+    if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
+
+    const group = await res.json();
+
+    const inviteRes = await fetch(`${API_BASE}/api/groups/${group.id}/invite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!inviteRes.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
+
+    const data = await inviteRes.json();
+    await fetchGroups();
+
+    return { group, inviteLink: data.invite_link };
+  };
+
   const handleGroupClick = (groupId: number) => {
     navigate(`/groups/${groupId}`);
   };
@@ -42,7 +71,7 @@ export const GroupsPage = () => {
   return (
     <PageLayout>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg shadow-md">
+        <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg shadow-md w-[400px]">
           <h3>My Groups</h3>
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
@@ -58,17 +87,16 @@ export const GroupsPage = () => {
           </ul>
           <button
             className="bg-indigo-500 rounded-lg p-2 mt-4"
-            onClick={() => {
-              setDialogOpen(true);
-              console.log("Create Group clicked");
-            }}
+            onClick={() => setDialogOpen(true)}
           >
             <h6 className="text-white!">Create Group</h6>
           </button>
+
+          {/* Dialog */}
           <GroupsDialog
             dialogState={dialogOpen}
             onClose={() => setDialogOpen(false)}
-            updateGroups={fetchGroups}
+            onCreateGroup={handleCreateGroup}
             viewGroup={handleGroupClick}
           />
         </div>
