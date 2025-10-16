@@ -166,16 +166,13 @@ app.post("/api/groups", async (req, res) => {
   }
 
   try {
-    let user = await qOne("select id from users where auth0_sub = $1", [
+    const user = await qOne("select id from users where auth0_sub = $1", [
       auth0_sub,
     ]);
     if (!user) {
-      user = await qOne(
-        `insert into users (auth0_sub, name, username, email)
-         values ($1, $2, $3, $4)
-         returning id`,
-        [auth0_sub, "Neuer User", null, null]
-      );
+      return res
+        .status(404)
+        .json({ error: "User existiert nicht. Bitte vorher anmelden." });
     }
 
     const group = await qOne(
