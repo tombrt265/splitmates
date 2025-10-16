@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog } from "./shared/dialog";
 import { MultiSelectDropdown } from "./shared/multi-select-dropdown";
 import { SingleSelectDropdown } from "./shared/single-select-dropdown";
@@ -83,6 +83,16 @@ export const ExpensesDialog = ({
     }
   };
 
+  // Add effect to remove payer from indebted members when selected
+  useEffect(() => {
+    if (payer) {
+      setIndebtedMembers((prev) => prev.filter((memberId) => memberId !== payer));
+    }
+  }, [payer]);
+
+  // Filter out the payer from indebted options
+  const indebtedOptions = options.filter((member) => member.id !== payer);
+
   return (
     <Dialog isDialogOpen={dialogState} closeDialog={onClose} className="p-20">
       <h3 className="text-2xl mb-4">Create New Entry</h3>
@@ -116,15 +126,15 @@ export const ExpensesDialog = ({
         maxLength={20}
         className="border p-2 my-4"
       />
-      <MultiSelectDropdown
-        options={options}
-        headline="Select Indebting Members"
-        returnSelected={setIndebtedMembers}
-      />
       <SingleSelectDropdown
         options={options}
         headline="Select Payer"
         returnSelected={setPayer}
+      />
+      <MultiSelectDropdown
+        options={indebtedOptions}
+        headline="Select Participants"
+        returnSelected={setIndebtedMembers}
       />
       <button
         onClick={() => handleExpensesCreation()}
