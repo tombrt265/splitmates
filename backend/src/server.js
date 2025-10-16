@@ -195,6 +195,37 @@ app.post("/api/groups", async (req, res) => {
   }
 });
 
+// DELETE /api/groups/:groupId
+app.delete("/api/groups/:groupId", async (req, res) => {
+  const { groupId } = req.params;
+
+  if (!groupId) {
+    return res.status(400).json({ error: "groupId ist erforderlich" });
+  }
+
+  try {
+    const group = await qOne("SELECT id FROM groups WHERE id = $1", [groupId]);
+    if (!group) {
+      return res.status(404).json({ error: "Gruppe nicht gefunden" });
+    }
+
+    await exec("DELETE FROM group_members WHERE group_id = $1", [groupId]);
+
+    await exec(
+      "DELETE FROM expense_debtors WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = $1)",
+      [groupId]
+    );
+    await exec("DELETE FROM expenses WHERE group_id = $1", [groupId]);
+
+    await exec("DELETE FROM groups WHERE id = $1", [groupId]);
+
+    res.json({ message: "Gruppe erfolgreich gelöscht" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fehler beim Löschen der Gruppe" });
+  }
+});
+
 // GET /api/groups/:groupId/overview
 app.get("/api/groups/:groupId/overview", async (req, res) => {
   const { groupId } = req.params;

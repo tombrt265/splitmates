@@ -3,6 +3,7 @@ interface GroupMembersProps {
   name: string;
   date: string;
   category: string;
+  onDelete: () => void;
 }
 
 export const GroupMembers = ({
@@ -10,13 +11,15 @@ export const GroupMembers = ({
   name,
   category,
   date,
+  onDelete,
 }: GroupMembersProps) => {
   return (
     <div className="bg-gray-200 rounded-xl flex flex-col items-center py-8 order-0 md:order-1">
       <h3>{name}</h3>
       <p>{category}</p>
       <p>{date}</p>
-      <h4>Members</h4>
+
+      <h4 className="mt-4">Members</h4>
       <ul
         className="w-full flex flex-col items-center overflow-auto gap-2 px-4"
         style={{
@@ -38,7 +41,11 @@ export const GroupMembers = ({
           </li>
         ))}
       </ul>
-      <button className="p-2 bg-red-500 text-white rounded-md mt-auto hover:bg-red-600 transition-colors">
+
+      <button
+        className="p-2 bg-red-500 text-white rounded-md mt-auto hover:bg-red-600 transition-colors"
+        onClick={onDelete}
+      >
         <span className="text-xl">Delete Group</span>
       </button>
     </div>
