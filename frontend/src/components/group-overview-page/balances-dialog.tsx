@@ -55,7 +55,7 @@ export const BalancesDialog = ({
       className="p-6 w-full max-w-md bg-white rounded-2xl shadow-xl"
     >
       <h3 className="text-2xl font-semibold mb-4 text-center">
-        Balances for {memberName}
+        {memberName}'s balances
       </h3>
 
       {loading ? (
@@ -67,7 +67,7 @@ export const BalancesDialog = ({
           {balances.map((b, idx) => (
             <li
               key={idx}
-              className="flex justify-between items-center py-3 px-2 hover:bg-gray-50 rounded-lg transition"
+              className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-gray-50 rounded-lg transition"
             >
               <span className="font-medium text-gray-700">
                 {b.counterparty}

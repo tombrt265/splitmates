@@ -330,7 +330,7 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
     );
 
     // Share per debtor in cents
-    const share = Math.round((amount * 100) / debtors.length);
+    const share = Math.round((amount * 100) / (debtors.length + 1));
 
     for (const debtorId of debtors) {
       await exec(
