@@ -47,7 +47,7 @@ export const MultiSelectDropdown = ({
   };
 
   return (
-    <div ref={dropdownRef} className={`relative ${width || "w-full"} mb-6`}>
+    <div ref={dropdownRef} className={`relative ${width || "w-full"} my-2`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

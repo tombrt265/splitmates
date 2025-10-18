@@ -49,7 +49,7 @@ export const SingleSelectDropdown = ({
     options.find((opt) => opt.id === selectedOption)?.name || headline;
 
   return (
-    <div ref={dropdownRef} className={`relative ${width || "w-full"} mb-4`}>
+    <div ref={dropdownRef} className={`relative ${width || "w-full"} my-2`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

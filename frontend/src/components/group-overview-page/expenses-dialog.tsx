@@ -5,6 +5,7 @@ import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
 import { API_BASE } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
+import { Check } from "lucide-react";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -31,7 +32,7 @@ export const ExpensesDialog = ({
     name: member.name,
     avatarUrl: member.avatarUrl,
   }));
-  const possibleCurrencies = ["EUR", "USD", "GBP"];
+  const possibleCurrencies = ["EUR"];
   const currencyOptions = possibleCurrencies.map((currency) => ({
     id: currency,
     name: currency,
@@ -113,6 +114,14 @@ export const ExpensesDialog = ({
   const indebtedOptions = options.filter((member) => member.id !== payer);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const allMembersChecked = indebtedMembers.length === indebtedOptions.length;
+  const toggleCheckAllMembers = () => {
+    if (allMembersChecked) {
+      setIndebtedMembers([]);
+    } else {
+      setIndebtedMembers(indebtedOptions.map((member) => member.id));
+    }
+  };
 
   return (
     <Dialog
@@ -155,7 +164,7 @@ export const ExpensesDialog = ({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         maxLength={50}
-        className="border rounded-lg p-3 mb-4 w-full text-[1.6rem]"
+        className="border rounded-lg p-3 my-2 w-full text-[1.6rem]"
       />
 
       <div className="flex flex-row items-baseline gap-4 w-full">
@@ -196,14 +205,23 @@ export const ExpensesDialog = ({
         </Dialog>
       </div>
 
-      <MultiSelectDropdown
-        options={indebtedOptions}
-        selectedOptions={indebtedMembers}
-        headline="Participants"
-        returnSelected={setIndebtedMembers}
-      />
+      <div className="flex flex-row items-baseline gap-4 w-full">
+        <div className="flex flex-row my-auto">
+          <input
+            type="checkbox"
+            checked={allMembersChecked}
+            onChange={toggleCheckAllMembers}
+          />
+        </div>
+        <MultiSelectDropdown
+          options={indebtedOptions}
+          selectedOptions={indebtedMembers}
+          headline={allMembersChecked ? "All Members checked" : "Participants"}
+          returnSelected={setIndebtedMembers}
+        />
+      </div>
 
-      <div className="flex gap-4 justify-center w-full">
+      <div className="flex gap-4 justify-center w-full mt-8">
         <button
           onClick={handleExpensesCreation}
           className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"

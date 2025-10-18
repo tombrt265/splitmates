@@ -35,7 +35,7 @@ export const GroupSpendings = ({
 
       {expenses.length > 0 ? (
         <ul
-          className="overflow-x-auto flex gap-2 text-2xl"
+          className="overflow-x-auto flex flex-wrap gap-2 text-2xl"
           style={{
             scrollbarWidth: "thin",
             scrollbarColor: "oklch(78.5% 0.115 274.713) transparent",
