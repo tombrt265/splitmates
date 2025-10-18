@@ -67,6 +67,23 @@ export const GroupOverviewPage = () => {
     }
   };
 
+  const handleCreateLink = async () => {
+    if (!groupId) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/groups/${groupId}/invite`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Failed to create invite link");
+      const data = await res.json();
+      const inviteLink = data.link;
+      navigator.clipboard.writeText(inviteLink);
+      alert("Invite link copied to clipboard");
+    } catch (err) {
+      console.error(err);
+      alert("Error creating invite link");
+    }
+  };
+
   /** === Lifecycle === */
   useEffect(() => {
     fetchGroupInfo();
@@ -115,7 +132,9 @@ export const GroupOverviewPage = () => {
           name={group.name}
           category={group.category}
           date={creationDate}
+          groupId={group.id}
           onDelete={handleDeleteGroup}
+          onCreateLink={handleCreateLink}
         />
       </div>
     </PageLayout>
