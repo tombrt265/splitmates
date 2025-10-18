@@ -355,10 +355,10 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
   if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
 
   const members = await qAll(
-    `select u.id, coalesce(u.username, u.name, 'Unbekannt') as name
+    `select u.id, u.username as name
      from group_members gm
      join users u on u.id = gm.user_id
-     where gm.group_id = $1`,
+    where gm.group_id = $1`,
     [groupId]
   );
 
