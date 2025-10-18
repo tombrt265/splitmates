@@ -4,6 +4,7 @@ import { MultiSelectDropdown } from "../shared/multi-select-dropdown";
 import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
 import { API_BASE } from "../../api";
+import { RouletteWheel } from "../roulette-wheel";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -19,7 +20,7 @@ export const ExpensesDialog = ({
   members,
 }: ExpensesDialogProps) => {
   const { groupId } = useParams<{ groupId: string }>();
-  const [amount, setAmount] = useState<number>();
+  const [amount, setAmount] = useState<number | undefined>(undefined);
   const [description, setDescription] = useState("");
   const [indebtedMembers, setIndebtedMembers] = useState<string[]>([]);
   const [payer, setPayer] = useState<string | null>(null);
@@ -47,6 +48,17 @@ export const ExpensesDialog = ({
     id: category,
     name: category,
   }));
+
+  const handleClose = () => {
+    setAmount(undefined);
+    setDescription("");
+    setPayer(null);
+    setIndebtedMembers([]);
+    setCurrency(null);
+    setCategory(null);
+
+    onClose();
+  };
 
   const handleExpensesCreation = async () => {
     if (!amount || !description || !indebtedMembers || !groupId || !payer) {
@@ -100,6 +112,8 @@ export const ExpensesDialog = ({
   // Filter out the payer from indebted options
   const indebtedOptions = options.filter((member) => member.id !== payer);
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <Dialog
       isDialogOpen={dialogState}
@@ -110,13 +124,13 @@ export const ExpensesDialog = ({
         Create New Entry
       </h3>
 
-      <div className="flex flex-row gap-4 mb-4 w-full">
+      <div className="flex flex-row items-baseline gap-4 w-full">
         <input
           type="number"
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
-          className="flex-1 border rounded-lg p-3 text-[1.6rem]"
+          className="flex-1 border rounded-lg p-3"
         />
         <SingleSelectDropdown
           options={currencyOptions}
@@ -129,6 +143,7 @@ export const ExpensesDialog = ({
 
       <SingleSelectDropdown
         options={categoryOptions}
+        selectedOption={category}
         headline="Category"
         width="w-full"
         returnSelected={setCategory}
@@ -143,15 +158,47 @@ export const ExpensesDialog = ({
         className="border rounded-lg p-3 mb-4 w-full text-[1.6rem]"
       />
 
-      <SingleSelectDropdown
-        options={options}
-        headline="Payer"
-        width="w-full"
-        returnSelected={setPayer}
-      />
+      <div className="flex flex-row items-baseline gap-4 w-full">
+        <SingleSelectDropdown
+          options={options}
+          selectedOption={payer}
+          headline="Payer"
+          width="w-full"
+          returnSelected={setPayer}
+        />
+        <button
+          className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-lg font-semibold hover:bg-indigo-700 transition"
+          type="button"
+          onClick={() => {
+            setDialogOpen(true);
+          }}
+        >
+          <span>Roulette</span>
+        </button>
+        <Dialog
+          isDialogOpen={dialogOpen}
+          closeDialog={() => setDialogOpen(false)}
+          className="p-8 w-[36rem] overflow-visible"
+        >
+          <RouletteWheel
+            items={options.map((member) => member.name)}
+            onResult={(winner) => {
+              const selected = options.find((member) => member.name === winner);
+              if (selected) {
+                setPayer(selected.id);
+                setTimeout(() => {
+                  setDialogOpen(false);
+                }, 1000);
+                console.log("Selected payer:", selected);
+              }
+            }}
+          />
+        </Dialog>
+      </div>
 
       <MultiSelectDropdown
         options={indebtedOptions}
+        selectedOptions={indebtedMembers}
         headline="Participants"
         returnSelected={setIndebtedMembers}
       />
@@ -164,7 +211,7 @@ export const ExpensesDialog = ({
           Submit
         </button>
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
         >
           Close

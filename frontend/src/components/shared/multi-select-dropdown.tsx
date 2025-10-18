@@ -11,6 +11,7 @@ interface MultiSelectDropdownProps {
   options: Option[];
   headline: string;
   width?: string;
+  selectedOptions: string[]; // controlled
   returnSelected: (selected: string[]) => void;
 }
 
@@ -18,10 +19,10 @@ export const MultiSelectDropdown = ({
   options,
   headline,
   width,
+  selectedOptions,
   returnSelected,
 }: MultiSelectDropdownProps) => {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,14 +40,10 @@ export const MultiSelectDropdown = ({
   }, []);
 
   const toggleSelect = (id: string) => {
-    setSelectedOptions((prev) => {
-      const next = prev.includes(id)
-        ? prev.filter((p) => p !== id)
-        : [...prev, id];
-      // Return the up-to-date selection to the parent
-      returnSelected(next);
-      return next;
-    });
+    const next = selectedOptions.includes(id)
+      ? selectedOptions.filter((p) => p !== id)
+      : [...selectedOptions, id];
+    returnSelected(next);
   };
 
   return (
@@ -66,34 +63,40 @@ export const MultiSelectDropdown = ({
 
       {isOpen && (
         <ul
-          className="absolute z-10 mt-2 w-full max-h-fit overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
           style={{
             position: "absolute",
             overflowY: "auto",
             maxHeight: "fit-content",
           }}
         >
-          {options.map((option) => (
-            <li
-              key={option.id}
-              className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-              onClick={() => toggleSelect(option.id)}
-            >
-              <input
-                type="checkbox"
-                checked={selectedOptions.includes(option.id)}
-                readOnly
-                className="mr-2 accent-indigo-500"
-              />
-              {option.avatarUrl && (
-                <div
-                  className="rounded-full h-8 w-8 bg-cover bg-center mr-2 flex-shrink-0"
-                  style={{ backgroundImage: `url(${option.avatarUrl})` }}
-                ></div>
-              )}
-              <span className="text-gray-700 text-[1.6rem]">{option.name}</span>
-            </li>
-          ))}
+          {options.length === 0 ? (
+            <li className="px-2 py-2 text-gray-500">No options available</li>
+          ) : (
+            options.map((option) => (
+              <li
+                key={option.id}
+                className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                onClick={() => toggleSelect(option.id)}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedOptions.includes(option.id)}
+                  readOnly
+                  className="mr-2 accent-indigo-500"
+                />
+                {option.avatarUrl && (
+                  <div
+                    className="rounded-full h-8 w-8 bg-cover bg-center mr-2 flex-shrink-0"
+                    style={{ backgroundImage: `url(${option.avatarUrl})` }}
+                  ></div>
+                )}
+                <span className="text-gray-700 text-[1.6rem]">
+                  {option.name}
+                </span>
+              </li>
+            ))
+          )}
         </ul>
       )}
     </div>
