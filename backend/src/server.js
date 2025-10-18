@@ -329,10 +329,19 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
       ]
     );
 
-    // Share per debtor in cents
-    const share = Math.round((amount * 100) / (debtors.length + 1));
+    // Fair split: include payer in participant count (payer + selected participants)
+    // and distribute any remainder cents across debtors first.
+    const amountCents = Math.round(amount * 100);
+    const participantCount = (debtors?.length || 0) + 1; // +1 = payer
+    const baseShare = participantCount > 0 ? Math.floor(amountCents / participantCount) : 0;
+    let remainder = amountCents - baseShare * participantCount;
 
-    for (const debtorId of debtors) {
+    for (let i = 0; i < debtors.length; i++) {
+      const debtorId = debtors[i];
+      const extra = remainder > 0 ? 1 : 0; // distribute remainder cents to first participants
+      const share = baseShare + extra;
+      if (remainder > 0) remainder -= 1;
+
       await exec(
         `insert into expense_debtors (expense_id, debtor_id, share_cents)
          values ($1, $2, $3)`,
@@ -365,14 +374,17 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
   const balances = {};
   members.forEach((m) => (balances[m.id] = 0));
 
-  const paid = await qAll(
-    `select payer_id, sum(amount_cents) as paid
-       from expenses
-      where group_id = $1
-      group by payer_id`,
+  // Compute how much each payer should receive from others:
+  // sum of debtor shares on their expenses (not the full amount paid).
+  const credits = await qAll(
+    `select e.payer_id, sum(ed.share_cents) as credit
+       from expenses e
+       join expense_debtors ed on ed.expense_id = e.id
+      where e.group_id = $1
+      group by e.payer_id`,
     [groupId]
   );
-  paid.forEach((p) => (balances[p.payer_id] += Number(p.paid)));
+  credits.forEach((p) => (balances[p.payer_id] += Number(p.credit)));
 
   const owed = await qAll(
     `select debtor_id, sum(share_cents) as owed

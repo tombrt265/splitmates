@@ -39,12 +39,15 @@ export const MultiSelectDropdown = ({
   }, []);
 
   const toggleSelect = (id: string) => {
-    setSelectedOptions((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-    returnSelected(selectedOptions);
-    console.log(selectedOptions);
-  };
+    setSelectedOptions((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((p) => p !== id)
+        : [...prev, id];
+      // Return the up-to-date selection to the parent
+      returnSelected(next);
+      return next;
+    });
+  }
 
   return (
     <div ref={dropdownRef} className={`relative ${width || "w-full"} mb-6`}>
