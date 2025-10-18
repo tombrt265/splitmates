@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface Option {
@@ -9,6 +9,7 @@ interface Option {
 
 interface SingleSelectDropdownProps {
   options: Option[];
+  selectedOption: string | null; // controlled
   headline: string;
   width?: string;
   returnSelected: (selected: string | null) => void;
@@ -16,12 +17,12 @@ interface SingleSelectDropdownProps {
 
 export const SingleSelectDropdown = ({
   options,
+  selectedOption,
   headline,
   width,
   returnSelected,
 }: SingleSelectDropdownProps) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,7 +41,6 @@ export const SingleSelectDropdown = ({
 
   const handleSelect = (id: string) => {
     const newSelection = id === selectedOption ? null : id;
-    setSelectedOption(newSelection);
     returnSelected(newSelection);
     setIsOpen(false);
   };
@@ -64,29 +64,44 @@ export const SingleSelectDropdown = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2">
-          {options.map((option) => (
-            <li
-              key={option.id}
-              className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-              onClick={() => handleSelect(option.id)}
-            >
-              <input
-                type="radio"
-                name="singleselect"
-                checked={selectedOption === option.id}
-                readOnly
-                className="mr-2 accent-indigo-500"
-              />
-              {option.avatarUrl && (
-                <div
-                  className="rounded-full h-8 w-8 bg-cover bg-center mr-2 flex-shrink-0"
-                  style={{ backgroundImage: `url(${option.avatarUrl})` }}
-                ></div>
-              )}
-              <span className="text-gray-700 text-[1.6rem]">{option.name}</span>
+        <ul
+          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          style={{
+            position: "absolute",
+            overflowY: "auto",
+            maxHeight: "fit-content",
+          }}
+        >
+          {options.length === 0 ? (
+            <li className="flex items-center px-2 py-2 text-gray-500">
+              No options available
             </li>
-          ))}
+          ) : (
+            options.map((option) => (
+              <li
+                key={option.id}
+                className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                onClick={() => handleSelect(option.id)}
+              >
+                <input
+                  type="radio"
+                  name="singleselect"
+                  checked={selectedOption === option.id}
+                  readOnly
+                  className="mr-2 accent-indigo-500"
+                />
+                {option.avatarUrl && (
+                  <div
+                    className="rounded-full h-8 w-8 bg-cover bg-center mr-2 flex-shrink-0"
+                    style={{ backgroundImage: `url(${option.avatarUrl})` }}
+                  ></div>
+                )}
+                <span className="text-gray-700 text-[1.6rem]">
+                  {option.name}
+                </span>
+              </li>
+            ))
+          )}
         </ul>
       )}
     </div>

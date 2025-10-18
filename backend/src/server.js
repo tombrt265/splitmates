@@ -332,20 +332,16 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
     // Fair split: include payer in participant count (payer + selected participants)
     // and distribute any remainder cents across debtors first.
     const amountCents = Math.round(amount * 100);
-    const participantCount = (debtors?.length || 0) + 1; // +1 = payer
-    const baseShare = participantCount > 0 ? Math.floor(amountCents / participantCount) : 0;
-    let remainder = amountCents - baseShare * participantCount;
+    const participantCount = debtors.length + 1; // including payer
+    const baseShare = Math.ceil(amountCents / participantCount);
 
     for (let i = 0; i < debtors.length; i++) {
       const debtorId = debtors[i];
-      const extra = remainder > 0 ? 1 : 0; // distribute remainder cents to first participants
-      const share = baseShare + extra;
-      if (remainder > 0) remainder -= 1;
 
       await exec(
         `insert into expense_debtors (expense_id, debtor_id, share_cents)
          values ($1, $2, $3)`,
-        [expense.id, debtorId, share]
+        [expense.id, debtorId, baseShare]
       );
     }
 
