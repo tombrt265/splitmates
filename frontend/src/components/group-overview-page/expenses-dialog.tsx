@@ -5,7 +5,6 @@ import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
 import { API_BASE } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
-import { Check } from "lucide-react";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
