@@ -47,7 +47,7 @@ export const MultiSelectDropdown = ({
       returnSelected(next);
       return next;
     });
-  }
+  };
 
   return (
     <div ref={dropdownRef} className={`relative ${width || "w-full"} mb-6`}>
@@ -65,7 +65,14 @@ export const MultiSelectDropdown = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2">
+        <ul
+          className="absolute z-10 mt-2 w-full max-h-fit overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          style={{
+            position: "absolute",
+            overflowY: "auto",
+            maxHeight: "fit-content",
+          }}
+        >
           {options.map((option) => (
             <li
               key={option.id}

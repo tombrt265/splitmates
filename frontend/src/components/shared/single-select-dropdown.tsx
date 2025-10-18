@@ -9,6 +9,7 @@ interface Option {
 
 interface SingleSelectDropdownProps {
   options: Option[];
+  selectedOption?: string | null;
   headline: string;
   width?: string;
   returnSelected: (selected: string | null) => void;
@@ -16,11 +17,14 @@ interface SingleSelectDropdownProps {
 
 export const SingleSelectDropdown = ({
   options,
+  selectedOption: initialSelectedOption = null,
   headline,
   width,
   returnSelected,
 }: SingleSelectDropdownProps) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(
+    initialSelectedOption
+  );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +68,14 @@ export const SingleSelectDropdown = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2">
+        <ul
+          className="absolute z-10 mt-2 w-full max-h-fit overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          style={{
+            position: "absolute",
+            overflowY: "auto",
+            maxHeight: "fit-content",
+          }}
+        >
           {options.map((option) => (
             <li
               key={option.id}

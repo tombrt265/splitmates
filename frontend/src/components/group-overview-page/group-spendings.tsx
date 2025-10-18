@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ExpensesDialog } from "./expenses-dialog";
+import { FiPlus } from "react-icons/fi";
 
 interface GroupSpendingsProps {
   expenses: {
@@ -28,7 +29,7 @@ export const GroupSpendings = ({
           className="p-2 bg-blue-500 text-white rounded-md"
           onClick={() => setDialogOpen(true)}
         >
-          + Add Expense
+          <FiPlus size={20} />
         </button>
       </div>
 

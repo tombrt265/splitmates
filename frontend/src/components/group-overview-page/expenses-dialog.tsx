@@ -53,6 +53,11 @@ export const ExpensesDialog = ({
       alert("Bitte füllen Sie alle Felder aus.");
       return;
     }
+
+    if (indebtedMembers.length === 0) {
+      alert("Bitte wählen Sie mindestens einen Teilnehmer aus.");
+      return;
+    }
     const expense = {
       payerId: payer,
       amount: amount,
@@ -99,9 +104,9 @@ export const ExpensesDialog = ({
     <Dialog
       isDialogOpen={dialogState}
       closeDialog={onClose}
-      className="p-8 w-[36rem]"
+      className="p-8 w-[36rem] overflow-visible"
     >
-      <h3 className="text-2xl font-semibold mb-6 text-center">
+      <h3 className="text-2xl font-semibold pb-12 text-center">
         Create New Entry
       </h3>
 
@@ -115,6 +120,7 @@ export const ExpensesDialog = ({
         />
         <SingleSelectDropdown
           options={currencyOptions}
+          selectedOption={currencyOptions[0]?.id}
           headline="Currency"
           width="w-32"
           returnSelected={setCurrency}
