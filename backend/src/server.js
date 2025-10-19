@@ -73,6 +73,18 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
   const group = await qOne("select id from groups where id = $1", [groupId]);
   if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
 
+  const existingToken = await qOne(
+    `select token from invite_tokens
+     where group_id = $1 and (expires_at is null or expires_at > now())`,
+    [groupId]
+  );
+
+  if (existingToken) {
+    return res.json({
+      invite_link: `https://splitmates.vercel.app/join?token=${existingToken.token}`,
+    });
+  }
+
   const token = generateToken(16);
   const expiresAt = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString();
 

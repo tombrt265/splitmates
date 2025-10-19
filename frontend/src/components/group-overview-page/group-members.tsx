@@ -40,6 +40,7 @@ export const GroupMembers = ({
           onClick={() => {
             onCreateLink();
             setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000);
           }}
         >
           {copySuccess ? <FiCheck /> : <FiCopy />}
