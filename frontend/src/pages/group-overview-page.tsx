@@ -75,12 +75,10 @@ export const GroupOverviewPage = () => {
       });
       if (!res.ok) throw new Error("Failed to create invite link");
       const data = await res.json();
-      const inviteLink = data.link;
+      const inviteLink = data.invite_link;
       navigator.clipboard.writeText(inviteLink);
-      alert("Invite link copied to clipboard");
     } catch (err) {
       console.error(err);
-      alert("Error creating invite link");
     }
   };
 
