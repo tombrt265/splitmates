@@ -18,6 +18,7 @@ interface Expense {
   amount_cents: number;
   paidBy: string;
   created_at: string;
+  isRouletteExpense?: boolean; // Add this field
 }
 
 interface Group {
@@ -108,6 +109,7 @@ export const GroupOverviewPage = () => {
     amount: e.amount_cents / 100,
     paidBy: e.paidBy,
     date: new Date(e.created_at).toLocaleDateString("en-EN"),
+    isRouletteExpense: e.isRouletteExpense,
   }));
 
   const creationDate = new Date(group.created_at).toLocaleDateString("en-EN", {

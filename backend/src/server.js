@@ -309,58 +309,50 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
 // POST /api/groups/:groupId/expenses
 app.post("/api/groups/:groupId/expenses", async (req, res) => {
   const { groupId } = req.params;
-  const { payerId, amount, currency, category, description, debtors } =
-    req.body;
+  const { payerId, amount, currency, category, description, debtors, isRouletteExpense } = req.body;
 
-  if (
-    !payerId ||
-    !amount ||
-    !currency ||
-    !category ||
-    !description ||
-    !Array.isArray(debtors)
-  ) {
-    return res.status(400).json({ error: "Fehlende Felder im Request" });
+  if (!payerId || !amount || !currency || !category || !description) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+  if (!group) return res.status(404).json({ error: "Group not found" });
 
   try {
     const expense = await qOne(
       `insert into expenses (group_id, payer_id, amount_cents, currency, category, description)
        values ($1, $2, $3, $4, $5, $6)
        returning id, group_id, payer_id, amount_cents, currency, category, description, created_at`,
-      [
-        groupId,
-        payerId,
-        Math.round(amount * 100),
-        currency,
-        category,
-        description,
-      ]
+      [groupId, payerId, Math.round(amount * 100), currency, category, description]
     );
 
-    // Fair split: include payer in participant count (payer + selected participants)
-    // and distribute any remainder cents across debtors first.
-    const amountCents = Math.round(amount * 100);
-    const participantCount = debtors.length + 1; // including payer
-    const baseShare = Math.ceil(amountCents / participantCount);
-
-    for (let i = 0; i < debtors.length; i++) {
-      const debtorId = debtors[i];
-
+    // If it's a roulette expense, only the payer pays the full amount
+    if (isRouletteExpense) {
       await exec(
         `insert into expense_debtors (expense_id, debtor_id, share_cents)
          values ($1, $2, $3)`,
-        [expense.id, debtorId, baseShare]
+        [expense.id, payerId, Math.round(amount * 100)]
       );
+    } else {
+      // Regular split expense logic
+      const amountCents = Math.round(amount * 100);
+      const participantCount = debtors.length + 1;
+      const baseShare = Math.ceil(amountCents / participantCount);
+
+      for (let i = 0; i < debtors.length; i++) {
+        const debtorId = debtors[i];
+        await exec(
+          `insert into expense_debtors (expense_id, debtor_id, share_cents)
+           values ($1, $2, $3)`,
+          [expense.id, debtorId, baseShare]
+        );
+      }
     }
 
     res.status(201).json({ ...expense, debtors });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Fehler beim Erstellen der Ausgabe" });
+    res.status(500).json({ error: "Error creating expense" });
   }
 });
 
