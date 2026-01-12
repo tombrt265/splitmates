@@ -46,6 +46,7 @@ export const GroupOverviewPage = () => {
       if (!res.ok) throw new Error("Failed to fetch group overview");
       const data = await res.json();
       setGroup(data);
+      console.log(data);
     } catch (err) {
       console.error(err);
     } finally {
