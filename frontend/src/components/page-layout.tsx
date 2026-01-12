@@ -6,11 +6,14 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <div className="flex flex-row md:h-screen w-full">
+    <div className="min-h-screen w-full flex justify-center bg-gray-50 px-4 py-6 md:py-10">
+      {/* Navigation */}
       <NavBar />
-      <div className="flex-1 basis-auto shrink-0 flex flex-col h-full">
+
+      {/* Main Content */}
+      <main className="w-full max-w-5xl flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
         {children}
-      </div>
+      </main>
     </div>
   );
 };

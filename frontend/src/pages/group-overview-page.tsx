@@ -90,7 +90,7 @@ export const GroupOverviewPage = () => {
   /** === Derived Data === */
   if (loading)
     return (
-      <div className="flex flex-col items-center h-full w-full">
+      <div className="flex flex-col items-center min-h-screen w-full">
         <PageLoader />
       </div>
     );

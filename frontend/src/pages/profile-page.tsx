@@ -36,27 +36,33 @@ export const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div className="bg-gray-200 flex flex-col items-start w-full h-full p-8 text-black gap-4">
-        <div className="text-3xl p-4 w-full">
-          <span>Account Settings</span>
+      <div className="w-full max-w-3xl mx-auto flex flex-col gap-6 p-6">
+        {/* Page Title */}
+        <div className="text-3xl font-semibold text-gray-800">
+          Account Settings
         </div>
-        <div className="p-4 w-full h-full bg-white rounded-2xl flex flex-row">
-          <div className="border-r border-gray-200 w-fit flex flex-col p-4 text-lg font-semibold text-gray-500">
-            {Object.values(ViewMode).map((mode) => (
-              <button
-                key={mode}
-                className={`cursor-pointer w-fit p-4 text-start rounded-4xl ${
-                  view === mode
-                    ? "bg-blue-100 text-blue-500"
-                    : "hover:bg-blue-100 hover:text-blue-500"
-                }`}
-                onClick={() => setView(mode)}
-              >
-                {mode}
-              </button>
-            ))}
+
+        {/* Navigation Tabs (oben, scrollable auf Mobile) */}
+        <nav className="flex gap-3 overflow-x-auto border-b border-gray-200 pb-2">
+          {Object.values(ViewMode).map((mode) => (
+            <button
+              key={mode}
+              className={`flex-shrink-0 cursor-pointer px-4 py-2 rounded-lg text-gray-600 font-medium whitespace-nowrap hover:bg-blue-50 hover:text-blue-600 ${
+                view === mode ? "bg-blue-100 text-blue-600" : ""
+              }`}
+              onClick={() => setView(mode)}
+            >
+              {mode}
+            </button>
+          ))}
+        </nav>
+
+        {/* Main Content */}
+        <div className="flex flex-col gap-6">
+          {/* Jede Sektion als Card */}
+          <div className="bg-white rounded-2xl shadow-md p-6 overflow-hidden">
+            {renderView()}
           </div>
-          <div className="flex-1 p-8">{renderView()}</div>
         </div>
       </div>
     </PageLayout>

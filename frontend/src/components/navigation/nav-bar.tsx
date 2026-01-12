@@ -1,56 +1,79 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { NavBarTab } from "./nav-bar-tab";
-import { LoginButton } from "../buttons/login-button";
-import { LogoutButton } from "../buttons/logout-button";
+import { Link } from "react-router-dom";
 
 export const NavBar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { isAuthenticated } = useAuth0();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const logo = "/logo.svg";
-  const iconGroups = "/icon-groups.svg";
-  const iconProfile = "/icon-profile.svg";
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+  const { logout } = useAuth0();
+
+  const handleLogout = () => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  };
 
   return (
-    <nav className="flex flex-col bg-gray-100 items-start justify-center px-8 py-8 w-max">
-      {/* === Brand === */}
-      <div className="flex items-center h-15 gap-6 mb-12">
+    <nav className="fixed top-4 left-4 z-50" aria-label="Main Navigation">
+      <div className="relative">
+        {/* Burger Square */}
         <button
-          className="flex items-center h-full"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-15 h-15 bg-white text-gray-800 flex items-center justify-center rounded-md shadow-md"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-expanded={menuOpen}
+          aria-controls="navbar-menu"
+          aria-label="Toggle Navigation Menu"
         >
-          <img className="h-full" src={logo} alt="SplitMates logo" />
-          {!isCollapsed && <h4>Splitmates</h4>}
+          <span className="text-2xl">&#9776;</span>
         </button>
-      </div>
 
-      {/* === Tabs === */}
-      <div className="flex flex-col items-start gap-4">
-        {isAuthenticated && (
-          <>
-            <NavBarTab
-              path="/groups"
-              label="Groups"
-              isCollapsed={isCollapsed}
-              icon={iconGroups}
-            />
-            <NavBarTab
-              path="/account"
-              label="My Account"
-              isCollapsed={isCollapsed}
-              icon={iconProfile}
-            />
-          </>
-        )}
-      </div>
-
-      {/* === Buttons === */}
-      <div className="mt-auto flex flex-col items-center gap-4 w-full">
-        {!isAuthenticated ? (
-          <LoginButton isCollapsed={isCollapsed} />
-        ) : (
-          <LogoutButton isCollapsed={isCollapsed} />
+        {/* Dropdown Menu */}
+        {menuOpen && (
+          <div
+            className="absolute top-full left-0 mt-2 w-40 rounded-md flex flex-col gap-2 bg-white p-4 shadow-lg"
+            id="navbar-menu"
+            role="menu"
+          >
+            <Link
+              to="/groups"
+              role="menuitem"
+              className="bg-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-600 border-4"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className="text-blue-600 hover:text-white block px-4 py-2 leading-none">
+                Groups
+              </span>
+            </Link>
+            <Link
+              to="/account"
+              role="menuitem"
+              className="bg-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-4 border-blue-600 rounded-md"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className="text-blue-600 hover:text-white block px-4 py-2 leading-none">
+                Account
+              </span>
+            </Link>
+            <button
+              role="menuitem"
+              className="bg-blue-600 hover:bg-blue-700 rounded-md text-white block px-4 py-2 leading-none"
+              onClick={() => {
+                handleLogout();
+                setMenuOpen(false);
+              }}
+            >
+              Logout
+            </button>
+          </div>
         )}
       </div>
     </nav>
