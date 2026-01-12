@@ -260,15 +260,22 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
   }));
 
   const expenses = await qAll(
-    `select e.id, e.description, e.amount_cents, e.currency, e.created_at,
-            payer.id as payer_id, payer.username as payer_name
-     from expenses e
-     join users payer on payer.id = e.payer_id
-     where e.group_id = $1
-     order by e.created_at desc
-     limit 10`,
-    [groupId]
+  `select e.id,
+          e.description,
+          e.amount_cents,
+          e.currency,
+          e.category,
+          e.created_at,
+          payer.id as payer_id,
+          payer.username as payer_name
+   from expenses e
+   join users payer on payer.id = e.payer_id
+   where e.group_id = $1
+   order by e.created_at desc
+   limit 10`,
+  [groupId]
   );
+
 
   const mappedExpenses = await Promise.all(
     expenses.map(async (e) => {
@@ -283,6 +290,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
       return {
         id: e.id,
         description: e.description,
+        category: e.category,
         amount_cents: e.amount_cents,
         paidBy: e.payer_name,
         created_at: e.created_at,
@@ -294,6 +302,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
       };
     })
   );
+
 
   res.json({
     id: group.id.toString(),

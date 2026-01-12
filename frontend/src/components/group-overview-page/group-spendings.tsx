@@ -2,14 +2,17 @@ import { useState } from "react";
 import { ExpensesDialog } from "./expenses-dialog";
 import { FiPlus } from "react-icons/fi";
 
+interface Expense {
+  id: number;
+  description: string;
+  category: string;
+  amount_cents: number;
+  paidBy: string;
+  created_at: string;
+}
+
 interface GroupSpendingsProps {
-  expenses: {
-    id: number;
-    description: string;
-    amount: number;
-    paidBy: string;
-    date: string;
-  }[];
+  expenses: Expense[]
   updateExpenses: () => void;
   members: { name: string; avatarUrl: string; userID: string }[];
 }
@@ -22,7 +25,7 @@ export const GroupSpendings = ({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   expenses.map((expense) => {
-    expense.date = new Date(expense.date).toLocaleDateString("en-EN", {
+    expense.created_at = new Date(expense.created_at).toLocaleDateString("en-EN", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -68,7 +71,7 @@ export const GroupSpendings = ({
                   <tr key={expense.id} className="border-t hover:bg-gray-50">
                     <td className="p-2">{expense.description}</td>
                     <td className="p-2">
-                      {expense.amount.toLocaleString("de-DE", {
+                      {(expense.amount_cents / 100).toLocaleString("de-DE", {
                         style: "currency",
                         currency: "EUR",
                       })}
@@ -97,7 +100,7 @@ export const GroupSpendings = ({
                           )
                       )}
                     </td>
-                    <td className="p-2">{expense.date}</td>
+                    <td className="p-2">{expense.created_at}</td>
                   </tr>
                 ))}
               </tbody>

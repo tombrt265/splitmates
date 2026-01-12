@@ -1,13 +1,16 @@
 import { GroupSpendings } from "./group-spendings";
 
+interface Expense {
+  id: number;
+  description: string;
+  category: string;
+  amount_cents: number;
+  paidBy: string;
+  created_at: string;
+}
+
 interface GroupCardProps {
-  expenses: {
-    id: number;
-    description: string;
-    amount: number;
-    paidBy: string;
-    date: string;
-  }[];
+  expenses: Expense[]
   updateExpenses: () => void;
   members: { name: string; avatarUrl: string; userID: string }[];
 }

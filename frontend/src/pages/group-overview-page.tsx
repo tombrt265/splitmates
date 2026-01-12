@@ -15,6 +15,7 @@ interface Member {
 interface Expense {
   id: number;
   description: string;
+  category: string;
   amount_cents: number;
   paidBy: string;
   created_at: string;
@@ -102,14 +103,6 @@ export const GroupOverviewPage = () => {
       </div>
     );
 
-  const formattedExpenses = group.expenses.map((e) => ({
-    id: e.id,
-    description: e.description,
-    amount: e.amount_cents / 100,
-    paidBy: e.paidBy,
-    date: new Date(e.created_at).toLocaleDateString("en-EN"),
-  }));
-
   const creationDate = new Date(group.created_at).toLocaleDateString("en-EN", {
     year: "numeric",
     month: "long",
@@ -121,7 +114,7 @@ export const GroupOverviewPage = () => {
     <PageLayout>
       <div className="h-full p-4 grid gap-4 md:grid-cols-[4fr_1fr] md:grid-rows-1">
         <GroupCard
-          expenses={formattedExpenses}
+          expenses={group.expenses}
           updateExpenses={fetchGroupInfo}
           members={group.members}
         />
