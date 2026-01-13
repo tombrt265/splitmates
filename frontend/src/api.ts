@@ -1,2 +1,159 @@
-// src/api.ts
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
+
+type JoinGroupAPIResponse = {
+  group_id: string;
+};
+
+type UserResponse = {
+  id: string;
+  username: string;
+  email: string;
+  auth0_sub: string;
+  avatar_url: string;
+  created_at: string;
+};
+
+export const signUpUserAPI = async (
+  username: string,
+  email: string,
+  auth0_sub: string,
+  picture: string
+): Promise<UserResponse> => {
+  const res = await fetch(`${API_BASE}/api/users/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: username,
+      email: email,
+      auth0_sub: auth0_sub,
+      picture: picture,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Fehler beim Signup");
+  }
+
+  return await res.json();
+};
+
+export const joinGroupAPI = async (
+  token: string,
+  auth0_sub: string
+): Promise<JoinGroupAPIResponse> => {
+  const res = await fetch(`${API_BASE}/api/groups/join`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      token,
+      auth0_sub: auth0_sub,
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Fehler beim Beitreten");
+  }
+
+  return await res.json();
+};
+
+export const addExpenseAPI = async (
+  group_id: string,
+  payerId: string,
+  amount: number,
+  currency: string,
+  category: string | null,
+  description: string,
+  debtors: string[]
+): Promise<any> => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/expenses`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      payerId: payerId,
+      amount: amount,
+      currency: currency,
+      category: category,
+      description: description,
+      debtors: debtors,
+    }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Fehler beim Erstellen des Eintrags");
+  }
+  return await res.json();
+};
+
+export const getBalanceOfUserInGroup = async (
+  user_id: string,
+  group_id: string
+) => {
+  const res = await fetch(
+    `${API_BASE}/api/groups/${group_id}/balances/${user_id}`
+  );
+  if (!res.ok) throw new Error("Failed to load balances");
+  return await res.json();
+};
+
+export const createGroupAPI = async (
+  name: string,
+  category: string,
+  auth0_sub: string
+) => {
+  const res = await fetch(`${API_BASE}/api/groups`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      category,
+      avatar_url: "https://example.com/avatar.jpg",
+      auth0_sub: auth0_sub,
+    }),
+  });
+  if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
+
+  return await res.json();
+};
+
+export const createInviteLinkAPI = async (group_id: string) => {
+  const inviteRes = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!inviteRes.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
+
+  return await inviteRes.json();
+};
+
+export const getGroupsOfUserAPI = async (user_id: string) => {
+  const res = await fetch(
+    `${API_BASE}/api/groups?user_id=${encodeURIComponent(user_id)}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch groups");
+  return await res.json();
+};
+
+export const getGroupWithIdAPI = async (group_id: string) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/overview`);
+  if (!res.ok) throw new Error("Failed to fetch group overview");
+  return await res.json();
+};
+
+export const deleteGroupWithIdAPI = async (group_id: string) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete group");
+  return res.json();
+};
+
+export const createGroupInviteLinkWithIdAPI = async (group_id: string) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to create invite link");
+  return await res.json();
+};

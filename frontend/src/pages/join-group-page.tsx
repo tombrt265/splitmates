@@ -1,7 +1,8 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { API_BASE } from "../api";
+
+import { joinGroupAPI } from "../api";
 
 export const JoinGroupPage = () => {
   const { user, isLoading } = useAuth0();
@@ -20,27 +21,12 @@ export const JoinGroupPage = () => {
         setStatus("");
         return;
       }
-      if (!auth0_sub) return; // Warte auf Auth0
+      if (!auth0_sub) return;
 
       try {
-        const res = await fetch(`${API_BASE}/api/groups/join`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token,
-            auth0_sub: auth0_sub,
-          }),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Fehler beim Beitreten");
-        }
-
-        const data = await res.json();
+        const data = await joinGroupAPI(token, auth0_sub);
         setStatus(`Erfolgreich der Gruppe beigetreten! (ID: ${data.group_id})`);
-
-        setTimeout(() => navigate("/groups"), 1500);
+        setTimeout(() => navigate(`/groups/${data.group_id}`), 1500);
       } catch {
         setError("Fehler beim Beitreten");
         setStatus("");

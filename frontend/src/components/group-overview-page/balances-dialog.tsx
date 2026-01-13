@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog } from "../shared/dialog";
-import { API_BASE } from "../../api";
+import { getBalanceOfUserInGroup } from "../../api";
 import { PageLoader } from "../page-loader";
 
 interface BalancesDialogProps {
@@ -33,11 +33,7 @@ export const BalancesDialog = ({
     const fetchBalances = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          `${API_BASE}/api/groups/${groupId}/balances/${userId}`
-        );
-        if (!res.ok) throw new Error("Failed to load balances");
-        const data = await res.json();
+        const data = await getBalanceOfUserInGroup(userId, groupId);
         setBalances(data.balances);
       } catch (err) {
         console.error(err);

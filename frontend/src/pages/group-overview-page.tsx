@@ -2,7 +2,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { PageLayout } from "../components/page-layout";
 import { PageLoader } from "../components/page-loader";
-import { API_BASE } from "../api";
+import {
+  createGroupInviteLinkWithIdAPI,
+  deleteGroupWithIdAPI,
+  getGroupWithIdAPI,
+} from "../api";
 import { GroupMetadata } from "../components/group-overview-page/group-metadata";
 import { GroupSpendings } from "../components/group-overview-page/group-spendings";
 import { Carousel } from "../components/shared/carousel";
@@ -44,9 +48,7 @@ export const GroupOverviewPage = () => {
     if (!groupId) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${groupId}/overview`);
-      if (!res.ok) throw new Error("Failed to fetch group overview");
-      const data = await res.json();
+      const data = await getGroupWithIdAPI(groupId);
       setGroup(data);
     } catch (err) {
       console.error(err);
@@ -59,10 +61,7 @@ export const GroupOverviewPage = () => {
     if (!groupId) return;
     if (!confirm("Are you sure you want to delete this group?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${groupId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete group");
+      const res = await deleteGroupWithIdAPI(groupId);
       navigate("/groups");
     } catch (err) {
       console.error(err);
@@ -73,11 +72,7 @@ export const GroupOverviewPage = () => {
   const handleCreateLink = async () => {
     if (!groupId) return;
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${groupId}/invite`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Failed to create invite link");
-      const data = await res.json();
+      const data = await createGroupInviteLinkWithIdAPI(groupId);
       const inviteLink = data.invite_link;
       navigator.clipboard.writeText(inviteLink);
     } catch (err) {

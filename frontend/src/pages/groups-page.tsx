@@ -3,7 +3,11 @@ import { PageLayout } from "../components/page-layout";
 import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../api";
+import {
+  createGroupAPI,
+  createInviteLinkAPI,
+  getGroupsOfUserAPI,
+} from "../api";
 
 interface Group {
   id: number;
@@ -23,11 +27,7 @@ export const GroupsPage = () => {
   /** Lädt Gruppen des aktuellen Nutzers */
   const fetchGroups = useCallback(async () => {
     if (!userId) return;
-    const res = await fetch(
-      `${API_BASE}/api/groups?user_id=${encodeURIComponent(userId)}`
-    );
-    if (!res.ok) throw new Error("Failed to fetch groups");
-    const json = await res.json();
+    const json = await getGroupsOfUserAPI(userId);
     setGroups(json);
   }, [userId]);
 
@@ -38,29 +38,9 @@ export const GroupsPage = () => {
   }, [isLoading, userId, fetchGroups]);
 
   const handleCreateGroup = async (name: string, category: string) => {
-    const res = await fetch(`${API_BASE}/api/groups`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        category,
-        avatar_url: "https://example.com/avatar.jpg",
-        auth0_sub: userId,
-      }),
-    });
-    if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
-
-    const group = await res.json();
-
-    const inviteRes = await fetch(`${API_BASE}/api/groups/${group.id}/invite`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!inviteRes.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
-
-    const data = await inviteRes.json();
+    const group = await createGroupAPI(name, category, userId!);
+    const data = await createInviteLinkAPI(group.id);
     await fetchGroups();
-
     return { group, inviteLink: data.invite_link };
   };
 

@@ -3,7 +3,7 @@ import { Dialog } from "../shared/dialog";
 import { MultiSelectDropdown } from "../shared/multi-select-dropdown";
 import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
-import { API_BASE } from "../../api";
+import { addExpenseAPI } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
 
 interface ExpensesDialogProps {
@@ -80,18 +80,15 @@ export const ExpensesDialog = ({
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${groupId}/expenses`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(expense),
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.error || "Fehler beim Erstellen des Eintrags"
-        );
-      }
-      const data = await res.json();
+      const data = await addExpenseAPI(
+        groupId,
+        expense.payerId,
+        expense.amount,
+        expense.currency,
+        expense.category,
+        expense.description,
+        expense.debtors
+      );
       updateExpenses(data);
       onClose();
     } catch (err: any) {
