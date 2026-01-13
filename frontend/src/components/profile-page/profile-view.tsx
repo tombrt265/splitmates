@@ -26,11 +26,6 @@ export const ProfileView = () => {
 
   return (
     <div className="w-full h-full flex flex-col gap-4">
-      {/* Header */}
-      <div className="text-2xl font-semibold text-gray-600">
-        <span>My Profile</span>
-      </div>
-
       {/* Avatar and Name Box */}
       <div className="flex flex-row items-center gap-4 border border-gray-200 rounded-2xl p-4">
         <div

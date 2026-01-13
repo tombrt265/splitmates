@@ -15,10 +15,23 @@ enum ViewMode {
 }
 
 export const ProfilePage = () => {
-  const [view, setView] = useState<ViewMode>(ViewMode.PROFILE);
+  const [openSections, setOpenSections] = useState<Record<ViewMode, boolean>>({
+    [ViewMode.PROFILE]: true,
+    [ViewMode.GENERAL]: true,
+    [ViewMode.SECURITY]: true,
+    [ViewMode.NOTIFICATIONS]: true,
+    [ViewMode.BILLING]: true,
+  });
 
-  const renderView = () => {
-    switch (view) {
+  const toggleSection = (mode: ViewMode) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [mode]: !prev[mode],
+    }));
+  };
+
+  const renderView = (mode: ViewMode) => {
+    switch (mode) {
       case ViewMode.PROFILE:
         return <ProfileView />;
       case ViewMode.GENERAL:
@@ -36,34 +49,37 @@ export const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div className="w-full max-w-3xl mx-auto flex flex-col gap-6 p-6">
+      <div className="w-full flex flex-col  gap-4 p-6">
         {/* Page Title */}
-        <div className="text-3xl font-semibold text-gray-800">
+        <h1 className="text-4xl! self-center font-semibold text-gray-800 mb-4">
           Account Settings
-        </div>
+        </h1>
 
-        {/* Navigation Tabs (oben, scrollable auf Mobile) */}
-        <nav className="flex gap-3 overflow-x-auto border-b border-gray-200 pb-2">
-          {Object.values(ViewMode).map((mode) => (
+        {/* Collapsible Sections */}
+        {Object.values(ViewMode).map((mode) => (
+          <div
+            key={mode}
+            className="bg-white rounded-2xl shadow-md overflow-hidden"
+          >
+            {/* Header */}
             <button
-              key={mode}
-              className={`flex-shrink-0 cursor-pointer px-4 py-2 rounded-lg text-gray-600 font-medium whitespace-nowrap hover:bg-blue-50 hover:text-blue-600 ${
-                view === mode ? "bg-blue-100 text-blue-600" : ""
-              }`}
-              onClick={() => setView(mode)}
+              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => toggleSection(mode)}
             >
-              {mode}
+              <span>{mode}</span>
+              <span className="text-gray-400">
+                {openSections[mode] ? "▲" : "▼"}
+              </span>
             </button>
-          ))}
-        </nav>
 
-        {/* Main Content */}
-        <div className="flex flex-col gap-6">
-          {/* Jede Sektion als Card */}
-          <div className="bg-white rounded-2xl shadow-md p-6 overflow-hidden">
-            {renderView()}
+            {/* Content */}
+            {openSections[mode] && (
+              <div className="px-6 py-4 border-t border-gray-100">
+                {renderView(mode)}
+              </div>
+            )}
           </div>
-        </div>
+        ))}
       </div>
     </PageLayout>
   );
