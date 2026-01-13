@@ -6,7 +6,7 @@ import { API_BASE } from "../api";
 import { GroupMetadata } from "../components/group-overview-page/group-metadata";
 import { GroupSpendings } from "../components/group-overview-page/group-spendings";
 import { Carousel } from "../components/shared/carousel";
-import { DebtByCategoryChart } from "../components/group-overview-page/stat-debt-by-category";
+import { BarChart } from "../components/shared/bar-chart";
 
 interface Member {
   name: string;
@@ -90,8 +90,8 @@ export const GroupOverviewPage = () => {
     fetchGroupInfo();
   }, [fetchGroupInfo]);
 
-  /** === Derived Data === */
-  let categoryStats = [{ category: "", totalCents: 0 }];
+  /** === Debt By Category === */
+  let debtbyCategory = [{ label: "", value: 0 }];
   if (group) {
     const expensesByCategory = group.expenses.reduce<Record<string, number>>(
       (acc, expense) => {
@@ -102,13 +102,31 @@ export const GroupOverviewPage = () => {
       {}
     );
 
-    categoryStats = Object.entries(expensesByCategory).map(
-      ([category, totalCents]) => ({
-        category,
-        totalCents,
-      })
+    debtbyCategory = Object.entries(expensesByCategory)
+      .map(([category, totalCents]) => ({
+        label: category,
+        value: totalCents / 100,
+      }))
+      .sort((a, b) => b.value - a.value);
+  }
+
+  /** === Money Spent in Advance === */
+  let moneySpentByMember = [{ label: "", value: 0 }];
+  if (group) {
+    const expensesByMember = group.expenses.reduce<Record<string, number>>(
+      (acc, expense) => {
+        acc[expense.paidBy] = (acc[expense.paidBy] ?? 0) + expense.amount_cents;
+        return acc;
+      },
+      {}
     );
-    categoryStats.sort((a, b) => b.totalCents - a.totalCents);
+
+    moneySpentByMember = Object.entries(expensesByMember)
+      .map(([member, totalCents]) => ({
+        label: member,
+        value: totalCents / 100,
+      }))
+      .sort((a, b) => b.value - a.value);
   }
 
   /** === Template === */
@@ -142,8 +160,13 @@ export const GroupOverviewPage = () => {
 
         {group ? (
           <Carousel>
-            <DebtByCategoryChart stats={categoryStats} />
-            <div></div>
+            <BarChart title="Debt By Category [€]" data={debtbyCategory} />
+            <BarChart
+              title="Most Generous Member By Money Spent In Advance [€]"
+              data={moneySpentByMember}
+              maxBars={3}
+            />
+            {/* <BarChart title="Debt By Person [€]"/> */}
           </Carousel>
         ) : (
           <PageLoader page={false} />

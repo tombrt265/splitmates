@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { FiCopy, FiCheck } from "react-icons/fi";
 import { BalancesDialog } from "./balances-dialog";
 
 interface Member {
