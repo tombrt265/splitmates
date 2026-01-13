@@ -3,8 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { PageLayout } from "../components/page-layout";
 import { PageLoader } from "../components/page-loader";
 import { API_BASE } from "../api";
-import { GroupCard } from "../components/group-overview-page/group-card";
-import { GroupMembers } from "../components/group-overview-page/group-members";
+import { GroupMetadata } from "../components/group-overview-page/group-metadata";
+import { GroupSpendings } from "../components/group-overview-page/group-spendings";
+import { GroupStatisticsCarousel } from "../components/group-overview-page/group-statistics-carousel";
 
 interface Member {
   name: string;
@@ -88,12 +89,7 @@ export const GroupOverviewPage = () => {
   }, [fetchGroupInfo]);
 
   /** === Derived Data === */
-  if (loading)
-    return (
-      <div className="flex flex-col items-center h-full w-full">
-        <PageLoader />
-      </div>
-    );
+  if (loading) return <PageLoader />;
 
   if (!group)
     return (
@@ -110,30 +106,46 @@ export const GroupOverviewPage = () => {
     date: new Date(e.created_at).toLocaleDateString("en-EN"),
   }));
 
-  const creationDate = new Date(group.created_at).toLocaleDateString("en-EN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  /** === Render === */
   return (
     <PageLayout>
-      <div className="h-full p-4 grid gap-4 md:grid-cols-[4fr_1fr] md:grid-rows-1">
-        <GroupCard
-          expenses={formattedExpenses}
-          updateExpenses={fetchGroupInfo}
-          members={group.members}
-        />
-        <GroupMembers
+      <div className="w-full max-w-6xl mx-auto flex flex-col gap-6 p-4">
+        <GroupMetadata
           members={group.members}
           name={group.name}
           category={group.category}
-          date={creationDate}
+          date={group.created_at}
           groupId={group.id}
           onDelete={handleDeleteGroup}
           onCreateLink={handleCreateLink}
         />
+
+        <GroupSpendings
+          expenses={formattedExpenses}
+          updateExpenses={fetchGroupInfo}
+          members={group.members}
+        />
+
+        <GroupStatisticsCarousel>
+          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
+            <span className="text-sm text-gray-500">Total Expenses</span>
+            <span className="text-2xl font-semibold">1.240 €</span>
+          </div>
+
+          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
+            <span className="text-sm text-gray-500">Members</span>
+            <span className="text-2xl font-semibold">5</span>
+          </div>
+
+          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
+            <span className="text-sm text-gray-500">Avg. Expense</span>
+            <span className="text-2xl font-semibold">248 €</span>
+          </div>
+
+          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
+            <span className="text-sm text-gray-500">Largest Payment</span>
+            <span className="text-2xl font-semibold">620 €</span>
+          </div>
+        </GroupStatisticsCarousel>
       </div>
     </PageLayout>
   );

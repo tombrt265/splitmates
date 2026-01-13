@@ -8,26 +8,28 @@ html {
   font-size: 10px;
   text-rendering: geometricPrecision;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  height: 100%;
 }
 
-html,
 body {
-  max-height: 100%;
-  height: 100%;
+  min-height: 100vh; /* ← wichtig für flexbox-Zentrierung */
   width: 100%;
   margin: 0;
   padding: 0;
-}
 
-body {
-  background-color: var(--white);
-
+  background-color: var(
+    --gray-50
+  ); /* optional: dezenter Hintergrund für Kartenlook */
   color: var(--black);
   font-family: var(--font-primary);
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  display: flex;
+  flex-direction: column; /* Body als flex-container für PageLayout */
+  align-items: center; /* zentriert Main-Content horizontal */
 }
 
 h1,
@@ -142,8 +144,11 @@ code {
 }
 
 #root {
-  height: 100%;
   width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @media only screen and (max-width: 640px) {

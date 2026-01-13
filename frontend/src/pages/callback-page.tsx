@@ -55,9 +55,5 @@ export const CallbackPage = () => {
     signupUser();
   }, [isLoading, isAuthenticated, user, navigate]);
 
-  return (
-    <div className="flex flex-col items-center h-full w-full">
-      <PageLoader />
-    </div>
-  );
+  return <PageLoader />;
 };

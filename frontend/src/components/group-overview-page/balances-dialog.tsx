@@ -59,7 +59,7 @@ export const BalancesDialog = ({
       </h3>
 
       {loading ? (
-        <PageLoader />
+        <PageLoader page={false} />
       ) : balances.length === 0 ? (
         <p className="text-center text-gray-500 py-4">No balances found.</p>
       ) : (

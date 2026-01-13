@@ -70,9 +70,9 @@ export const GroupsPage = () => {
 
   return (
     <PageLayout>
-      <div className="flex flex-col items-center justify-center h-full">
-        <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg shadow-md w-[400px]">
-          <h3>My Groups</h3>
+      <div className="w-full max-w-3xl mx-auto my-auto flex flex-col items-center gap-6 p-6">
+        <div className="flex flex-col items-center justify-center p-8 bg-blue-100 rounded-lg shadow-md w-[400px]">
+          <h1 className="text-4xl! mt-0!">My Groups</h1>
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
               <li key={group.id}>
@@ -86,7 +86,7 @@ export const GroupsPage = () => {
             ))}
           </ul>
           <button
-            className="bg-indigo-500 rounded-lg p-2 mt-4"
+            className="bg-blue-600 rounded-lg p-2 mt-4"
             onClick={() => setDialogOpen(true)}
           >
             <h6 className="text-white!">Create Group</h6>

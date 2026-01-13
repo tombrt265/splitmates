@@ -15,10 +15,23 @@ enum ViewMode {
 }
 
 export const ProfilePage = () => {
-  const [view, setView] = useState<ViewMode>(ViewMode.PROFILE);
+  const [openSections, setOpenSections] = useState<Record<ViewMode, boolean>>({
+    [ViewMode.PROFILE]: true,
+    [ViewMode.GENERAL]: true,
+    [ViewMode.SECURITY]: true,
+    [ViewMode.NOTIFICATIONS]: true,
+    [ViewMode.BILLING]: true,
+  });
 
-  const renderView = () => {
-    switch (view) {
+  const toggleSection = (mode: ViewMode) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [mode]: !prev[mode],
+    }));
+  };
+
+  const renderView = (mode: ViewMode) => {
+    switch (mode) {
       case ViewMode.PROFILE:
         return <ProfileView />;
       case ViewMode.GENERAL:
@@ -36,28 +49,37 @@ export const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div className="bg-gray-200 flex flex-col items-start w-full h-full p-8 text-black gap-4">
-        <div className="text-3xl p-4 w-full">
-          <span>Account Settings</span>
-        </div>
-        <div className="p-4 w-full h-full bg-white rounded-2xl flex flex-row">
-          <div className="border-r border-gray-200 w-fit flex flex-col p-4 text-lg font-semibold text-gray-500">
-            {Object.values(ViewMode).map((mode) => (
-              <button
-                key={mode}
-                className={`cursor-pointer w-fit p-4 text-start rounded-4xl ${
-                  view === mode
-                    ? "bg-blue-100 text-blue-500"
-                    : "hover:bg-blue-100 hover:text-blue-500"
-                }`}
-                onClick={() => setView(mode)}
-              >
-                {mode}
-              </button>
-            ))}
+      <div className="w-full flex flex-col  gap-4 p-6">
+        {/* Page Title */}
+        <h1 className="text-4xl! self-center font-semibold text-gray-800 mb-4">
+          Account Settings
+        </h1>
+
+        {/* Collapsible Sections */}
+        {Object.values(ViewMode).map((mode) => (
+          <div
+            key={mode}
+            className="bg-white rounded-2xl shadow-md overflow-hidden"
+          >
+            {/* Header */}
+            <button
+              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-blue-100 hover:bg-blue-200 transition-colors"
+              onClick={() => toggleSection(mode)}
+            >
+              <span>{mode}</span>
+              <span className="text-blue-400">
+                {openSections[mode] ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {/* Content */}
+            {openSections[mode] && (
+              <div className="px-6 py-4 border-t border-gray-100">
+                {renderView(mode)}
+              </div>
+            )}
           </div>
-          <div className="flex-1 p-8">{renderView()}</div>
-        </div>
+        ))}
       </div>
     </PageLayout>
   );

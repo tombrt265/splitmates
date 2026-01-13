@@ -9,11 +9,7 @@ export const AuthenticationGuard = ({
   component,
 }: AuthenticationGuardProps) => {
   const Component = withAuthenticationRequired(component, {
-    onRedirecting: () => (
-      <div className="flex flex-col items-center h-full w-full">
-        <PageLoader />
-      </div>
-    ),
+    onRedirecting: () => <PageLoader />,
   });
 
   return <Component />;
