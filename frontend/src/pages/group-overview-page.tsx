@@ -5,6 +5,7 @@ import { PageLoader } from "../components/page-loader";
 import {
   createGroupInviteLinkWithIdAPI,
   deleteGroupWithIdAPI,
+  getGroupBalancesWithIdAPI,
   getGroupWithIdAPI,
 } from "../api";
 import { GroupMetadata } from "../components/group-overview-page/group-metadata";
@@ -37,23 +38,45 @@ interface Group {
   expenses: Expense[];
 }
 
+interface Balance {
+  member_id: string;
+  member_name: string;
+  balance: string;
+}
+
 export const GroupOverviewPage = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [group, setGroup] = useState<Group | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [balances, setBalances] = useState<Balance[] | null>(null);
+  const [groupInfoLoading, setGroupInfoLoading] = useState(true);
+  const [balancesLoading, setBalancesLoading] = useState(true);
 
   /** === API Calls === */
   const fetchGroupInfo = useCallback(async () => {
     if (!groupId) return;
-    setLoading(true);
+    setGroupInfoLoading(true);
     try {
       const data = await getGroupWithIdAPI(groupId);
       setGroup(data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setGroupInfoLoading(false);
+    }
+  }, [groupId]);
+
+  const fetchGroupBalances = useCallback(async () => {
+    if (!groupId) return;
+    setBalancesLoading(true);
+    try {
+      const balances = await getGroupBalancesWithIdAPI(groupId);
+      setBalances(balances);
+      console.log(balances);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBalancesLoading(false);
     }
   }, [groupId]);
 
@@ -80,10 +103,19 @@ export const GroupOverviewPage = () => {
     }
   };
 
+  const handleUpdateExpense = async () => {
+    fetchGroupInfo;
+    fetchGroupBalances;
+  };
+
   /** === Lifecycle === */
   useEffect(() => {
     fetchGroupInfo();
   }, [fetchGroupInfo]);
+
+  useEffect(() => {
+    fetchGroupBalances();
+  }, [fetchGroupBalances]);
 
   /** === Debt By Category === */
   let debtbyCategory = [{ label: "", value: 0 }];
@@ -124,8 +156,17 @@ export const GroupOverviewPage = () => {
       .sort((a, b) => b.value - a.value);
   }
 
+  /** === Debt By Member === */
+  let debtByMember = [{ label: "", value: 0 }];
+  if (balances) {
+    debtByMember = balances.map((b) => ({
+      label: b.member_name,
+      value: parseFloat(b.balance),
+    }));
+  }
+
   /** === Template === */
-  if (loading) return <PageLoader />;
+  if (groupInfoLoading || balancesLoading) return <PageLoader />;
 
   if (!group)
     return (
@@ -149,7 +190,7 @@ export const GroupOverviewPage = () => {
 
         <GroupSpendings
           expenses={group.expenses}
-          updateExpenses={fetchGroupInfo}
+          updateExpenses={handleUpdateExpense}
           members={group.members}
         />
 
@@ -161,7 +202,12 @@ export const GroupOverviewPage = () => {
               data={moneySpentByMember}
               maxBars={3}
             />
-            {/* <BarChart title="Debt By Person [€]"/> */}
+            <BarChart
+              title="Balances [€]"
+              data={debtByMember}
+              maxBars={3}
+              negative={true}
+            />
           </Carousel>
         ) : (
           <PageLoader page={false} />

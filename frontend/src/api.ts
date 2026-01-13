@@ -13,6 +13,12 @@ type UserResponse = {
   created_at: string;
 };
 
+interface BalanceResponse {
+  member_id: string;
+  member_name: string;
+  balance: string;
+}
+
 export const signUpUserAPI = async (
   username: string,
   email: string,
@@ -155,5 +161,13 @@ export const createGroupInviteLinkWithIdAPI = async (group_id: string) => {
     method: "POST",
   });
   if (!res.ok) throw new Error("Failed to create invite link");
+  return await res.json();
+};
+
+export const getGroupBalancesWithIdAPI = async (
+  group_id: string
+): Promise<BalanceResponse[]> => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balances`);
+  if (!res.ok) throw new Error("Failed to load balances");
   return await res.json();
 };
