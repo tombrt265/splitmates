@@ -63,11 +63,11 @@ export const ProfilePage = () => {
           >
             {/* Header */}
             <button
-              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-blue-100 hover:bg-blue-200 transition-colors"
               onClick={() => toggleSection(mode)}
             >
               <span>{mode}</span>
-              <span className="text-gray-400">
+              <span className="text-blue-400">
                 {openSections[mode] ? "▲" : "▼"}
               </span>
             </button>

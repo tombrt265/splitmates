@@ -33,7 +33,7 @@ export const NavBar = () => {
           aria-controls="navbar-menu"
           aria-label="Toggle Navigation Menu"
         >
-          <span className="text-2xl">&#9776;</span>
+          <span className="text-2xl text-blue-400">&#9776;</span>
         </button>
 
         {/* Dropdown Menu */}
@@ -46,26 +46,26 @@ export const NavBar = () => {
             <Link
               to="/groups"
               role="menuitem"
-              className="bg-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-600 border-4"
+              className="bg-white hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-400 border-2"
               onClick={() => setMenuOpen(false)}
             >
-              <span className="text-blue-600 hover:text-white block px-4 py-2 leading-none">
+              <span className="text-center text-blue-400 hover:text-white font-semibold block px-4 py-2 leading-none">
                 Groups
               </span>
             </Link>
             <Link
               to="/account"
               role="menuitem"
-              className="bg-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-4 border-blue-600 rounded-md"
+              className="bg-white hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-2 border-blue-400 rounded-md"
               onClick={() => setMenuOpen(false)}
             >
-              <span className="text-blue-600 hover:text-white block px-4 py-2 leading-none">
+              <span className="text-center text-blue-400 hover:text-white font-semibold block px-4 py-2 leading-none">
                 Account
               </span>
             </Link>
             <button
               role="menuitem"
-              className="bg-blue-600 hover:bg-blue-700 rounded-md text-white block px-4 py-2 leading-none"
+              className="bg-blue-400 hover:bg-blue-600 rounded-md text-white block px-4 py-2 leading-none"
               onClick={() => {
                 handleLogout();
                 setMenuOpen(false);

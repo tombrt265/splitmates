@@ -93,7 +93,7 @@ export const GroupsDialog = ({
 
           <button
             onClick={handleCreate}
-            className="bg-indigo-500 rounded-lg p-2 mt-4 w-full"
+            className="bg-blue-600 rounded-lg p-2 mt-4 w-full"
             disabled={isLoading}
           >
             <h6 className="text-white!">

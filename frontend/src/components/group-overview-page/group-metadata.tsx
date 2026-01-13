@@ -34,7 +34,7 @@ export const GroupMetadata = ({
     <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
       {/* Group Info */}
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-4xl! font-semibold text-gray-800 m-0!">{name}</h1>
+        <h1 className="text-4xl! font-semibold text-blue-600! m-0!">{name}</h1>
         <span className="text-gray-400 text-sm">
           {new Date(date).toLocaleDateString("en-EN", {
             year: "numeric",
@@ -42,7 +42,7 @@ export const GroupMetadata = ({
             day: "numeric",
           })}
         </span>
-        <span className="bg-blue-400 rounded-md text-white py-1 px-2">
+        <span className="bg-blue-400 rounded-md font-semibold text-white py-1 px-2">
           {category}
         </span>
       </div>
@@ -74,14 +74,14 @@ export const GroupMetadata = ({
       <div className="self-center flex gap-2">
         {/* Invite Link */}
         <button
-          className="bg-gray-200 rounded-md py-2 px-2 w-fit self-center hover:bg-gray-300 flex items-center justify-center gap-2"
+          className="bg-blue-400 rounded-md py-2 px-2 w-fit self-center hover:bg-blue-500 flex items-center justify-center gap-2"
           onClick={() => {
             onCreateLink();
             setCopySuccess(true);
             setTimeout(() => setCopySuccess(false), 2000);
           }}
         >
-          <span className="text-md font-semibold text-gray-600">
+          <span className="text-md font-semibold text-white">
             {copySuccess ? "Link copied!" : "Copy Invitation Link"}
           </span>
         </button>

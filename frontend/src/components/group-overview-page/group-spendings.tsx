@@ -42,11 +42,11 @@ export const GroupSpendings = ({
     <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
       {/* Header with Add Button */}
       <div className="flex gap-4 items-center">
-        <h3 className="text-xl! my-2! font-semibold text-gray-800">
+        <h3 className="text-2xl! my-2! font-semibold! text-black!">
           Recent Transactions
         </h3>
         <button
-          className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          className="p-2 bg-blue-400 text-white rounded-md hover:bg-blue-500 transition-colors"
           onClick={() => setDialogOpen(true)}
         >
           <FiPlus size={14} />
@@ -65,22 +65,22 @@ export const GroupSpendings = ({
           <table className="w-full border-collapse">
             <thead className="sticky top-0 z-10">
               <tr>
-                <th className="text-left pl-2 text-lg text-gray-600">
+                <th className="text-left pl-2 text-lg text-blue-400">
                   Description
                 </th>
-                <th className="text-left p-2 text-lg text-gray-600">Amount</th>
-                <th className="text-left p-2 text-lg text-gray-600">Paid By</th>
-                <th className="text-left p-2 text-lg text-gray-600">
+                <th className="text-left p-2 text-lg text-blue-400">Amount</th>
+                <th className="text-left p-2 text-lg text-blue-400">Paid By</th>
+                <th className="text-left p-2 text-lg text-blue-400">
                   Involved
                 </th>
-                <th className="text-left p-2 text-lg text-gray-600">Date</th>
+                <th className="text-left p-2 text-lg text-blue-400">Date</th>
               </tr>
             </thead>
             <tbody>
               {formattedExpenses.map((expense) => (
                 <tr
                   key={expense.id}
-                  className=" hover:bg-gray-50 transition-colors"
+                  className=" hover:bg-blue-50 transition-colors"
                 >
                   <td className="p-2">{expense.description}</td>
                   <td className="p-2">
