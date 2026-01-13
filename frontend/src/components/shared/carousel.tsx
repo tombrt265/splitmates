@@ -1,11 +1,11 @@
 import { useState, ReactNode } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-interface StatsCarouselProps {
+interface CarouselProps {
   children: ReactNode[];
 }
 
-export const GroupStatisticsCarousel = ({ children }: StatsCarouselProps) => {
+export const Carousel = ({ children }: CarouselProps) => {
   const [index, setIndex] = useState(0);
 
   const count = children.length;

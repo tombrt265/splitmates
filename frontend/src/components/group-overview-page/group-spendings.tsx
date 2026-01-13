@@ -5,9 +5,10 @@ import { FiPlus } from "react-icons/fi";
 interface Expense {
   id: number;
   description: string;
-  amount: number;
+  category: string;
+  amount_cents: number;
   paidBy: string;
-  date: string;
+  created_at: string;
 }
 
 interface Member {
@@ -31,7 +32,7 @@ export const GroupSpendings = ({
 
   const formattedExpenses = expenses.map((expense) => ({
     ...expense,
-    date: new Date(expense.date).toLocaleDateString("en-EN", {
+    date: new Date(expense.created_at).toLocaleDateString("en-EN", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -84,7 +85,7 @@ export const GroupSpendings = ({
                 >
                   <td className="p-2">{expense.description}</td>
                   <td className="p-2">
-                    {expense.amount.toLocaleString("de-DE", {
+                    {(expense.amount_cents / 100).toLocaleString("de-DE", {
                       style: "currency",
                       currency: "EUR",
                     })}

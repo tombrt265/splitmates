@@ -5,7 +5,8 @@ import { PageLoader } from "../components/page-loader";
 import { API_BASE } from "../api";
 import { GroupMetadata } from "../components/group-overview-page/group-metadata";
 import { GroupSpendings } from "../components/group-overview-page/group-spendings";
-import { GroupStatisticsCarousel } from "../components/group-overview-page/group-statistics-carousel";
+import { Carousel } from "../components/shared/carousel";
+import { DebtByCategoryChart } from "../components/group-overview-page/stat-debt-by-category";
 
 interface Member {
   name: string;
@@ -16,6 +17,7 @@ interface Member {
 interface Expense {
   id: number;
   description: string;
+  category: string;
   amount_cents: number;
   paidBy: string;
   created_at: string;
@@ -89,6 +91,27 @@ export const GroupOverviewPage = () => {
   }, [fetchGroupInfo]);
 
   /** === Derived Data === */
+  let categoryStats = [{ category: "", totalCents: 0 }];
+  if (group) {
+    const expensesByCategory = group.expenses.reduce<Record<string, number>>(
+      (acc, expense) => {
+        acc[expense.category] =
+          (acc[expense.category] ?? 0) + expense.amount_cents;
+        return acc;
+      },
+      {}
+    );
+
+    categoryStats = Object.entries(expensesByCategory).map(
+      ([category, totalCents]) => ({
+        category,
+        totalCents,
+      })
+    );
+    categoryStats.sort((a, b) => b.totalCents - a.totalCents);
+  }
+
+  /** === Template === */
   if (loading) return <PageLoader />;
 
   if (!group)
@@ -97,14 +120,6 @@ export const GroupOverviewPage = () => {
         <span>Group not found</span>
       </div>
     );
-
-  const formattedExpenses = group.expenses.map((e) => ({
-    id: e.id,
-    description: e.description,
-    amount: e.amount_cents / 100,
-    paidBy: e.paidBy,
-    date: new Date(e.created_at).toLocaleDateString("en-EN"),
-  }));
 
   return (
     <PageLayout>
@@ -120,32 +135,19 @@ export const GroupOverviewPage = () => {
         />
 
         <GroupSpendings
-          expenses={formattedExpenses}
+          expenses={group.expenses}
           updateExpenses={fetchGroupInfo}
           members={group.members}
         />
 
-        <GroupStatisticsCarousel>
-          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
-            <span className="text-sm text-gray-500">Total Expenses</span>
-            <span className="text-2xl font-semibold">1.240 €</span>
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
-            <span className="text-sm text-gray-500">Members</span>
-            <span className="text-2xl font-semibold">5</span>
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
-            <span className="text-sm text-gray-500">Avg. Expense</span>
-            <span className="text-2xl font-semibold">248 €</span>
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-6 flex flex-col items-center justify-center">
-            <span className="text-sm text-gray-500">Largest Payment</span>
-            <span className="text-2xl font-semibold">620 €</span>
-          </div>
-        </GroupStatisticsCarousel>
+        {group ? (
+          <Carousel>
+            <DebtByCategoryChart stats={categoryStats} />
+            <div></div>
+          </Carousel>
+        ) : (
+          <PageLoader page={false} />
+        )}
       </div>
     </PageLayout>
   );
