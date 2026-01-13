@@ -129,7 +129,7 @@ export const ExpensesDialog = ({
       className="p-8 w-[36rem] overflow-visible"
     >
       <h3 className="text-2xl font-semibold pb-12 text-center">
-        Create New Entry
+        New Transaction
       </h3>
 
       <div className="flex flex-row items-baseline gap-4 w-full">

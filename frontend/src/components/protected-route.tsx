@@ -10,11 +10,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center h-full w-full">
-        <PageLoader />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!isAuthenticated) {
