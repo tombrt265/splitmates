@@ -49,6 +49,22 @@ export const Carousel = ({ children }: CarouselProps) => {
       >
         <FiChevronRight size={20} />
       </button>
+
+      {/* Dots */}
+      <div className="mt-4 flex justify-center gap-2">
+        {children.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            className={`h-2 w-2 rounded-full transition-all ${
+              i === index
+                ? "bg-blue-400 scale-110"
+                : "bg-gray-300 hover:bg-gray-400"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
