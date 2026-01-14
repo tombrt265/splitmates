@@ -65,7 +65,7 @@ export const NavBar = () => {
             </Link>
             <button
               role="menuitem"
-              className="bg-blue-400 hover:bg-blue-600 rounded-md text-white block px-4 py-2 leading-none"
+              className="bg-blue-400 hover:bg-blue-500 rounded-md text-white block px-4 py-2 leading-none"
               onClick={() => {
                 handleLogout();
                 setMenuOpen(false);

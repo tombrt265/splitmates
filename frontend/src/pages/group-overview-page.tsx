@@ -159,10 +159,16 @@ export const GroupOverviewPage = () => {
   /** === Debt By Member === */
   let debtByMember = [{ label: "", value: 0 }];
   if (balances) {
-    debtByMember = balances.map((b) => ({
-      label: b.member_name,
-      value: parseFloat(b.balance),
-    }));
+    debtByMember = balances
+      .map((b) => ({
+        label: b.member_name,
+        value: parseFloat(b.balance),
+      }))
+      .filter((b) => b.value < 0)
+      .map((b) => ({
+        label: b.label,
+        value: Math.abs(b.value),
+      }));
   }
 
   /** === Template === */
@@ -198,15 +204,14 @@ export const GroupOverviewPage = () => {
           <Carousel>
             <BarChart title="Debt By Category [€]" data={debtbyCategory} />
             <BarChart
-              title="Most Generous Member By Money Spent In Advance [€]"
-              data={moneySpentByMember}
+              title="Debt By Person [€]"
+              data={debtByMember}
               maxBars={3}
             />
             <BarChart
-              title="Balances [€]"
-              data={debtByMember}
+              title="Money Spent Upfront [€]"
+              data={moneySpentByMember}
               maxBars={3}
-              negative={true}
             />
           </Carousel>
         ) : (
