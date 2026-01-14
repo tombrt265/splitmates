@@ -7,52 +7,48 @@ interface BarChartProps {
   title: string;
   data: BarChartItem[];
   maxBars?: number;
-  negative?: boolean; // <--- neuer Prop
+  negative?: boolean;
 }
 
-const DEFAULT_COLOR_PALETTE = [
-  "#7FC97F", // Grün
-  "#FDC086", // Gelb-Orange
-  "#6BAED6", // Blau
-  "#BC80BD", // Lila
-  "#FF9F80", // Korall/Orange
-  "#BEBEBE", // Grau
-  "#8DD3C7", // Mint
-  "#FFD92F", // Gelb
-  "#80B1D3", // Blau 2
-];
+// const DEFAULT_COLOR_PALETTE = [
+//   "#7FC97F", // Grün
+//   "#FDC086", // Gelb-Orange
+//   "#6BAED6", // Blau
+//   "#BC80BD", // Lila
+//   "#FF9F80", // Korall/Orange
+//   "#BEBEBE", // Grau
+//   "#8DD3C7", // Mint
+//   "#FFD92F", // Gelb
+//   "#80B1D3", // Blau 2
+// ];
 
 export const BarChart = ({ title, data, maxBars, negative }: BarChartProps) => {
   if (!data || data.length === 0) return null;
 
-  const sortedData = [...data].sort((a, b) => b.value - a.value);
-  const displayedData = maxBars ? sortedData.slice(0, maxBars) : sortedData;
+  const displayedData = maxBars ? data.slice(0, maxBars) : data;
 
-  // Für negative Charts brauchen wir den Betrag
   const maxAbsValue = Math.max(...displayedData.map((d) => Math.abs(d.value)));
 
   return (
-    <div className="bg-gray-50 rounded-xl px-10 py-4 flex flex-col items-center h-80">
+    <div className="bg-gray-50 rounded-xl px-10 py-4 flex flex-col items-center h-80 bg-blu">
       <h2 className="text-xl! font-medium! text-gray-600 mt-0!">{title}</h2>
 
       <div className="flex items-end gap-4 w-full h-full">
         {displayedData.map((item, i) => {
-          const color = DEFAULT_COLOR_PALETTE[i % DEFAULT_COLOR_PALETTE.length];
+          // const color = DEFAULT_COLOR_PALETTE[i % DEFAULT_COLOR_PALETTE.length];
+          const color = "#51a2ff";
           let barStyle: React.CSSProperties = {};
           let containerClass = "flex flex-col items-center flex-1";
 
           if (negative) {
-            // Höhe als Prozent vom maximalen Betrag
-            const heightPercent = (Math.abs(item.value) / maxAbsValue) * 50; // 50% nach oben, 50% nach unten
+            const heightPercent = (Math.abs(item.value) / maxAbsValue) * 50;
             barStyle = {
               height: `${heightPercent}%`,
               backgroundColor: color,
             };
 
-            // Wrapper für negative Charts: pos. nach oben, neg. nach unten
-            containerClass += " flex justify-end"; // bottom: 50% = 0
+            containerClass += " flex justify-end";
           } else {
-            // klassisches Chart
             const heightPercent = (item.value / maxAbsValue) * 100;
             barStyle = {
               height: `${heightPercent}%`,
@@ -62,7 +58,7 @@ export const BarChart = ({ title, data, maxBars, negative }: BarChartProps) => {
 
           return (
             <div key={i} className={containerClass + " h-full relative"}>
-              {/* Säule */}
+              {/* Bar */}
               {negative ? (
                 <div className="relative w-full h-full flex flex-col justify-center">
                   <div

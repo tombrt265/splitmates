@@ -129,12 +129,12 @@ export const GroupOverviewPage = () => {
       {}
     );
 
-    debtbyCategory = Object.entries(expensesByCategory)
-      .map(([category, totalCents]) => ({
+    debtbyCategory = Object.entries(expensesByCategory).map(
+      ([category, totalCents]) => ({
         label: category,
         value: totalCents / 100,
-      }))
-      .sort((a, b) => b.value - a.value);
+      })
+    );
   }
 
   /** === Money Spent in Advance === */
@@ -148,12 +148,12 @@ export const GroupOverviewPage = () => {
       {}
     );
 
-    moneySpentByMember = Object.entries(expensesByMember)
-      .map(([member, totalCents]) => ({
+    moneySpentByMember = Object.entries(expensesByMember).map(
+      ([member, totalCents]) => ({
         label: member,
         value: totalCents / 100,
-      }))
-      .sort((a, b) => b.value - a.value);
+      })
+    );
   }
 
   /** === Debt By Member === */

@@ -27,7 +27,7 @@ export const ProfileView = () => {
   return (
     <div className="w-full h-full flex flex-col gap-4">
       {/* Avatar and Name Box */}
-      <div className="flex flex-row items-center gap-4 border border-gray-200 rounded-2xl p-4">
+      <div className="flex flex-row items-center gap-4 rounded-2xl p-4 bg-white">
         <div
           className="rounded-full aspect-square h-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${userInfo.AvatarUrl})` }}
@@ -41,7 +41,7 @@ export const ProfileView = () => {
       </div>
 
       {/* Personal Information Box */}
-      <div className="flex flex-row items-center border border-gray-200 rounded-2xl p-4">
+      <div className="flex flex-row items-center rounded-2xl p-4 bg-white">
         <div>
           <div className="text-2xl font-semibold text-gray-600">
             <span>Personal Information</span>
@@ -61,9 +61,6 @@ export const ProfileView = () => {
           <FiEdit2 />
         </label>
       </div>
-
-      {/* Placeholder for additional boxes */}
-      {/* <div className="border border-gray-200 rounded-2xl p-4">BOX 3</div> */}
     </div>
   );
 };

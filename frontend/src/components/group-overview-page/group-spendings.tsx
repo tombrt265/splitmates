@@ -66,22 +66,23 @@ export const GroupSpendings = ({
           <table className="w-full border-collapse">
             <thead className="sticky top-0 z-10">
               <tr>
-                <th className="text-left pl-2 text-lg text-blue-400">
-                  Description
-                </th>
-                <th className="text-left p-2 text-lg text-blue-400">Amount</th>
-                <th className="text-left p-2 text-lg text-blue-400">Paid By</th>
-                <th className="text-left p-2 text-lg text-blue-400">
-                  Involved
-                </th>
-                <th className="text-left p-2 text-lg text-blue-400">Date</th>
+                {["Description", "Amount", "Paid By", "Involved", "Date"].map(
+                  (column) => (
+                    <th className="text-left pl-2 pb-2 text-lg">{column}</th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
-              {formattedExpenses.map((expense) => (
+              {formattedExpenses.map((expense, idx) => (
                 <tr
                   key={expense.id}
-                  className=" hover:bg-blue-50 transition-colors"
+                  className={
+                    "transition-colors " +
+                    (idx % 2 === 0
+                      ? "bg-blue-100 hover:bg-blue-200"
+                      : "hover:bg-blue-200")
+                  }
                 >
                   <td className="p-2">{expense.description}</td>
                   <td className="p-2">

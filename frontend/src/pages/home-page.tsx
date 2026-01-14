@@ -15,7 +15,7 @@ export const HomePage = () => {
         </p>
         <button
           onClick={handleSignUp}
-          className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+          className="px-8 py-4 bg-blue-400 text-white rounded-xl font-semibold shadow hover:bg-blue-500 transition"
         >
           Get started
         </button>

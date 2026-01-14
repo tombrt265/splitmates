@@ -74,7 +74,7 @@ export const ProfilePage = () => {
 
             {/* Content */}
             {openSections[mode] && (
-              <div className="px-6 py-4 border-t border-gray-100">
+              <div className="px-6 py-4 border-t border-gray-100 bg-blue-50">
                 {renderView(mode)}
               </div>
             )}

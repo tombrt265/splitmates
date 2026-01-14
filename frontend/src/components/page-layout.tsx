@@ -11,7 +11,7 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
       <NavBar />
 
       {/* Main Content */}
-      <main className="w-full max-w-5xl flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      <main className="w-full max-w-5xl flex flex-col overflow-hidden">
         {children}
       </main>
     </div>

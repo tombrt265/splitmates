@@ -33,7 +33,7 @@ export const GroupMetadata = ({
     <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
       {/* Group Info */}
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-4xl! font-semibold text-blue-600! m-0!">{name}</h1>
+        <h1 className="text-4xl! font-semibold m-0!">{name}</h1>
         <span className="text-gray-400 text-sm">
           {new Date(date).toLocaleDateString("en-EN", {
             year: "numeric",
@@ -87,7 +87,7 @@ export const GroupMetadata = ({
 
         {/* Delete Button */}
         <button
-          className=" self-center w-fit py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold"
+          className=" self-center w-fit py-2 px-4 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors font-semibold"
           onClick={onDelete}
         >
           Delete Group
