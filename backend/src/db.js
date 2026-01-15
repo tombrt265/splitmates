@@ -1,14 +1,14 @@
 import pg from "pg";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 
-dotenv.config()
+const { NODE_ENV } = process.env;
+dotenv.config({
+  path: NODE_ENV === "test" ? ".env.test" : ".env.development",
+});
 
 const { Pool } = pg;
 
-const {
-  SUPABASE_DB_URL, // postgres://USER:PASSWORD@HOST:6543/postgres
-  PGSSLMODE = "require"
-} = process.env;
+const { SUPABASE_DB_URL, PGSSLMODE = "require" } = process.env;
 
 if (!SUPABASE_DB_URL) {
   console.error("Missing SUPABASE_DB_URL");
@@ -17,7 +17,7 @@ if (!SUPABASE_DB_URL) {
 
 export const pool = new Pool({
   connectionString: SUPABASE_DB_URL,
-  ssl: PGSSLMODE === "require" ? { rejectUnauthorized: false } : false
+  ssl: PGSSLMODE === "require" ? { rejectUnauthorized: false } : false,
 });
 
 export async function qOne(text, params = []) {

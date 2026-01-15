@@ -1,7 +1,7 @@
 import request from "supertest";
-import { assert, describe, it, beforeEach, afterEach } from "vitest";
+import { assert, describe, it, beforeEach, afterAll } from "vitest";
 import { app } from "../src/app";
-import { pool } from "../src/db";
+import { pool, exec } from "../src/db";
 
 let client: import("pg").PoolClient;
 
@@ -53,13 +53,19 @@ async function getUserGroups(user: User): Promise<Group[]> {
 // ---------------- Tests ----------------
 describe("Groups are being created", () => {
   beforeEach(async () => {
-    client = await pool.connect();
-    await client.query("BEGIN");
-  });
+    await exec("DELETE FROM expense_debtors");
+    await exec("DELETE FROM expenses");
+    await exec("DELETE FROM group_members");
+    await exec("DELETE FROM invite_tokens");
+    await exec("DELETE FROM groups");
+    await exec("DELETE FROM users");
 
-  afterEach(async () => {
-    await client.query("ROLLBACK");
-    client.release();
+    await exec("ALTER SEQUENCE users_id_seq RESTART WITH 1");
+    await exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1");
+    await exec("ALTER SEQUENCE group_members_id_seq RESTART WITH 1");
+    await exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1");
+    await exec("ALTER SEQUENCE expense_debtors_id_seq RESTART WITH 1");
+    await exec("ALTER SEQUENCE invite_tokens_id_seq RESTART WITH 1");
   });
 
   it("should create a group and list it under the user", async () => {
@@ -74,5 +80,9 @@ describe("Groups are being created", () => {
     assert.equal(user_groups.length, 1);
     assert.equal(user_groups[0].name, "test_groupname");
     assert.equal(user_groups[0].category, "test_category");
+  });
+
+  afterAll(async () => {
+    await pool.end();
   });
 });

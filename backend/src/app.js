@@ -8,7 +8,6 @@ dotenv.config();
 
 export const app = express();
 
-// CORS: für Beta reicht eine Domain oder alles offen
 const allowedOrigin = process.env.CORS_ORIGIN || "*";
 app.use(
   cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true })
@@ -17,7 +16,7 @@ app.use(express.json());
 
 // -------- Helpers ----------
 function generateToken(bytes = 16) {
-  return crypto.randomBytes(bytes).toString("hex"); // 32 hex chars
+  return crypto.randomBytes(bytes).toString("hex");
 }
 
 // -------- Health -----------
