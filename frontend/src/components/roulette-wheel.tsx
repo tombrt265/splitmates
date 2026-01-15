@@ -131,7 +131,7 @@ export const RouletteWheel = ({ items, onResult }: RouletteWheelProps) => {
       {/* Spin Button unter dem Rad */}
       <button
         onClick={spin}
-        className="mt-4 bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+        className="mt-4 bg-indigo-500 text-primary px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
       >
         Spin
       </button>

@@ -27,7 +27,7 @@ export const ProfileView = () => {
   return (
     <div className="w-full h-full flex flex-col gap-4">
       {/* Avatar and Name Box */}
-      <div className="flex flex-row items-center gap-4 rounded-2xl p-4 bg-white">
+      <div className="flex flex-row items-center gap-4 rounded-2xl p-4 bg-background">
         <div
           className="rounded-full aspect-square h-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${userInfo.AvatarUrl})` }}
@@ -41,7 +41,7 @@ export const ProfileView = () => {
       </div>
 
       {/* Personal Information Box */}
-      <div className="flex flex-row items-center rounded-2xl p-4 bg-white">
+      <div className="flex flex-row items-center rounded-2xl p-4 bg-background">
         <div>
           <div className="text-2xl font-semibold text-gray-600">
             <span>Personal Information</span>

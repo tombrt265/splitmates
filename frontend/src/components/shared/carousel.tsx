@@ -19,7 +19,7 @@ export const Carousel = ({ children }: CarouselProps) => {
   };
 
   return (
-    <div className="relative w-full bg-white rounded-2xl shadow-md p-6">
+    <div className="relative w-full bg-background rounded-2xl shadow-md p-6">
       {/* Viewport */}
       <div className="overflow-hidden">
         <div
@@ -37,7 +37,7 @@ export const Carousel = ({ children }: CarouselProps) => {
       {/* Left arrow */}
       <button
         onClick={goLeft}
-        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+        className="absolute left-3 top-1/2 -translate-y-1/2 bg-background rounded-full p-2 shadow hover:bg-widget"
       >
         <FiChevronLeft size={20} />
       </button>
@@ -45,7 +45,7 @@ export const Carousel = ({ children }: CarouselProps) => {
       {/* Right arrow */}
       <button
         onClick={goRight}
-        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+        className="absolute right-3 top-1/2 -translate-y-1/2 bg-background rounded-full p-2 shadow hover:bg-widget"
       >
         <FiChevronRight size={20} />
       </button>
@@ -59,7 +59,7 @@ export const Carousel = ({ children }: CarouselProps) => {
             className={`h-2 w-2 rounded-full transition-all ${
               i === index
                 ? "bg-blue-400 scale-110"
-                : "bg-gray-300 hover:bg-gray-400"
+                : "bg-background hover:bg-widget"
             }`}
             aria-label={`Go to slide ${i + 1}`}
           />

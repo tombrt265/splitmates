@@ -30,7 +30,7 @@ export const GroupMetadata = ({
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+    <div className="bg-background rounded-2xl shadow-md p-6 flex flex-col gap-4">
       {/* Group Info */}
       <div className="flex flex-col items-center gap-1 text-center">
         <h1 className="text-4xl! font-semibold m-0!">{name}</h1>
@@ -41,7 +41,7 @@ export const GroupMetadata = ({
             day: "numeric",
           })}
         </span>
-        <span className="bg-blue-400 rounded-md font-semibold text-white py-1 px-2">
+        <span className="bg-blue-400 rounded-md font-semibold text-primary py-1 px-2">
           {category}
         </span>
       </div>
@@ -87,7 +87,7 @@ export const GroupMetadata = ({
 
         {/* Delete Button */}
         <button
-          className=" self-center w-fit py-2 px-4 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors font-semibold"
+          className=" self-center w-fit py-2 px-4 bg-blue-400 text-primary rounded-lg hover:bg-blue-500 transition-colors font-semibold"
           onClick={onDelete}
         >
           Delete Group

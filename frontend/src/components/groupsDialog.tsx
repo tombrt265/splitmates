@@ -106,7 +106,7 @@ export const GroupsDialog = ({
           <p className="mb-4 text-center">
             Share this link to invite others to the group:
           </p>
-          <div className="bg-white p-2 rounded w-full text-center break-all flex items-center justify-center">
+          <div className="bg-background p-2 rounded w-full text-center break-all flex items-center justify-center">
             <span className="truncate">{inviteLink}</span>
             <button
               onClick={() => {
@@ -131,7 +131,7 @@ export const GroupsDialog = ({
 
       <button
         onClick={handleClose}
-        className="mt-4 bg-red-500 text-white py-1 px-4 rounded w-full"
+        className="mt-4 bg-red-500 text-primary py-1 px-4 rounded w-full"
       >
         <h6>Close</h6>
       </button>

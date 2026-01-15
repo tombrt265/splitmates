@@ -40,14 +40,14 @@ export const GroupSpendings = ({
   }));
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
+    <div className="bg-background rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
       {/* Header with Add Button */}
       <div className="flex gap-4 items-center">
         <h3 className="text-2xl! my-2! font-semibold! text-black!">
           Recent Transactions
         </h3>
         <button
-          className="p-2 bg-blue-400 text-white rounded-md hover:bg-blue-500 transition-colors"
+          className="p-2 bg-blue-400 text-primary rounded-md hover:bg-blue-500 transition-colors"
           onClick={() => setDialogOpen(true)}
         >
           <FiPlus size={14} />

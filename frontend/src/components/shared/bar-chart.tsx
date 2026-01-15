@@ -30,7 +30,7 @@ export const BarChart = ({ title, data, maxBars, negative }: BarChartProps) => {
   const maxAbsValue = Math.max(...displayedData.map((d) => Math.abs(d.value)));
 
   return (
-    <div className="bg-gray-50 rounded-xl px-10 py-4 flex flex-col items-center h-80 bg-blu">
+    <div className="bg-widget rounded-xl px-10 py-4 flex flex-col items-center h-80">
       <h2 className="text-xl! font-medium! text-gray-600 mt-0!">{title}</h2>
 
       <div className="flex items-end gap-4 w-full h-full">

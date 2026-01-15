@@ -29,5 +29,34 @@
   --font-secondary: "Space Grotesk", sans-serif;
   --font-mono: "Fira Code", monospace;
 
+  --bg-primary: #ffffff;
   --bg-widget: #d1d5dc;
+  --text-primary: #000000;
+  --text-secondary: #5e5e5e;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --bg-widget: #3a3f47;
+  --scrollbar-bg: #2a2e35;
+
+  --orange: #ff6b5b;
+  --indigo: #7c77ff;
+  --white: #1a1a1a;
+  --light-aluminium: #3a3f47;
+  --aluminium: #5a5f67;
+  --dark-aluminium: #0f1117;
+  --black: #ffffff;
+  --yellow: #ffd966;
+  --mandarine: #ff9c4d;
+  --pink: #ff66ee;
+  --blue: #5ba3ff;
+  --aqua: #5dd9ff;
+  --emerald: #3dd9b5;
+
+  --font-primary: "Inter", sans-serif;
+  --font-secondary: "Space Grotesk", sans-serif;
+  --font-mono: "Fira Code", monospace;
 }
