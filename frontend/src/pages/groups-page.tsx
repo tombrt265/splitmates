@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
 import { useNavigate } from "react-router-dom";
 import { FiChevronRight, FiPlus } from "react-icons/fi";
+import { PageLoader } from "../components/page-loader";
+
 import {
   createGroupAPI,
   createInviteLinkAPI,
@@ -22,14 +24,17 @@ export const GroupsPage = () => {
   const { user, isLoading } = useAuth0();
   const userId = user?.sub;
   const [groups, setGroups] = useState<Group[]>([]);
+  const [groupsLoading, setGroupsLoading] = useState<boolean>(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   /** Lädt Gruppen des aktuellen Nutzers */
   const fetchGroups = useCallback(async () => {
     if (!userId) return;
+    setGroupsLoading(true);
     const json = await getGroupsOfUserAPI(userId);
     setGroups(json);
+    setGroupsLoading(false);
   }, [userId]);
 
   useEffect(() => {
@@ -49,6 +54,8 @@ export const GroupsPage = () => {
     navigate(`/groups/${groupId}`);
   };
 
+  if (groupsLoading) return <PageLoader />;
+
   return (
     <PageLayout>
       <div className="w-full max-w-3xl mx-auto my-auto flex flex-col items-center gap-6 p-6">
@@ -62,7 +69,10 @@ export const GroupsPage = () => {
                   className="w-full bg-white rounded-lg p-2 cursor-pointer flex items-center justify-between"
                 >
                   <h6>{group.name}</h6>
-                  <FiChevronRight aria-hidden="true" className="text-gray-400" />
+                  <FiChevronRight
+                    aria-hidden="true"
+                    className="text-gray-400"
+                  />
                 </button>
               </li>
             ))}
