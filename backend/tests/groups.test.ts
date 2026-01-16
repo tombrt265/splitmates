@@ -1,5 +1,4 @@
 import { assert, describe, it, beforeEach, afterAll } from "vitest";
-import { pool, exec } from "../src/db";
 import {
   createUser,
   createGroup,
@@ -9,24 +8,13 @@ import {
   deleteGroup,
   createExpense,
   getGroupOverview,
+  cleanupDatabase,
 } from "./utils";
 import { Expense } from "./models";
 
 describe("create a group and ...", () => {
   beforeEach(async () => {
-    await exec("DELETE FROM expense_debtors");
-    await exec("DELETE FROM expenses");
-    await exec("DELETE FROM group_members");
-    await exec("DELETE FROM invite_tokens");
-    await exec("DELETE FROM groups");
-    await exec("DELETE FROM users");
-
-    await exec("ALTER SEQUENCE users_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE group_members_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expense_debtors_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE invite_tokens_id_seq RESTART WITH 1");
+    await cleanupDatabase();
   });
 
   it("... list it under the user", async () => {
@@ -74,37 +62,13 @@ describe("create a group and ...", () => {
   });
 
   afterAll(async () => {
-    await exec("DELETE FROM expense_debtors");
-    await exec("DELETE FROM expenses");
-    await exec("DELETE FROM group_members");
-    await exec("DELETE FROM invite_tokens");
-    await exec("DELETE FROM groups");
-    await exec("DELETE FROM users");
-
-    await exec("ALTER SEQUENCE users_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE group_members_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expense_debtors_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE invite_tokens_id_seq RESTART WITH 1");
+    await cleanupDatabase();
   });
 });
 
 describe("add an expense and ...", () => {
   beforeEach(async () => {
-    await exec("DELETE FROM expense_debtors");
-    await exec("DELETE FROM expenses");
-    await exec("DELETE FROM group_members");
-    await exec("DELETE FROM invite_tokens");
-    await exec("DELETE FROM groups");
-    await exec("DELETE FROM users");
-
-    await exec("ALTER SEQUENCE users_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE group_members_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expense_debtors_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE invite_tokens_id_seq RESTART WITH 1");
+    cleanupDatabase();
   });
 
   it("... get an overview of the group", async () => {
@@ -140,19 +104,6 @@ describe("add an expense and ...", () => {
   });
 
   afterAll(async () => {
-    await exec("DELETE FROM expense_debtors");
-    await exec("DELETE FROM expenses");
-    await exec("DELETE FROM group_members");
-    await exec("DELETE FROM invite_tokens");
-    await exec("DELETE FROM groups");
-    await exec("DELETE FROM users");
-
-    await exec("ALTER SEQUENCE users_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE group_members_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE expense_debtors_id_seq RESTART WITH 1");
-    await exec("ALTER SEQUENCE invite_tokens_id_seq RESTART WITH 1");
-    await pool.end();
+    cleanupDatabase();
   });
 });

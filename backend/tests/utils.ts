@@ -1,6 +1,21 @@
 import { User, Group, Expense, GroupOverview } from "./models";
 import { app } from "../src/app";
 import request from "supertest";
+import { exec } from "../src/db";
+
+export async function cleanupDatabase() {
+  await exec(`
+  TRUNCATE
+    expense_debtors,
+    expenses,
+    group_members,
+    invite_tokens,
+    groups,
+    users
+  RESTART IDENTITY
+  CASCADE;
+`);
+}
 
 export async function createUser(id: number): Promise<User> {
   const res = await request(app)
