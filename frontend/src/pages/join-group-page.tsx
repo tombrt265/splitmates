@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 import { joinGroupAPI } from "../api";
 
@@ -40,8 +41,18 @@ export const JoinGroupPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen p-4">
-      {status && <p className="text-green-600">{status}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {status && (
+        <p className="text-emerald-600 flex items-center gap-2">
+          <FiCheckCircle aria-hidden="true" />
+          {status}
+        </p>
+      )}
+      {error && (
+        <p className="text-red-600 flex items-center gap-2">
+          <FiAlertCircle aria-hidden="true" />
+          {error}
+        </p>
+      )}
     </div>
   );
 };

@@ -88,7 +88,7 @@ export const SingleSelectDropdown = ({
                   name="singleselect"
                   checked={selectedOption === option.id}
                   readOnly
-                  className="mr-2 accent-indigo-500"
+                  className="mr-2 accent-blue-500"
                 />
                 {option.avatarUrl && (
                   <div
@@ -96,7 +96,7 @@ export const SingleSelectDropdown = ({
                     style={{ backgroundImage: `url(${option.avatarUrl})` }}
                   ></div>
                 )}
-                <span className="text-gray-700 text-[1.6rem]">
+                <span className="text-gray-700 text-base">
                   {option.name}
                 </span>
               </li>

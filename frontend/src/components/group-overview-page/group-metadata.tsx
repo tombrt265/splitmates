@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiCheck, FiCopy, FiTrash2 } from "react-icons/fi";
 import { BalancesDialog } from "./balances-dialog";
 
 interface Member {
@@ -57,6 +58,7 @@ export const GroupMetadata = ({
               <button
                 onClick={() => setSelectedMember(member)}
                 className="cursor-pointer"
+                aria-label={`View balances for ${member.name}`}
               >
                 {member.avatarUrl && (
                   <div
@@ -73,13 +75,18 @@ export const GroupMetadata = ({
       <div className="self-center flex gap-2">
         {/* Invite Link */}
         <button
-          className="bg-blue-400 rounded-md py-2 px-2 w-fit self-center hover:bg-blue-500 flex items-center justify-center gap-2"
+          className="action-button action-button--primary w-fit self-center"
           onClick={() => {
             onCreateLink();
             setCopySuccess(true);
             setTimeout(() => setCopySuccess(false), 2000);
           }}
         >
+          {copySuccess ? (
+            <FiCheck aria-hidden="true" className="text-white" />
+          ) : (
+            <FiCopy aria-hidden="true" className="text-white" />
+          )}
           <span className="text-md font-semibold text-white">
             {copySuccess ? "Link copied!" : "Copy Invitation Link"}
           </span>
@@ -87,9 +94,10 @@ export const GroupMetadata = ({
 
         {/* Delete Button */}
         <button
-          className=" self-center w-fit py-2 px-4 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors font-semibold"
+          className="action-button action-button--danger w-fit self-center"
           onClick={onDelete}
         >
+          <FiTrash2 aria-hidden="true" />
           Delete Group
         </button>
       </div>

@@ -1,4 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { FiLogIn } from "react-icons/fi";
 
 export const LoginButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { loginWithRedirect } = useAuth0();
@@ -13,7 +14,11 @@ export const LoginButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   };
 
   return !isCollapsed ? (
-    <button className="button__login" onClick={handleLogin}>
+    <button
+      className="button__login flex items-center justify-center gap-2"
+      onClick={handleLogin}
+    >
+      <FiLogIn aria-hidden="true" />
       Log In
     </button>
   ) : (

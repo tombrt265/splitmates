@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiCheck, FiCopy } from "react-icons/fi";
+import { FiArrowRight, FiCheck, FiCopy, FiPlus, FiX } from "react-icons/fi";
 import { Dialog } from "./shared/dialog";
 import { ImageUploader } from "./shared/image-uploader";
 
@@ -93,12 +93,11 @@ export const GroupsDialog = ({
 
           <button
             onClick={handleCreate}
-            className="bg-blue-600 rounded-lg p-2 mt-4 w-full"
+            className="action-button action-button--success action-button--full mt-4"
             disabled={isLoading}
           >
-            <h6 className="text-white!">
-              {isLoading ? "Creating..." : "Create Group"}
-            </h6>
+            <FiPlus aria-hidden="true" size={16} />
+            {isLoading ? "Creating..." : "Create Group"}
           </button>
         </>
       ) : (
@@ -113,7 +112,9 @@ export const GroupsDialog = ({
                 navigator.clipboard.writeText(inviteLink);
                 setCopySuccess(true);
               }}
-              className="ml-2"
+              className="ml-2 action-button action-button--icon action-button--primary"
+              aria-label={copySuccess ? "Invite link copied" : "Copy invite link"}
+              title={copySuccess ? "Invite link copied" : "Copy invite link"}
             >
               {copySuccess ? <FiCheck /> : <FiCopy />}
             </button>
@@ -121,19 +122,21 @@ export const GroupsDialog = ({
 
           <button
             onClick={() => groupId != null && viewGroup(groupId)}
-            className="bg-indigo-500 rounded-lg p-2 mt-4 w-full"
+            className="action-button action-button--success action-button--full mt-4"
             disabled={groupId == null}
           >
-            <h6 className="text-white!">View Group</h6>
+            <FiArrowRight aria-hidden="true" />
+            View Group
           </button>
         </div>
       )}
 
       <button
         onClick={handleClose}
-        className="mt-4 bg-red-500 text-white py-1 px-4 rounded w-full"
+        className="action-button action-button--danger action-button--full mt-4"
       >
-        <h6>Close</h6>
+        <FiX aria-hidden="true" />
+        Close
       </button>
     </Dialog>
   );

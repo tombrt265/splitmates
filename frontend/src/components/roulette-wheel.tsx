@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiRefreshCw } from "react-icons/fi";
 
 interface RouletteWheelProps {
   items: string[];
@@ -131,8 +132,9 @@ export const RouletteWheel = ({ items, onResult }: RouletteWheelProps) => {
       {/* Spin Button unter dem Rad */}
       <button
         onClick={spin}
-        className="mt-4 bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+        className="action-button action-button--primary mt-4"
       >
+        <FiRefreshCw aria-hidden="true" />
         Spin
       </button>
     </div>

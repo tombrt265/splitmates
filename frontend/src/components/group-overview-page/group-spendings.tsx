@@ -47,8 +47,10 @@ export const GroupSpendings = ({
           Recent Transactions
         </h3>
         <button
-          className="p-2 bg-blue-400 text-white rounded-md hover:bg-blue-500 transition-colors"
+          className="action-button action-button--icon action-button--success"
           onClick={() => setDialogOpen(true)}
+          aria-label="Add transaction"
+          title="Add transaction"
         >
           <FiPlus size={14} />
         </button>

@@ -1,4 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { FiLogOut } from "react-icons/fi";
 
 export const LogoutButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { logout } = useAuth0();
@@ -13,7 +14,11 @@ export const LogoutButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   };
 
   return !isCollapsed ? (
-    <button className="button__logout" onClick={handleLogout}>
+    <button
+      className="button__logout flex items-center justify-center gap-2"
+      onClick={handleLogout}
+    >
+      <FiLogOut aria-hidden="true" />
       Log Out
     </button>
   ) : (

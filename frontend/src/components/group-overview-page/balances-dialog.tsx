@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog } from "../shared/dialog";
 import { getBalanceOfUserInGroup } from "../../api";
 import { PageLoader } from "../page-loader";
+import { FiX } from "react-icons/fi";
 
 interface BalancesDialogProps {
   isOpen: boolean;
@@ -69,8 +70,10 @@ export const BalancesDialog = ({
                 {b.counterparty}
               </span>
               <span
-                className={`text-[1.6rem] font-semibold ${
-                  b.direction === "incoming" ? "text-green-600" : "text-red-500"
+                className={`text-base font-semibold ${
+                  b.direction === "incoming"
+                    ? "text-emerald-600"
+                    : "text-red-600"
                 }`}
               >
                 {b.direction === "incoming" ? "+" : "-"}
@@ -83,8 +86,9 @@ export const BalancesDialog = ({
 
       <button
         onClick={onClose}
-        className="mt-6 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg py-3 transition"
+        className="action-button action-button--danger action-button--full mt-6"
       >
+        <FiX aria-hidden="true" />
         Close
       </button>
     </Dialog>

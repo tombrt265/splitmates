@@ -3,6 +3,7 @@ import { PageLayout } from "../components/page-layout";
 import { useCallback, useEffect, useState } from "react";
 import { GroupsDialog } from "../components/groupsDialog";
 import { useNavigate } from "react-router-dom";
+import { FiChevronRight, FiPlus } from "react-icons/fi";
 import {
   createGroupAPI,
   createInviteLinkAPI,
@@ -58,18 +59,20 @@ export const GroupsPage = () => {
               <li key={group.id}>
                 <button
                   onClick={() => handleGroupClick(group.id)}
-                  className="w-full bg-white rounded-lg p-2 cursor-pointer"
+                  className="w-full bg-white rounded-lg p-2 cursor-pointer flex items-center justify-between"
                 >
                   <h6>{group.name}</h6>
+                  <FiChevronRight aria-hidden="true" className="text-gray-400" />
                 </button>
               </li>
             ))}
           </ul>
           <button
-            className="bg-blue-400 rounded-lg p-2 mt-4"
+            className="action-button action-button--success mt-4"
             onClick={() => setDialogOpen(true)}
           >
-            <h6 className="text-white!">Create Group</h6>
+            <FiPlus aria-hidden="true" size={16} />
+            Create Group
           </button>
 
           {/* Dialog */}
