@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Auth0ProviderWithNavigate } from "./auth0-provider-with-navigate";
 import "./styles/styles.css";
 import { App } from "./app";
+import { ThemeProvider } from "./hooks/useTheme";
 
 const container = document.getElementById("root");
 if (!container) {
@@ -14,9 +15,11 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Auth0ProviderWithNavigate>
-        <App />
-      </Auth0ProviderWithNavigate>
+      <ThemeProvider>
+        <Auth0ProviderWithNavigate>
+          <App />
+        </Auth0ProviderWithNavigate>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

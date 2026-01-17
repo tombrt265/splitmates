@@ -51,7 +51,7 @@ export const MultiSelectDropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex justify-between items-center border border-gray-300 rounded-2xl px-4 py-2 bg-white shadow-sm hover:shadow-md transition"
+        className="w-full flex justify-between items-center border border-widget rounded-2xl px-4 py-2 bg-background shadow-sm hover:shadow-md transition"
       >
         <span>{headline}</span>
         <ChevronDown
@@ -63,7 +63,7 @@ export const MultiSelectDropdown = ({
 
       {isOpen && (
         <ul
-          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-background border border-widget rounded-2xl shadow-lg p-2"
           style={{
             position: "absolute",
             overflowY: "auto",
@@ -76,7 +76,7 @@ export const MultiSelectDropdown = ({
             options.map((option) => (
               <li
                 key={option.id}
-                className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                className="flex items-center px-2 py-2 hover:bg-widget rounded-lg cursor-pointer"
                 onClick={() => toggleSelect(option.id)}
               >
                 <input

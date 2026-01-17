@@ -53,7 +53,7 @@ export const SingleSelectDropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex justify-between items-center border border-gray-300 rounded-2xl px-4 py-2 bg-white shadow-sm hover:shadow-md transition"
+        className="w-full flex justify-between items-center border border-gray-400 rounded-2xl px-4 py-2 bg-primary shadow-sm hover:shadow-md transition"
       >
         <span>{selectedLabel}</span>
         <ChevronDown
@@ -65,7 +65,7 @@ export const SingleSelectDropdown = ({
 
       {isOpen && (
         <ul
-          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-primary border border-gray-400 rounded-2xl shadow-lg p-2"
           style={{
             position: "absolute",
             overflowY: "auto",
@@ -80,7 +80,7 @@ export const SingleSelectDropdown = ({
             options.map((option) => (
               <li
                 key={option.id}
-                className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                className="flex items-center px-2 py-2 hover:bg-secondary rounded-lg cursor-pointer text-primary"
                 onClick={() => handleSelect(option.id)}
               >
                 <input
@@ -96,7 +96,7 @@ export const SingleSelectDropdown = ({
                     style={{ backgroundImage: `url(${option.avatarUrl})` }}
                   ></div>
                 )}
-                <span className="text-gray-700 text-base">
+                <span className="text-widget text-base">
                   {option.name}
                 </span>
               </li>

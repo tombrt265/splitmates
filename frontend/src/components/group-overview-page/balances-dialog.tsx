@@ -49,7 +49,7 @@ export const BalancesDialog = ({
     <Dialog
       isDialogOpen={isOpen}
       closeDialog={onClose}
-      className="p-6 w-full max-w-md bg-white rounded-2xl shadow-xl"
+      className="p-6 w-full max-w-md bg-background rounded-2xl shadow-xl"
     >
       <h3 className="text-2xl font-semibold mb-4 text-center">
         {memberName}'s balances
@@ -86,7 +86,7 @@ export const BalancesDialog = ({
 
       <button
         onClick={onClose}
-        className="action-button action-button--danger action-button--full mt-6"
+        className="action-button action-button--danger action-button--full mt-6 text-primary"
       >
         <FiX aria-hidden="true" />
         Close

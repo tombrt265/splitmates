@@ -63,7 +63,7 @@ export const GroupsDialog = ({
     <Dialog
       isDialogOpen={dialogState}
       closeDialog={handleClose}
-      className="p-20"
+      className="p-20 bg-widget"
     >
       <ImageUploader />
 
@@ -77,7 +77,7 @@ export const GroupsDialog = ({
             onChange={(e) => setGroupName(e.target.value)}
           />
           <select
-            className="border border-gray-300 rounded p-2 w-full mt-4 mb-5"
+            className="border bg-widget! border-gray-300 rounded p-2 w-full mt-4 mb-5"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -105,7 +105,7 @@ export const GroupsDialog = ({
           <p className="mb-4 text-center">
             Share this link to invite others to the group:
           </p>
-          <div className="bg-white p-2 rounded w-full text-center break-all flex items-center justify-center">
+          <div className="bg-background p-2 rounded w-full text-center break-all flex items-center justify-center">
             <span className="truncate">{inviteLink}</span>
             <button
               onClick={() => {
@@ -133,7 +133,7 @@ export const GroupsDialog = ({
 
       <button
         onClick={handleClose}
-        className="action-button action-button--danger action-button--full mt-4"
+        className="action-button action-button--danger action-button--full mt-4 text-primary"
       >
         <FiX aria-hidden="true" />
         Close
