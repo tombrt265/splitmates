@@ -5,6 +5,7 @@ import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
 import { addExpenseAPI } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
+import { FiCheck, FiShuffle, FiX } from "react-icons/fi";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -160,7 +161,7 @@ export const ExpensesDialog = ({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         maxLength={50}
-        className="border rounded-lg p-3 my-2 w-full text-[1.6rem]"
+        className="border rounded-lg p-3 my-2 w-full text-base"
       />
 
       <div className="flex flex-row items-baseline gap-4 w-full">
@@ -172,12 +173,13 @@ export const ExpensesDialog = ({
           returnSelected={setPayer}
         />
         <button
-          className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-lg font-semibold hover:bg-indigo-700 transition"
+          className="action-button action-button--primary"
           type="button"
           onClick={() => {
             setDialogOpen(true);
           }}
         >
+          <FiShuffle aria-hidden="true" />
           <span>Roulette</span>
         </button>
         <Dialog
@@ -220,14 +222,16 @@ export const ExpensesDialog = ({
       <div className="flex gap-4 justify-center w-full mt-8">
         <button
           onClick={handleExpensesCreation}
-          className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+          className="action-button action-button--success flex-1"
         >
+          <FiCheck aria-hidden="true" />
           Submit
         </button>
         <button
           onClick={handleClose}
-          className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+          className="action-button action-button--danger flex-1"
         >
+          <FiX aria-hidden="true" />
           Close
         </button>
       </div>

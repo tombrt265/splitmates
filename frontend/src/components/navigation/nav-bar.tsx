@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
+import { FiLogOut, FiMenu, FiUser, FiUsers, FiX } from "react-icons/fi";
 import { ThemeToggleButton } from "../buttons/theme-toggle-button";
 
 export const NavBar = () => {
@@ -34,7 +35,11 @@ export const NavBar = () => {
           aria-controls="navbar-menu"
           aria-label="Toggle Navigation Menu"
         >
-          <span className="text-2xl text-blue-400">&#9776;</span>
+          {menuOpen ? (
+            <FiX className="text-2xl text-blue-400" aria-hidden="true" />
+          ) : (
+            <FiMenu className="text-2xl text-blue-400" aria-hidden="true" />
+          )}
         </button>
 
         {/* Dropdown Menu */}
@@ -47,32 +52,35 @@ export const NavBar = () => {
             <Link
               to="/groups"
               role="menuitem"
-              className="bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-400 border-2"
+              className="group bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-400 border-2 flex items-center gap-2 px-4 py-2"
               onClick={() => setMenuOpen(false)}
             >
-              <span className="text-center text-blue-400 hover:text-white font-semibold block px-4 py-2 leading-none">
+              <FiUsers aria-hidden="true" className="text-blue-400 group-hover:text-white" />
+              <span className="text-center text-blue-400 group-hover:text-white font-semibold leading-none">
                 Groups
               </span>
             </Link>
             <Link
               to="/account"
               role="menuitem"
-              className="bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-2 border-blue-400 rounded-md"
+              className="group bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-2 border-blue-400 rounded-md flex items-center gap-2 px-4 py-2"
               onClick={() => setMenuOpen(false)}
             >
-              <span className="text-center text-blue-400 hover:text-white font-semibold block px-4 py-2 leading-none">
+              <FiUser aria-hidden="true" className="text-blue-400 group-hover:text-white" />
+              <span className="text-center text-blue-400 group-hover:text-white font-semibold leading-none">
                 Account
               </span>
             </Link>
             <ThemeToggleButton />
             <button
               role="menuitem"
-              className="bg-blue-400 hover:bg-blue-500 rounded-md text-white block px-4 py-2 leading-none"
+              className="bg-red-500 hover:bg-red-600 rounded-md text-white block px-4 py-2 leading-none flex items-center gap-2 justify-center"
               onClick={() => {
                 handleLogout();
                 setMenuOpen(false);
               }}
             >
+              <FiLogOut aria-hidden="true" />
               Logout
             </button>
           </div>

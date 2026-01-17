@@ -1,4 +1,5 @@
 import { useSignUp } from "../hooks/useSignUp";
+import { FiArrowRight } from "react-icons/fi";
 
 export const HomePage = () => {
   const { handleSignUp } = useSignUp();
@@ -15,8 +16,9 @@ export const HomePage = () => {
         </p>
         <button
           onClick={handleSignUp}
-          className="px-8 py-4 bg-blue-400 text-primary rounded-xl font-semibold shadow hover:bg-blue-500 transition"
+          className="action-button action-button--success action-button--lg shadow text-primary"
         >
+          <FiArrowRight aria-hidden="true" />
           Get started
         </button>
       </section>

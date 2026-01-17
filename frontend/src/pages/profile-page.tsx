@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PageLayout } from "../components/page-layout";
 import { ProfileView } from "../components/profile-page/profile-view";
 import { SecurityView } from "../components/profile-page/security-view";
@@ -68,7 +69,11 @@ export const ProfilePage = () => {
             >
               <span>{mode}</span>
               <span className="text-blue-400">
-                {openSections[mode] ? "▲" : "▼"}
+                {openSections[mode] ? (
+                  <FiChevronUp aria-hidden="true" />
+                ) : (
+                  <FiChevronDown aria-hidden="true" />
+                )}
               </span>
             </button>
 
