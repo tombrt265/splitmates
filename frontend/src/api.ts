@@ -1,10 +1,6 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 import { ApiErrorResponse, User } from "./models";
 
-type JoinGroupAPIResponse = {
-  group_id: string;
-};
-
 interface BalanceResponse {
   member_id: string;
   member_name: string;
@@ -54,22 +50,19 @@ export const createInviteLinkAPI = async (group_id: string) => {
 export const joinGroupAPI = async (
   token: string,
   auth0_sub: string,
-): Promise<JoinGroupAPIResponse> => {
+): Promise<{ data: { group_id: string } }> => {
   const res = await fetch(`${API_BASE}/api/groups/join`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      token,
-      auth0_sub: auth0_sub,
-    }),
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
+    body: JSON.stringify({ token }),
   });
 
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.error || "Fehler beim Beitreten");
-  }
+  const data: { data: { group_id: string } } | ApiErrorResponse =
+    await res.json();
 
-  return await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+
+  return data as { data: { group_id: string } };
 };
 
 export const addExpenseAPI = async (

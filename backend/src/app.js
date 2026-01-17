@@ -97,7 +97,6 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
-// POST /api/groups/:groupId/invite
 app.post("/api/groups/:groupId/invite", async (req, res) => {
   const { groupId } = req.params;
 
@@ -154,46 +153,94 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
   }
 });
 
-// POST /api/groups/join
 app.post("/api/groups/join", async (req, res) => {
-  const { token, auth0_sub } = req.body;
-  if (!token || !auth0_sub)
-    return res.status(400).json({ error: "token und auth0_sub erforderlich" });
+  const { token } = req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  const invite = await qOne(`select * from invite_tokens where token = $1`, [
-    token,
-  ]);
-  if (!invite) return res.status(404).json({ error: "Ungültiger Token" });
-
-  if (invite.expires_at && new Date(invite.expires_at) < new Date())
-    return res.status(400).json({ error: "Token abgelaufen" });
-
-  const user = await qOne("select id from users where auth0_sub = $1", [
-    auth0_sub,
-  ]);
-  if (!user) {
-    return res
-      .status(404)
-      .json({ error: "User existiert nicht. Bitte vorher anmelden." });
+  /** Verification */
+  if (!token) {
+    return res.status(400).json({
+      error: {
+        code: "MISSING_TOKEN",
+        message: "invite token is missing",
+      },
+    });
   }
 
-  await qOne(
-    `insert into group_members (group_id, user_id, role, is_active)
-     values ($1, $2, 'member', true)
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
+
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    const invite_token = await qOne(
+      `SELECT * FROM invite_tokens WHERE token = $1`,
+      [token],
+    );
+    if (!invite_token)
+      return res.status(404).json({
+        error: {
+          code: "TOKEN_NOT_FOUND",
+          message: "invite token is not valid",
+        },
+      });
+
+    if (
+      invite_token.expires_at &&
+      new Date(invite_token.expires_at) < new Date()
+    )
+      return res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: "invite token is expired",
+        },
+      });
+
+    /** Join Group */
+    await qOne(
+      `INSERT INTO group_members (group_id, user_id, role, is_active)
+     VALUES ($1, $2, 'member', true)
      on conflict (group_id, user_id) do nothing
      returning id`,
-    [invite.group_id, user.id],
-  );
+      [invite_token.group_id, user.id],
+    );
 
-  await exec(
-    `update invite_tokens set current_uses = current_uses + 1 where token = $1`,
-    [token],
-  );
+    await exec(
+      `update invite_tokens set current_uses = current_uses + 1 where token = $1`,
+      [token],
+    );
 
-  res.json({
-    message: "Erfolgreich der Gruppe beigetreten",
-    group_id: invite.group_id,
-  });
+    res.json({
+      data: {
+        group_id: invite_token.group_id,
+      },
+    });
+  } catch (err) {
+    console.error("Joining Group Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when joining group",
+      },
+    });
+  }
 });
 
 // GET /api/groups?user_id=<auth0_sub>
