@@ -10,7 +10,7 @@ export const app = express();
 
 const allowedOrigin = process.env.CORS_ORIGIN || "*";
 app.use(
-  cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true })
+  cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true }),
 );
 app.use(express.json());
 
@@ -27,41 +27,73 @@ app.get("/api/health", async (_req, res) => {
 
 // -------- Routes -----------
 
-// POST /api/users/signup
 app.post("/api/users/signup", async (req, res) => {
-  const { username, email, auth0_sub, picture } = req.body;
+  const { username, email, picture } = req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "user is unauthorized",
+      },
+    });
+  }
+
+  /** Input Validation */
   if (!username || !email) {
-    return res
-      .status(400)
-      .json({ error: "Username und Email sind erforderlich" });
+    const missingFields = [];
+    if (!username) missingFields.push("username");
+    if (!email) missingFields.push("email");
+
+    return res.status(400).json({
+      error: {
+        code: "MISSING_FIELDS",
+        message: "username and email are required",
+        details: { missing: missingFields },
+      },
+    });
   }
 
   try {
-    let user = await qOne(
-      "select * from users where username = $1 or email = $2",
-      [username, email]
+    /** Check Duplicates */
+    const user = await qOne(
+      "SELECT * FROM users WHERE username = $1 OR email = $2",
+      [username, email],
     );
 
     if (user) {
-      return res
-        .status(409)
-        .json({ error: "Username oder Email bereits vergeben" });
+      return res.status(409).json({
+        error: {
+          code: "USER_ALREADY_EXISTS",
+          message: "Username oder Email bereits vergeben",
+          details: {
+            usernameTaken: user.username === username,
+            emailTaken: user.email === email,
+          },
+        },
+      });
     }
 
-    const avatarUrl = picture;
-
-    user = await qOne(
-      `insert into users (username, email, auth0_sub, avatar_url)
-       values ($1, $2, $3, $4)
-       returning id, username, email, auth0_sub, avatar_url, created_at`,
-      [username, email, auth0_sub || null, avatarUrl]
+    /** Insert User */
+    const newUser = await qOne(
+      `INSERT INTO users (username, email, auth0_sub, avatar_url)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, username, email, paypal, avatar_url`,
+      [username, email, auth0_sub, picture],
     );
 
-    res.status(201).json(user);
+    return res.status(201).json({ data: newUser });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fehler beim Erstellen des Users" });
+    console.error("Signup error:", err);
+
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when creating user",
+      },
+    });
   }
 });
 
@@ -75,7 +107,7 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
   const existingToken = await qOne(
     `select token from invite_tokens
      where group_id = $1 and (expires_at is null or expires_at > now())`,
-    [groupId]
+    [groupId],
   );
 
   if (existingToken) {
@@ -91,7 +123,7 @@ app.post("/api/groups/:groupId/invite", async (req, res) => {
     `insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
      values ($1, $2, null, 0, $3)
      returning id`,
-    [token, groupId, expiresAt]
+    [token, groupId, expiresAt],
   );
 
   res.json({
@@ -127,12 +159,12 @@ app.post("/api/groups/join", async (req, res) => {
      values ($1, $2, 'member', true)
      on conflict (group_id, user_id) do nothing
      returning id`,
-    [invite.group_id, user.id]
+    [invite.group_id, user.id],
   );
 
   await exec(
     `update invite_tokens set current_uses = current_uses + 1 where token = $1`,
-    [token]
+    [token],
   );
 
   res.json({
@@ -160,7 +192,7 @@ app.get("/api/groups", async (req, res) => {
      join group_members gm on gm.group_id = g.id
      where gm.user_id = $1
      order by g.created_at desc`,
-    [user.id]
+    [user.id],
   );
 
   res.json(groups);
@@ -190,13 +222,13 @@ app.post("/api/groups", async (req, res) => {
       `insert into groups (name, owner_id, avatar_url, category, is_active)
        values ($1, $2, $3, $4, true)
        returning id, name, category, avatar_url, owner_id`,
-      [name, user.id, avatar_url, category]
+      [name, user.id, avatar_url, category],
     );
 
     await exec(
       `insert into group_members (group_id, user_id, role, is_active)
        values ($1, $2, 'owner', true)`,
-      [group.id, user.id]
+      [group.id, user.id],
     );
 
     res.status(201).json(group);
@@ -224,7 +256,7 @@ app.delete("/api/groups/:groupId", async (req, res) => {
 
     await exec(
       "DELETE FROM expense_debtors WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = $1)",
-      [groupId]
+      [groupId],
     );
     await exec("DELETE FROM expenses WHERE group_id = $1", [groupId]);
 
@@ -249,7 +281,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
      from group_members gm
      join users u on u.id = gm.user_id
      where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   const mappedMembers = members.map((m) => ({
@@ -272,7 +304,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
    where e.group_id = $1
    order by e.created_at desc
    limit 10`,
-    [groupId]
+    [groupId],
   );
 
   const mappedExpenses = await Promise.all(
@@ -282,7 +314,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
          from expense_debtors ed
          join users u on u.id = ed.debtor_id
          where ed.expense_id = $1`,
-        [e.id]
+        [e.id],
       );
 
       return {
@@ -298,7 +330,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
           userID: d.debtor_id.toString(),
         })),
       };
-    })
+    }),
   );
 
   res.json({
@@ -344,7 +376,7 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
         currency,
         category,
         description,
-      ]
+      ],
     );
 
     // Fair split: include payer in participant count (payer + selected participants)
@@ -359,7 +391,7 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
       await exec(
         `insert into expense_debtors (expense_id, debtor_id, share_cents)
          values ($1, $2, $3)`,
-        [expense.id, debtorId, baseShare]
+        [expense.id, debtorId, baseShare],
       );
     }
 
@@ -382,7 +414,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
      from group_members gm
      join users u on u.id = gm.user_id
     where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   const balances = {};
@@ -396,7 +428,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
        join expense_debtors ed on ed.expense_id = e.id
       where e.group_id = $1
       group by e.payer_id`,
-    [groupId]
+    [groupId],
   );
   credits.forEach((p) => (balances[p.payer_id] += Number(p.credit)));
 
@@ -406,7 +438,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
        join expenses e on e.id = ed.expense_id
       where e.group_id = $1
       group by debtor_id`,
-    [groupId]
+    [groupId],
   );
   owed.forEach((o) => (balances[o.debtor_id] -= Number(o.owed)));
 
@@ -472,7 +504,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        from group_members gm
        join users u on u.id = gm.user_id
       where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   // Initiale Balances
@@ -488,7 +520,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        join expense_debtors ed on ed.expense_id = e.id
       where e.group_id = $1
       group by e.payer_id`,
-    [groupId]
+    [groupId],
   );
 
   credits.forEach((c) => {
@@ -502,7 +534,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        join expenses e on e.id = ed.expense_id
       where e.group_id = $1
       group by ed.debtor_id`,
-    [groupId]
+    [groupId],
   );
 
   owed.forEach((o) => {
@@ -522,6 +554,6 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
 // Root
 app.get("/", (_req, res) => {
   res.send(
-    "Splitmates backend (Supabase Postgres) is running. See /api/health."
+    "Splitmates backend (Supabase Postgres) is running. See /api/health.",
   );
 });
