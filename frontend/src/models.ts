@@ -13,3 +13,11 @@ export interface User {
   paypal: string;
   avatar_url: string;
 }
+
+export interface Group {
+  id: number;
+  name: string;
+  category: string;
+  avatar_url: string;
+  owner_id: number;
+}

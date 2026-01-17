@@ -1,5 +1,5 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-import { ApiErrorResponse, User } from "./models";
+import { ApiErrorResponse, User, Group } from "./models";
 
 interface BalanceResponse {
   member_id: string;
@@ -65,6 +65,17 @@ export const joinGroupAPI = async (
   return data as { data: { group_id: string } };
 };
 
+export const getGroupsOfUserAPI = async (auth0_sub: string) => {
+  const res = await fetch(`${API_BASE}/api/groups`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+
+  const data: { data: Group[] } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Group[] };
+};
+
 export const addExpenseAPI = async (
   group_id: string,
   payerId: string,
@@ -121,14 +132,6 @@ export const createGroupAPI = async (
   });
   if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
 
-  return await res.json();
-};
-
-export const getGroupsOfUserAPI = async (user_id: string) => {
-  const res = await fetch(
-    `${API_BASE}/api/groups?user_id=${encodeURIComponent(user_id)}`,
-  );
-  if (!res.ok) throw new Error("Failed to fetch groups");
   return await res.json();
 };
 

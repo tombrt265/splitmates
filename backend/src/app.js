@@ -243,29 +243,52 @@ app.post("/api/groups/join", async (req, res) => {
   }
 });
 
-// GET /api/groups?user_id=<auth0_sub>
 app.get("/api/groups", async (req, res) => {
-  const { user_id } = req.query; // = auth0_sub
-  if (!user_id)
-    return res
-      .status(400)
-      .json({ error: "user_id query parameter is required" });
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  const user = await qOne("select id from users where auth0_sub = $1", [
-    user_id,
-  ]);
-  if (!user) return res.json([]);
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
 
-  const groups = await qAll(
-    `select g.*
-     from groups g
-     join group_members gm on gm.group_id = g.id
-     where gm.user_id = $1
-     order by g.created_at desc`,
-    [user.id],
-  );
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
 
-  res.json(groups);
+    /** Get Groups */
+    const groups = await qAll(
+      `SELECT g.*
+     FROM groups g
+     JOIN group_members gm on gm.group_id = g.id
+     WHERE gm.user_id = $1
+     ORDER BY g.created_at desc`,
+      [user.id],
+    );
+
+    return res.status(200).json({ data: groups });
+  } catch (err) {
+    console.error("Fetching Groups Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when fetching groups",
+      },
+    });
+  }
 });
 
 // POST /api/groups
