@@ -43,14 +43,14 @@ export const ProfileView = () => {
       {/* Personal Information Box */}
       <div className="flex flex-row items-center rounded-2xl p-4 bg-background">
         <div>
-          <div className="text-2xl font-semibold text-gray-600">
+          <div className="text-2xl font-semibold text-secondary">
             <span>Personal Information</span>
           </div>
           <div className="grid grid-cols-2 gap-x-16 gap-y-4 mt-4">
             {Object.entries(userInfo).map(([key, value]) =>
               key === "AvatarUrl" ? null : (
                 <div className="flex flex-col text-xl" key={key}>
-                  <span className="text-gray-500 font-semibold">{key}</span>
+                  <span className="text-secondary font-semibold">{key}</span>
                   <span>{value}</span>
                 </div>
               )

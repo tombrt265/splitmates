@@ -43,7 +43,7 @@ export const GroupSpendings = ({
     <div className="bg-background rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
       {/* Header with Add Button */}
       <div className="flex gap-4 items-center">
-        <h3 className="text-2xl! my-2! font-semibold! text-black!">
+        <h3 className="text-2xl! my-2! font-semibold! text-primary">
           Recent Transactions
         </h3>
         <button
@@ -80,8 +80,8 @@ export const GroupSpendings = ({
                   className={
                     "transition-colors " +
                     (idx % 2 === 0
-                      ? "bg-blue-100 hover:bg-blue-200"
-                      : "hover:bg-blue-200")
+                      ? "bg-secondary hover:bg-widget"
+                      : "hover:bg-secondary")
                   }
                 >
                   <td className="p-2">{expense.description}</td>

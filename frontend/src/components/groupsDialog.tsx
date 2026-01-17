@@ -63,7 +63,7 @@ export const GroupsDialog = ({
     <Dialog
       isDialogOpen={dialogState}
       closeDialog={handleClose}
-      className="p-20"
+      className="p-20 bg-widget"
     >
       <ImageUploader />
 
@@ -77,7 +77,7 @@ export const GroupsDialog = ({
             onChange={(e) => setGroupName(e.target.value)}
           />
           <select
-            className="border border-gray-300 rounded p-2 w-full mt-4 mb-5"
+            className="border bg-widget! border-gray-300 rounded p-2 w-full mt-4 mb-5"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >

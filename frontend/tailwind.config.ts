@@ -2,16 +2,9 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'selector',
+  darkMode: ['selector', ':root[data-theme="dark"]'],
   theme: {
-    extend: {
-      colors: {
-        primary: 'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        background: 'var(--bg-primary)',
-        widget: 'var(--bg-widget)',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 } satisfies Config;
