@@ -10,7 +10,7 @@ export const app = express();
 
 const allowedOrigin = process.env.CORS_ORIGIN || "*";
 app.use(
-  cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true })
+  cors({ origin: ["http://localhost:5173", allowedOrigin], credentials: true }),
 );
 app.use(express.json());
 
@@ -27,143 +27,268 @@ app.get("/api/health", async (_req, res) => {
 
 // -------- Routes -----------
 
-// POST /api/users/signup
-app.post("/api/users/signup", async (req, res) => {
-  const { username, email, auth0_sub, picture } = req.body;
+app.post("/api/users", async (req, res) => {
+  const { username, email, picture } = req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  if (!username || !email) {
-    return res
-      .status(400)
-      .json({ error: "Username und Email sind erforderlich" });
-  }
-
-  try {
-    let user = await qOne(
-      "select * from users where username = $1 or email = $2",
-      [username, email]
-    );
-
-    if (user) {
-      return res
-        .status(409)
-        .json({ error: "Username oder Email bereits vergeben" });
-    }
-
-    const avatarUrl = picture;
-
-    user = await qOne(
-      `insert into users (username, email, auth0_sub, avatar_url)
-       values ($1, $2, $3, $4)
-       returning id, username, email, auth0_sub, avatar_url, created_at`,
-      [username, email, auth0_sub || null, avatarUrl]
-    );
-
-    res.status(201).json(user);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fehler beim Erstellen des Users" });
-  }
-});
-
-// POST /api/groups/:groupId/invite
-app.post("/api/groups/:groupId/invite", async (req, res) => {
-  const { groupId } = req.params;
-
-  const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
-
-  const existingToken = await qOne(
-    `select token from invite_tokens
-     where group_id = $1 and (expires_at is null or expires_at > now())`,
-    [groupId]
-  );
-
-  if (existingToken) {
-    return res.json({
-      invite_link: `https://splitmates.vercel.app/join?token=${existingToken.token}`,
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "user is unauthorized",
+      },
     });
   }
 
-  const token = generateToken(16);
-  const expiresAt = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString();
+  /** Input Validation */
+  if (!username || !email) {
+    const missingFields = [];
+    if (!username) missingFields.push("username");
+    if (!email) missingFields.push("email");
 
-  await qOne(
-    `insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
-     values ($1, $2, null, 0, $3)
-     returning id`,
-    [token, groupId, expiresAt]
-  );
-
-  res.json({
-    invite_link: `https://splitmates.vercel.app/join?token=${token}`,
-  });
-});
-
-// POST /api/groups/join
-app.post("/api/groups/join", async (req, res) => {
-  const { token, auth0_sub } = req.body;
-  if (!token || !auth0_sub)
-    return res.status(400).json({ error: "token und auth0_sub erforderlich" });
-
-  const invite = await qOne(`select * from invite_tokens where token = $1`, [
-    token,
-  ]);
-  if (!invite) return res.status(404).json({ error: "Ungültiger Token" });
-
-  if (invite.expires_at && new Date(invite.expires_at) < new Date())
-    return res.status(400).json({ error: "Token abgelaufen" });
-
-  const user = await qOne("select id from users where auth0_sub = $1", [
-    auth0_sub,
-  ]);
-  if (!user) {
-    return res
-      .status(404)
-      .json({ error: "User existiert nicht. Bitte vorher anmelden." });
+    return res.status(400).json({
+      error: {
+        code: "MISSING_FIELDS",
+        message: "username and email are required",
+        details: { missing: missingFields },
+      },
+    });
   }
 
-  await qOne(
-    `insert into group_members (group_id, user_id, role, is_active)
-     values ($1, $2, 'member', true)
-     on conflict (group_id, user_id) do nothing
-     returning id`,
-    [invite.group_id, user.id]
-  );
+  try {
+    /** Check Duplicates */
+    const user = await qOne(
+      "SELECT * FROM users WHERE username = $1 OR email = $2",
+      [username, email],
+    );
 
-  await exec(
-    `update invite_tokens set current_uses = current_uses + 1 where token = $1`,
-    [token]
-  );
+    if (user) {
+      return res.status(409).json({
+        error: {
+          code: "USER_ALREADY_EXISTS",
+          message: "Username oder Email bereits vergeben",
+          details: {
+            usernameTaken: user.username === username,
+            emailTaken: user.email === email,
+          },
+        },
+      });
+    }
 
-  res.json({
-    message: "Erfolgreich der Gruppe beigetreten",
-    group_id: invite.group_id,
-  });
+    /** Insert User */
+    const newUser = await qOne(
+      `INSERT INTO users (username, email, auth0_sub, avatar_url)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, username, email, paypal, avatar_url`,
+      [username, email, auth0_sub, picture],
+    );
+
+    return res.status(201).json({ data: newUser });
+  } catch (err) {
+    console.error("Signup error:", err);
+
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when creating user",
+      },
+    });
+  }
 });
 
-// GET /api/groups?user_id=<auth0_sub>
+app.post("/api/groups/:groupId/invite", async (req, res) => {
+  const { groupId } = req.params;
+
+  /** Verification */
+  const group = await qOne("SELECT id FROM groups WHERE id = $1", [groupId]);
+  if (!group) {
+    return res.status(404).json({
+      error: {
+        code: "GROUP_NOT_FOUND",
+        message: "the requested group does not exist",
+      },
+    });
+  }
+  try {
+    /** Searching for valid token */
+    const existingToken = await qOne(
+      `SELECT token FROM invite_tokens
+     WHERE group_id = $1 AND (expires_at is null or expires_at > now())`,
+      [groupId],
+    );
+
+    if (existingToken) {
+      return res.json({
+        data: {
+          invite_link: `https://splitmates.vercel.app/join?token=${existingToken.token}`,
+        },
+      });
+    }
+
+    /** Creating new token */
+    const token = generateToken(16);
+    const expiresAt = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString();
+
+    const _id = await qOne(
+      `insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
+     values ($1, $2, null, 0, $3)
+     returning id`,
+      [token, groupId, expiresAt],
+    );
+
+    res.json({
+      data: {
+        invite_link: `https://splitmates.vercel.app/join?token=${token}`,
+      },
+    });
+  } catch (err) {
+    console.error("Invitation-Link Creation Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when creating invite link",
+      },
+    });
+  }
+});
+
+app.post("/api/groups/join", async (req, res) => {
+  const { token } = req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
+
+  /** Verification */
+  if (!token) {
+    return res.status(400).json({
+      error: {
+        code: "MISSING_TOKEN",
+        message: "invite token is missing",
+      },
+    });
+  }
+
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
+
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    const invite_token = await qOne(
+      `SELECT * FROM invite_tokens WHERE token = $1`,
+      [token],
+    );
+    if (!invite_token)
+      return res.status(404).json({
+        error: {
+          code: "TOKEN_NOT_FOUND",
+          message: "invite token is not valid",
+        },
+      });
+
+    if (
+      invite_token.expires_at &&
+      new Date(invite_token.expires_at) < new Date()
+    )
+      return res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: "invite token is expired",
+        },
+      });
+
+    /** Join Group */
+    await qOne(
+      `INSERT INTO group_members (group_id, user_id, role, is_active)
+     VALUES ($1, $2, 'member', true)
+     on conflict (group_id, user_id) do nothing
+     returning id`,
+      [invite_token.group_id, user.id],
+    );
+
+    await exec(
+      `update invite_tokens set current_uses = current_uses + 1 where token = $1`,
+      [token],
+    );
+
+    res.json({
+      data: {
+        group_id: invite_token.group_id,
+      },
+    });
+  } catch (err) {
+    console.error("Joining Group Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when joining group",
+      },
+    });
+  }
+});
+
 app.get("/api/groups", async (req, res) => {
-  const { user_id } = req.query; // = auth0_sub
-  if (!user_id)
-    return res
-      .status(400)
-      .json({ error: "user_id query parameter is required" });
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  const user = await qOne("select id from users where auth0_sub = $1", [
-    user_id,
-  ]);
-  if (!user) return res.json([]);
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
 
-  const groups = await qAll(
-    `select g.*
-     from groups g
-     join group_members gm on gm.group_id = g.id
-     where gm.user_id = $1
-     order by g.created_at desc`,
-    [user.id]
-  );
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
 
-  res.json(groups);
+    /** Get Groups */
+    const groups = await qAll(
+      `SELECT g.*
+     FROM groups g
+     JOIN group_members gm on gm.group_id = g.id
+     WHERE gm.user_id = $1
+     ORDER BY g.created_at desc`,
+      [user.id],
+    );
+
+    return res.status(200).json({ data: groups });
+  } catch (err) {
+    console.error("Fetching Groups Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when fetching groups",
+      },
+    });
+  }
 });
 
 // POST /api/groups
@@ -190,13 +315,13 @@ app.post("/api/groups", async (req, res) => {
       `insert into groups (name, owner_id, avatar_url, category, is_active)
        values ($1, $2, $3, $4, true)
        returning id, name, category, avatar_url, owner_id`,
-      [name, user.id, avatar_url, category]
+      [name, user.id, avatar_url, category],
     );
 
     await exec(
       `insert into group_members (group_id, user_id, role, is_active)
        values ($1, $2, 'owner', true)`,
-      [group.id, user.id]
+      [group.id, user.id],
     );
 
     res.status(201).json(group);
@@ -224,7 +349,7 @@ app.delete("/api/groups/:groupId", async (req, res) => {
 
     await exec(
       "DELETE FROM expense_debtors WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = $1)",
-      [groupId]
+      [groupId],
     );
     await exec("DELETE FROM expenses WHERE group_id = $1", [groupId]);
 
@@ -249,7 +374,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
      from group_members gm
      join users u on u.id = gm.user_id
      where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   const mappedMembers = members.map((m) => ({
@@ -272,7 +397,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
    where e.group_id = $1
    order by e.created_at desc
    limit 10`,
-    [groupId]
+    [groupId],
   );
 
   const mappedExpenses = await Promise.all(
@@ -282,7 +407,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
          from expense_debtors ed
          join users u on u.id = ed.debtor_id
          where ed.expense_id = $1`,
-        [e.id]
+        [e.id],
       );
 
       return {
@@ -298,7 +423,7 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
           userID: d.debtor_id.toString(),
         })),
       };
-    })
+    }),
   );
 
   res.json({
@@ -344,7 +469,7 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
         currency,
         category,
         description,
-      ]
+      ],
     );
 
     // Fair split: include payer in participant count (payer + selected participants)
@@ -359,7 +484,7 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
       await exec(
         `insert into expense_debtors (expense_id, debtor_id, share_cents)
          values ($1, $2, $3)`,
-        [expense.id, debtorId, baseShare]
+        [expense.id, debtorId, baseShare],
       );
     }
 
@@ -382,7 +507,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
      from group_members gm
      join users u on u.id = gm.user_id
     where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   const balances = {};
@@ -396,7 +521,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
        join expense_debtors ed on ed.expense_id = e.id
       where e.group_id = $1
       group by e.payer_id`,
-    [groupId]
+    [groupId],
   );
   credits.forEach((p) => (balances[p.payer_id] += Number(p.credit)));
 
@@ -406,7 +531,7 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
        join expenses e on e.id = ed.expense_id
       where e.group_id = $1
       group by debtor_id`,
-    [groupId]
+    [groupId],
   );
   owed.forEach((o) => (balances[o.debtor_id] -= Number(o.owed)));
 
@@ -472,7 +597,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        from group_members gm
        join users u on u.id = gm.user_id
       where gm.group_id = $1`,
-    [groupId]
+    [groupId],
   );
 
   // Initiale Balances
@@ -488,7 +613,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        join expense_debtors ed on ed.expense_id = e.id
       where e.group_id = $1
       group by e.payer_id`,
-    [groupId]
+    [groupId],
   );
 
   credits.forEach((c) => {
@@ -502,7 +627,7 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
        join expenses e on e.id = ed.expense_id
       where e.group_id = $1
       group by ed.debtor_id`,
-    [groupId]
+    [groupId],
   );
 
   owed.forEach((o) => {
@@ -522,6 +647,6 @@ app.get("/api/groups/:groupId/balances", async (req, res) => {
 // Root
 app.get("/", (_req, res) => {
   res.send(
-    "Splitmates backend (Supabase Postgres) is running. See /api/health."
+    "Splitmates backend (Supabase Postgres) is running. See /api/health.",
   );
 });

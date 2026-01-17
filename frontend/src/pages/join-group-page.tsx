@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 import { joinGroupAPI } from "../api";
+import { ApiErrorResponse } from "../models";
 
 export const JoinGroupPage = () => {
   const { user, isLoading } = useAuth0();
@@ -25,11 +26,14 @@ export const JoinGroupPage = () => {
       if (!auth0_sub) return;
 
       try {
-        const data = await joinGroupAPI(token, auth0_sub);
-        setStatus(`Erfolgreich der Gruppe beigetreten! (ID: ${data.group_id})`);
-        setTimeout(() => navigate(`/groups/${data.group_id}`), 1500);
-      } catch {
-        setError("Fehler beim Beitreten");
+        const res = await joinGroupAPI(token, auth0_sub);
+        setStatus(
+          `Erfolgreich der Gruppe beigetreten! (ID: ${res.data.group_id})`,
+        );
+        setTimeout(() => navigate(`/groups/${res.data.group_id}`), 1500);
+      } catch (err) {
+        const error = err as ApiErrorResponse;
+        setError(error.error.message);
         setStatus("");
       }
     };
