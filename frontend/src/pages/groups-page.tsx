@@ -51,14 +51,14 @@ export const GroupsPage = () => {
   return (
     <PageLayout>
       <div className="w-full max-w-3xl mx-auto my-auto flex flex-col items-center gap-6 p-6">
-        <div className="flex flex-col items-center justify-center p-8 bg-widget rounded-lg shadow-md w-[400px]">
+        <div className="flex flex-col items-center justify-center p-8 bg-widget! rounded-lg shadow-md w-[400px]">
           <h1 className="text-4xl! mt-0!">My Groups</h1>
           <ul className="flex flex-col gap-2 w-full">
             {groups.map((group) => (
               <li key={group.id}>
                 <button
                   onClick={() => handleGroupClick(group.id)}
-                  className="w-full bg-widget rounded-lg p-2 cursor-pointer"
+                  className="w-full bg-widget! rounded-lg p-2 cursor-pointer"
                 >
                   <h6>{group.name}</h6>
                 </button>
