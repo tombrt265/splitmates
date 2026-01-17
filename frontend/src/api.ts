@@ -37,6 +37,20 @@ export const signUpUserAPI = async (
   return data as { data: User };
 };
 
+export const createInviteLinkAPI = async (group_id: string) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data: { data: { invite_link: string } } | ApiErrorResponse =
+    await res.json();
+
+  if (!res.ok) throw data as ApiErrorResponse;
+
+  return data as { data: { invite_link: string } };
+};
+
 export const joinGroupAPI = async (
   token: string,
   auth0_sub: string,
@@ -115,16 +129,6 @@ export const createGroupAPI = async (
   if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
 
   return await res.json();
-};
-
-export const createInviteLinkAPI = async (group_id: string) => {
-  const inviteRes = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!inviteRes.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
-
-  return await inviteRes.json();
 };
 
 export const getGroupsOfUserAPI = async (user_id: string) => {

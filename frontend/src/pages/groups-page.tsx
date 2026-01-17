@@ -11,6 +11,7 @@ import {
   createInviteLinkAPI,
   getGroupsOfUserAPI,
 } from "../api";
+import { ApiErrorResponse } from "../models";
 
 interface Group {
   id: number;
@@ -43,11 +44,18 @@ export const GroupsPage = () => {
     }
   }, [isLoading, userId, fetchGroups]);
 
-  const handleCreateGroup = async (name: string, category: string) => {
-    const group = await createGroupAPI(name, category, userId!);
-    const data = await createInviteLinkAPI(group.id);
-    await fetchGroups();
-    return { group, inviteLink: data.invite_link };
+  const handleCreateGroup = async (
+    name: string,
+    category: string,
+  ): Promise<{ group: any; inviteLink: string } | ApiErrorResponse> => {
+    try {
+      const group = await createGroupAPI(name, category, userId!);
+      const res_invite = await createInviteLinkAPI(group.id);
+      // await fetchGroups();
+      return { group, inviteLink: res_invite.data.invite_link };
+    } catch (err) {
+      return err as ApiErrorResponse;
+    }
   };
 
   const handleGroupClick = (groupId: number) => {

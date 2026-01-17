@@ -101,34 +101,57 @@ app.post("/api/users", async (req, res) => {
 app.post("/api/groups/:groupId/invite", async (req, res) => {
   const { groupId } = req.params;
 
-  const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
-
-  const existingToken = await qOne(
-    `select token from invite_tokens
-     where group_id = $1 and (expires_at is null or expires_at > now())`,
-    [groupId],
-  );
-
-  if (existingToken) {
-    return res.json({
-      invite_link: `https://splitmates.vercel.app/join?token=${existingToken.token}`,
+  /** Verification */
+  const group = await qOne("SELECT id FROM groups WHERE id = $1", [groupId]);
+  if (!group) {
+    return res.status(404).json({
+      error: {
+        code: "GROUP_NOT_FOUND",
+        message: "the requested group does not exist",
+      },
     });
   }
+  try {
+    /** Searching for valid token */
+    const existingToken = await qOne(
+      `SELECT token FROM invite_tokens
+     WHERE group_id = $1 AND (expires_at is null or expires_at > now())`,
+      [groupId],
+    );
 
-  const token = generateToken(16);
-  const expiresAt = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString();
+    if (existingToken) {
+      return res.json({
+        data: {
+          invite_link: `https://splitmates.vercel.app/join?token=${existingToken.token}`,
+        },
+      });
+    }
 
-  await qOne(
-    `insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
+    /** Creating new token */
+    const token = generateToken(16);
+    const expiresAt = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString();
+
+    const _id = await qOne(
+      `insert into invite_tokens (token, group_id, max_uses, current_uses, expires_at)
      values ($1, $2, null, 0, $3)
      returning id`,
-    [token, groupId, expiresAt],
-  );
+      [token, groupId, expiresAt],
+    );
 
-  res.json({
-    invite_link: `https://splitmates.vercel.app/join?token=${token}`,
-  });
+    res.json({
+      data: {
+        invite_link: `https://splitmates.vercel.app/join?token=${token}`,
+      },
+    });
+  } catch (err) {
+    console.error("Invitation-Link Creation Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when creating invite link",
+      },
+    });
+  }
 });
 
 // POST /api/groups/join
