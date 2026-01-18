@@ -48,16 +48,16 @@ export const GroupsPage = () => {
     category: string,
   ): Promise<{ group: any; inviteLink: string } | ApiErrorResponse> => {
     try {
-      const group = await createGroupAPI(name, category, auth0_sub!);
-      const res_invite = await createInviteLinkAPI(group.id);
+      const res = await createGroupAPI(name, category, auth0_sub!);
+      const res_invite = await createInviteLinkAPI(res.data.id);
       // await fetchGroups();
-      return { group, inviteLink: res_invite.data.invite_link };
+      return { group: res.data, inviteLink: res_invite.data.invite_link };
     } catch (err) {
       return err as ApiErrorResponse;
     }
   };
 
-  const handleGroupClick = (groupId: number) => {
+  const handleGroupClick = (groupId: string) => {
     navigate(`/groups/${groupId}`);
   };
 

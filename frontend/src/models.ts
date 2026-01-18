@@ -15,7 +15,7 @@ export interface User {
 }
 
 export interface Group {
-  id: number;
+  id: string;
   name: string;
   category: string;
   avatar_url: string;

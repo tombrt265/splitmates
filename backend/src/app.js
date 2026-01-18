@@ -291,26 +291,50 @@ app.get("/api/groups", async (req, res) => {
   }
 });
 
-// POST /api/groups
 app.post("/api/groups", async (req, res) => {
-  const { name, category, avatar_url, auth0_sub } = req.body;
+  const { name, category, avatar_url } = req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  if (!name || !auth0_sub || !category || !avatar_url) {
-    return res.status(400).json({
-      error: "Name, auth0_sub, category und avatar_url sind erforderlich",
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
     });
   }
 
   try {
-    const user = await qOne("select id from users where auth0_sub = $1", [
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
       auth0_sub,
     ]);
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User existiert nicht. Bitte vorher anmelden." });
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
     }
 
+    /** Input Verification */
+    if (!name || !category || !avatar_url) {
+      const missingFields = [];
+      if (!name) missingFields.push("groupname");
+      if (!category) missingFields.push("category");
+      if (!avatar_url) missingFields.push("profile picture");
+
+      return res.status(400).json({
+        error: {
+          code: "MISSING_FIELDS",
+          message: "groupname, category and profile picture are required",
+          details: { missing: missingFields },
+        },
+      });
+    }
+
+    /** Group Creation */
     const group = await qOne(
       `insert into groups (name, owner_id, avatar_url, category, is_active)
        values ($1, $2, $3, $4, true)
@@ -324,10 +348,15 @@ app.post("/api/groups", async (req, res) => {
       [group.id, user.id],
     );
 
-    res.status(201).json(group);
+    return res.status(201).json({ data: group });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fehler beim Erstellen der Gruppe" });
+    console.error("Creating Group Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when creating group",
+      },
+    });
   }
 });
 

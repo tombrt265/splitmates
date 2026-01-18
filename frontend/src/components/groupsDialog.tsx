@@ -12,12 +12,12 @@ interface GroupsDialogProps {
     category: string,
   ) => Promise<
     | {
-        group: { id: number };
+        group: { id: string };
         inviteLink: string;
       }
     | ApiErrorResponse
   >;
-  viewGroup: (groupId: number) => void;
+  viewGroup: (groupId: string) => void;
 }
 
 export const GroupsDialog = ({
@@ -29,7 +29,7 @@ export const GroupsDialog = ({
   const [groupName, setGroupName] = useState("");
   const [category, setCategory] = useState("");
   const [inviteLink, setInviteLink] = useState("");
-  const [groupId, setGroupId] = useState<number | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
   const [groupSetUp, setGroupSetUp] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

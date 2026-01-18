@@ -76,6 +76,26 @@ export const getGroupsOfUserAPI = async (auth0_sub: string) => {
   return data as { data: Group[] };
 };
 
+export const createGroupAPI = async (
+  name: string,
+  category: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
+    body: JSON.stringify({
+      name,
+      category,
+      avatar_url: "https://example.com/avatar.jpg",
+    }),
+  });
+
+  const data: { data: Group } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Group };
+};
+
 export const addExpenseAPI = async (
   group_id: string,
   payerId: string,
@@ -112,26 +132,6 @@ export const getBalanceOfUserInGroup = async (
     `${API_BASE}/api/groups/${group_id}/balances/${user_id}`,
   );
   if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
-};
-
-export const createGroupAPI = async (
-  name: string,
-  category: string,
-  auth0_sub: string,
-) => {
-  const res = await fetch(`${API_BASE}/api/groups`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      category,
-      avatar_url: "https://example.com/avatar.jpg",
-      auth0_sub: auth0_sub,
-    }),
-  });
-  if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
-
   return await res.json();
 };
 
