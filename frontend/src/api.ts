@@ -149,14 +149,6 @@ export const deleteGroupWithIdAPI = async (group_id: string) => {
   return res.json();
 };
 
-export const createGroupInviteLinkWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error("Failed to create invite link");
-  return await res.json();
-};
-
 export const getGroupBalancesWithIdAPI = async (
   group_id: string,
 ): Promise<BalanceResponse[]> => {

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PageLayout } from "../components/page-layout";
 import { PageLoader } from "../components/page-loader";
 import {
-  createGroupInviteLinkWithIdAPI,
+  createInviteLinkAPI,
   deleteGroupWithIdAPI,
   getGroupBalancesWithIdAPI,
   getGroupWithIdAPI,
@@ -95,8 +95,8 @@ export const GroupOverviewPage = () => {
   const handleCreateLink = async () => {
     if (!groupId) return;
     try {
-      const data = await createGroupInviteLinkWithIdAPI(groupId);
-      const inviteLink = data.invite_link;
+      const res = await createInviteLinkAPI(groupId);
+      const inviteLink = res.data.invite_link;
       navigator.clipboard.writeText(inviteLink);
     } catch (err) {
       console.error(err);
@@ -126,14 +126,14 @@ export const GroupOverviewPage = () => {
           (acc[expense.category] ?? 0) + expense.amount_cents;
         return acc;
       },
-      {}
+      {},
     );
 
     debtbyCategory = Object.entries(expensesByCategory).map(
       ([category, totalCents]) => ({
         label: category,
         value: totalCents / 100,
-      })
+      }),
     );
   }
 
@@ -145,14 +145,14 @@ export const GroupOverviewPage = () => {
         acc[expense.paidBy] = (acc[expense.paidBy] ?? 0) + expense.amount_cents;
         return acc;
       },
-      {}
+      {},
     );
 
     moneySpentByMember = Object.entries(expensesByMember).map(
       ([member, totalCents]) => ({
         label: member,
         value: totalCents / 100,
-      })
+      }),
     );
   }
 
