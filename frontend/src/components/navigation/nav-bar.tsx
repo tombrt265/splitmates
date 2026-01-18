@@ -55,8 +55,8 @@ export const NavBar = () => {
               className="group bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md border-blue-400 border-2 flex items-center gap-2 px-4 py-2"
               onClick={() => setMenuOpen(false)}
             >
-              <FiUsers aria-hidden="true" className="text-blue-400 group-hover:text-white" />
-              <span className="text-center text-blue-400 group-hover:text-white font-semibold leading-none">
+              <FiUsers aria-hidden="true" className="text-blue-400 group-hover:text-primary" />
+              <span className="text-center text-blue-400 group-hover:text-primary font-semibold leading-none">
                 Groups
               </span>
             </Link>
@@ -66,15 +66,15 @@ export const NavBar = () => {
               className="group bg-widget hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-2 border-blue-400 rounded-md flex items-center gap-2 px-4 py-2"
               onClick={() => setMenuOpen(false)}
             >
-              <FiUser aria-hidden="true" className="text-blue-400 group-hover:text-white" />
-              <span className="text-center text-blue-400 group-hover:text-white font-semibold leading-none">
+              <FiUser aria-hidden="true" className="text-blue-400 group-hover:text-primary" />
+              <span className="text-center text-blue-400 group-hover:text-primary font-semibold leading-none">
                 Account
               </span>
             </Link>
             <ThemeToggleButton />
             <button
               role="menuitem"
-              className="bg-red-500 hover:bg-red-600 rounded-md text-white block px-4 py-2 leading-none flex items-center gap-2 justify-center"
+              className="bg-red-500 hover:bg-red-600 rounded-md text-white px-4 py-2 leading-none flex items-center gap-2 justify-center"
               onClick={() => {
                 handleLogout();
                 setMenuOpen(false);

@@ -11,7 +11,7 @@ export const ImageUploader = () => {
         className="rounded-full aspect-square h-30 mb-5 bg-cover bg-center"
         style={{ backgroundImage: `url(${avatarUrl})` }}
       ></div>
-      <label className="cursor-pointer absolute -mt-14 ml-20 p-2 bg-background border border-widget rounded-full hover:bg-widget">
+      <label className="cursor-pointer absolute -mt-14 ml-20 p-2 bg-secondary border border-widget rounded-full hover:bg-widget">
         <FiEdit2 />
         <input
           type="file"

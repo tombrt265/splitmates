@@ -63,7 +63,7 @@ export const Carousel = ({ children }: CarouselProps) => {
             className={`h-2 w-2 rounded-full transition-all ${
               i === index
                 ? "bg-blue-400 scale-110"
-                : "bg-background hover:bg-widget"
+                : "bg-secondary hover:bg-widget"
             }`}
             aria-label={`Go to slide ${i + 1}`}
           />

@@ -60,11 +60,11 @@ export const ProfilePage = () => {
         {Object.values(ViewMode).map((mode) => (
           <div
             key={mode}
-            className="bg-white rounded-2xl shadow-md overflow-hidden"
+            className="rounded-2xl shadow-md overflow-hidden"
           >
             {/* Header */}
             <button
-              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-secondary hover:bg-blue-200 transition-colors"
+              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-secondary hover:bg-widget transition-colors"
               onClick={() => toggleSection(mode)}
             >
               <span>{mode}</span>

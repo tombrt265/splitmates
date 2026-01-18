@@ -100,15 +100,33 @@ option {
 .bg-widget {
   background-color: var(--bg-widget);
 }
+
 .bg-secondary {
   background-color: var(--bg-secondary);
 }
+
 .text-primary {
   color: var(--text-primary);
 }
 
 .text-secondary {
   color: var(--text-secondary);
+}
+
+/* Hover variants - use these when you want hover effects */
+.hover\:bg-primary:hover {
+  background-color: var(--bg-primary);
+  opacity: 0.9;
+}
+
+.hover\:bg-widget:hover {
+  background-color: var(--bg-widget);
+  opacity: 0.9;
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--bg-secondary);
+  opacity: 0.9;
 }
 
 @keyframes spin {
