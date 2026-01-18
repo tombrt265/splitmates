@@ -96,6 +96,19 @@ export const createGroupAPI = async (
   return data as { data: Group };
 };
 
+export const deleteGroupWithIdAPI = async (
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
+    method: "DELETE",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: { id: string } } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: { id: string } };
+};
+
 export const addExpenseAPI = async (
   group_id: string,
   payerId: string,
@@ -139,14 +152,6 @@ export const getGroupWithIdAPI = async (group_id: string) => {
   const res = await fetch(`${API_BASE}/api/groups/${group_id}/overview`);
   if (!res.ok) throw new Error("Failed to fetch group overview");
   return await res.json();
-};
-
-export const deleteGroupWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete group");
-  return res.json();
 };
 
 export const getGroupBalancesWithIdAPI = async (

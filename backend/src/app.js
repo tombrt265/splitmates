@@ -360,34 +360,86 @@ app.post("/api/groups", async (req, res) => {
   }
 });
 
-// DELETE /api/groups/:groupId
 app.delete("/api/groups/:groupId", async (req, res) => {
   const { groupId } = req.params;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  if (!groupId) {
-    return res.status(400).json({ error: "groupId ist erforderlich" });
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
   }
 
   try {
-    const group = await qOne("SELECT id FROM groups WHERE id = $1", [groupId]);
-    if (!group) {
-      return res.status(404).json({ error: "Gruppe nicht gefunden" });
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
     }
 
-    await exec("DELETE FROM group_members WHERE group_id = $1", [groupId]);
+    /** Input Verification */
+    if (!groupId) {
+      return res.status(400).json({
+        error: {
+          code: "MISSING_FIELDS",
+          message: "group_id is missing",
+        },
+      });
+    }
+
+    const group = await qOne("SELECT id FROM groups WHERE id = $1", [groupId]);
+    if (!group) {
+      return res.status(404).json({
+        error: {
+          code: "GROUP_NOT_FOUND",
+          message: "group was not found",
+        },
+      });
+    }
+
+    const is_group_member = await qOne(
+      "SELECT 1 FROM group_members WHERE user_id = $1 AND group_id = $2 LIMIT 1",
+      [user.id, group.id],
+    );
+    if (!is_group_member) {
+      return res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: "user is not allowed to delete group",
+        },
+      });
+    }
+
+    /** Group Deletion */
+    await exec("DELETE FROM group_members WHERE group_id = $1", [group.id]);
 
     await exec(
       "DELETE FROM expense_debtors WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = $1)",
-      [groupId],
+      [group.id],
     );
-    await exec("DELETE FROM expenses WHERE group_id = $1", [groupId]);
+    await exec("DELETE FROM expenses WHERE group_id = $1", [group.id]);
 
-    await exec("DELETE FROM groups WHERE id = $1", [groupId]);
+    await exec("DELETE FROM groups WHERE id = $1", [group.id]);
 
-    res.json({ message: "Gruppe erfolgreich gelöscht" });
+    return res.json({ data: group.id });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fehler beim Löschen der Gruppe" });
+    console.error("Deleting Group Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when deleting group",
+      },
+    });
   }
 });
 

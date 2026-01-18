@@ -12,6 +12,8 @@ import { GroupMetadata } from "../components/group-overview-page/group-metadata"
 import { GroupSpendings } from "../components/group-overview-page/group-spendings";
 import { Carousel } from "../components/shared/carousel";
 import { BarChart } from "../components/shared/bar-chart";
+import { useAuth0 } from "@auth0/auth0-react";
+import { ApiErrorResponse } from "../models";
 
 interface Member {
   name: string;
@@ -45,6 +47,7 @@ interface Balance {
 }
 
 export const GroupOverviewPage = () => {
+  const auth0_sub = useAuth0().user?.sub;
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [group, setGroup] = useState<Group | null>(null);
@@ -81,14 +84,15 @@ export const GroupOverviewPage = () => {
   }, [groupId]);
 
   const handleDeleteGroup = async () => {
-    if (!groupId) return;
-    if (!confirm("Are you sure you want to delete this group?")) return;
+    if (!groupId || !auth0_sub) return;
+    if (!confirm("Are you sure you want to delete this group for all members?"))
+      return;
     try {
-      const res = await deleteGroupWithIdAPI(groupId);
+      const res = await deleteGroupWithIdAPI(groupId, auth0_sub);
       navigate("/groups");
     } catch (err) {
-      console.error(err);
-      alert("Error deleting group");
+      const error = err as ApiErrorResponse;
+      alert(error.error.message);
     }
   };
 
