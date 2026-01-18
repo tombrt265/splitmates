@@ -63,5 +63,5 @@
 .theme-toggle.icon-only {
   height: 2.6rem;
   padding: 0.25rem;
-  font-size: 0; /* verhindert Text-Spacing */
+  font-size: 0;
 }
