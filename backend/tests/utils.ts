@@ -19,51 +19,72 @@ export async function cleanupDatabase() {
 
 export async function createUser(id: number): Promise<User> {
   const res = await request(app)
-    .post("/api/users/signup")
+    .post("/api/users")
+    .set("x-auth0-sub", `test_auth0_sub_${id}`)
     .send({
       username: `test_username_${id}`,
       email: `test_email_${id}@test.com`,
-      auth0_sub: `test_auth0_sub_${id}`,
       picture: "test_picture",
     });
-  return res.body as User;
+  return res.body.data;
 }
 
 export async function createGroup(user: User): Promise<Group> {
-  const res = await request(app).post("/api/groups").send({
-    name: "test_groupname",
-    category: "test_category",
-    avatar_url: "test_avatar_url",
-    auth0_sub: user.auth0_sub,
-  });
-  return res.body as Group;
+  const res = await request(app)
+    .post("/api/groups")
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`)
+    .send({
+      name: "test_groupname",
+      category: "test_category",
+      avatar_url: "test_avatar_url",
+    });
+  return res.body.data;
 }
 
-export async function deleteGroup(group: Group) {
-  const res = await request(app).delete(`/api/groups/${group.id}`);
+export async function deleteGroup(
+  user: User,
+  group: Group,
+): Promise<{ id: string }> {
+  const res = await request(app)
+    .delete(`/api/groups/${group.id}`)
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`);
+  return res.body.data;
 }
 
 export async function getUserGroups(user: User): Promise<Group[]> {
-  const res = await request(app).get(`/api/groups?user_id=${user.auth0_sub}`);
-  return res.body as Group[];
-}
-
-export async function createInviteLink(group: Group): Promise<string> {
-  const res = await request(app).post(`/api/groups/${group.id}/invite`);
-  return res.body.invite_link;
-}
-
-export async function joinGroup(token: string, user: User): Promise<string> {
-  const res = await request(app).post(`/api/groups/join`).send({
-    token: token,
-    auth0_sub: user.auth0_sub,
-  });
-  return res.body.group_id;
-}
-
-export async function createExpense(expense: Expense): Promise<Expense> {
   const res = await request(app)
-    .post(`/api/groups/${expense.group_id}/expenses`)
+    .get(`/api/groups`)
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`);
+  return res.body.data;
+}
+
+export async function createInviteLink(
+  group: Group,
+): Promise<{ invite_link: string }> {
+  const res = await request(app).post(`/api/groups/${group.id}/invite`);
+  return res.body.data;
+}
+
+export async function joinGroup(
+  token: string,
+  user: User,
+): Promise<{ group_id: string }> {
+  const res = await request(app)
+    .post(`/api/groups/join`)
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`)
+    .send({
+      token: token,
+    });
+  return res.body.data;
+}
+
+export async function createExpense(
+  user: User,
+  expense: Expense,
+): Promise<Expense> {
+  const res = await request(app)
+    .post(`/api/groups/${expense.group_id}/balance`)
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`)
     .send({
       payerId: expense.payer_id,
       amount: Number(expense.amount_cents) * 100,
@@ -72,10 +93,15 @@ export async function createExpense(expense: Expense): Promise<Expense> {
       description: expense.description,
       debtors: expense.debtors,
     });
-  return res.body;
+  return res.body.data;
 }
 
-export async function getGroupOverview(group: Group): Promise<GroupOverview> {
-  const res = await request(app).get(`/api/groups/${group.id}/overview`);
-  return res.body;
+export async function getGroupOverview(
+  user: User,
+  group: Group,
+): Promise<GroupOverview> {
+  const res = await request(app)
+    .get(`/api/groups/${group.id}`)
+    .set("x-auth0-sub", `test_auth0_sub_${user.id}`);
+  return res.body.data;
 }

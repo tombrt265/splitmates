@@ -37,7 +37,7 @@ describe("create a group and ...", () => {
     const group = await createGroup(user_1);
 
     // THEN
-    deleteGroup(group);
+    deleteGroup(user_1, group);
     const user_groups = await getUserGroups(user_1);
 
     // ASSERT
@@ -52,13 +52,13 @@ describe("create a group and ...", () => {
 
     // THEN
     const invite_link = await createInviteLink(group);
-    const token = new URL(invite_link).searchParams.get("token");
+    const token = new URL(invite_link.invite_link).searchParams.get("token");
     const group_id = await joinGroup(token!, user_2);
     const user_2_groups = await getUserGroups(user_2);
 
     // ASSERT
     assert.equal(user_2_groups.length, 1);
-    assert.equal(group.id, group_id);
+    assert.equal(group.id, group_id.group_id);
   });
 
   afterAll(async () => {
@@ -77,7 +77,7 @@ describe("add an expense and ...", () => {
     const user_2 = await createUser(2);
     const group = await createGroup(user_1);
     const invite_link = await createInviteLink(group);
-    const token = new URL(invite_link).searchParams.get("token");
+    const token = new URL(invite_link.invite_link).searchParams.get("token");
     const group_id = await joinGroup(token!, user_2);
 
     let expense: Expense = {
@@ -93,8 +93,8 @@ describe("add an expense and ...", () => {
     };
 
     // THEN
-    expense = await createExpense(expense);
-    const overview = await getGroupOverview(group);
+    expense = await createExpense(user_1, expense);
+    const overview = await getGroupOverview(user_1, group);
 
     // ASSERT
     assert.equal(overview.category, "test_category");

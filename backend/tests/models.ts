@@ -2,9 +2,8 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  auth0_sub: string;
+  paypal: string;
   avatar_url: string;
-  created_at: string;
 }
 
 export interface Group {
