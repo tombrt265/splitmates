@@ -21,3 +21,28 @@ export interface Group {
   avatar_url: string;
   owner_id: number;
 }
+
+export interface GroupExtended {
+  id: string;
+  name: string;
+  category: string;
+  avatarUrl: string;
+  created_at: string;
+  members: GroupMember[];
+  expenses: GroupExpense[];
+}
+
+interface GroupMember {
+  name: string;
+  avatarUrl: string;
+  userID: string;
+}
+
+interface GroupExpense {
+  id: number;
+  description: string;
+  category: string;
+  amount_cents: number;
+  paidBy: string;
+  created_at: string;
+}

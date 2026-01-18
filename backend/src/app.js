@@ -443,29 +443,61 @@ app.delete("/api/groups/:groupId", async (req, res) => {
   }
 });
 
-// GET /api/groups/:groupId/overview
-app.get("/api/groups/:groupId/overview", async (req, res) => {
+app.get("/api/groups/:groupId", async (req, res) => {
   const { groupId } = req.params;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  const group = await qOne("select * from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
 
-  const members = await qAll(
-    `select u.id, u.username, u.avatar_url
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    /** Input Validation */
+    const group = await qOne("SELECT * FROM groups WHERE id = $1", [groupId]);
+    if (!group) {
+      return res.status(404).json({
+        error: {
+          code: "GROUP_NOT_FOUND",
+          message: "group has not been found",
+        },
+      });
+    }
+
+    /** Collecting Data */
+    const members = await qAll(
+      `select u.id, u.username, u.avatar_url
      from group_members gm
      join users u on u.id = gm.user_id
      where gm.group_id = $1`,
-    [groupId],
-  );
+      [groupId],
+    );
 
-  const mappedMembers = members.map((m) => ({
-    name: m.username || "Unbekannt",
-    avatarUrl: m.avatar_url,
-    userID: m.id.toString(),
-  }));
+    const mappedMembers = members.map((m) => ({
+      name: m.username || "Unbekannt",
+      avatarUrl: m.avatar_url,
+      userID: m.id.toString(),
+    }));
 
-  const expenses = await qAll(
-    `select e.id,
+    const expenses = await qAll(
+      `select e.id,
           e.description,
           e.amount_cents,
           e.currency,
@@ -478,44 +510,55 @@ app.get("/api/groups/:groupId/overview", async (req, res) => {
    where e.group_id = $1
    order by e.created_at desc
    limit 10`,
-    [groupId],
-  );
+      [groupId],
+    );
 
-  const mappedExpenses = await Promise.all(
-    expenses.map(async (e) => {
-      const debtors = await qAll(
-        `select ed.debtor_id, u.username, u.avatar_url
+    const mappedExpenses = await Promise.all(
+      expenses.map(async (e) => {
+        const debtors = await qAll(
+          `select ed.debtor_id, u.username, u.avatar_url
          from expense_debtors ed
          join users u on u.id = ed.debtor_id
          where ed.expense_id = $1`,
-        [e.id],
-      );
+          [e.id],
+        );
 
-      return {
-        id: e.id,
-        description: e.description,
-        category: e.category,
-        amount_cents: e.amount_cents,
-        paidBy: e.payer_name,
-        created_at: e.created_at,
-        debtors: debtors.map((d) => ({
-          name: d.username || "Unbekannt",
-          avatarUrl: d.avatar_url,
-          userID: d.debtor_id.toString(),
-        })),
-      };
-    }),
-  );
+        return {
+          id: e.id,
+          description: e.description,
+          category: e.category,
+          amount_cents: e.amount_cents,
+          paidBy: e.payer_name,
+          created_at: e.created_at,
+          debtors: debtors.map((d) => ({
+            name: d.username || "Unbekannt",
+            avatarUrl: d.avatar_url,
+            userID: d.debtor_id.toString(),
+          })),
+        };
+      }),
+    );
 
-  res.json({
-    id: group.id.toString(),
-    name: group.name,
-    category: group.category,
-    avatarUrl: group.avatar_url,
-    created_at: group.created_at,
-    members: mappedMembers,
-    expenses: mappedExpenses,
-  });
+    res.json({
+      data: {
+        id: group.id.toString(),
+        name: group.name,
+        category: group.category,
+        avatarUrl: group.avatar_url,
+        created_at: group.created_at,
+        members: mappedMembers,
+        expenses: mappedExpenses,
+      },
+    });
+  } catch (err) {
+    console.error("Fetching Group Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when fetching group info",
+      },
+    });
+  }
 });
 
 // POST /api/groups/:groupId/expenses

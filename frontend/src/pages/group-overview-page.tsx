@@ -13,32 +13,7 @@ import { GroupSpendings } from "../components/group-overview-page/group-spending
 import { Carousel } from "../components/shared/carousel";
 import { BarChart } from "../components/shared/bar-chart";
 import { useAuth0 } from "@auth0/auth0-react";
-import { ApiErrorResponse } from "../models";
-
-interface Member {
-  name: string;
-  avatarUrl: string;
-  userID: string;
-}
-
-interface Expense {
-  id: number;
-  description: string;
-  category: string;
-  amount_cents: number;
-  paidBy: string;
-  created_at: string;
-}
-
-interface Group {
-  id: string;
-  name: string;
-  category: string;
-  avatarUrl: string;
-  created_at: string;
-  members: Member[];
-  expenses: Expense[];
-}
+import { ApiErrorResponse, GroupExtended } from "../models";
 
 interface Balance {
   member_id: string;
@@ -50,20 +25,22 @@ export const GroupOverviewPage = () => {
   const auth0_sub = useAuth0().user?.sub;
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const [group, setGroup] = useState<Group | null>(null);
+  const [group, setGroup] = useState<GroupExtended | null>(null);
   const [balances, setBalances] = useState<Balance[] | null>(null);
   const [groupInfoLoading, setGroupInfoLoading] = useState(true);
+  const [groupError, setGroupError] = useState<string>("");
   const [balancesLoading, setBalancesLoading] = useState(true);
 
   /** === API Calls === */
   const fetchGroupInfo = useCallback(async () => {
-    if (!groupId) return;
+    if (!groupId || !auth0_sub) return;
     setGroupInfoLoading(true);
     try {
-      const data = await getGroupWithIdAPI(groupId);
-      setGroup(data);
+      const data = await getGroupWithIdAPI(groupId, auth0_sub);
+      setGroup(data.data);
     } catch (err) {
-      console.error(err);
+      const error = err as ApiErrorResponse;
+      setGroupError(error.error.message);
     } finally {
       setGroupInfoLoading(false);
     }
@@ -180,8 +157,8 @@ export const GroupOverviewPage = () => {
 
   if (!group)
     return (
-      <div className="flex flex-col items-center h-full w-full">
-        <span>Group not found</span>
+      <div className="flex flex-col items-center justify-center h-screen w-full">
+        <span className="text-red-500">{groupError}</span>
       </div>
     );
 

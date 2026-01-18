@@ -1,5 +1,5 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-import { ApiErrorResponse, User, Group } from "./models";
+import { ApiErrorResponse, User, Group, GroupExtended } from "./models";
 
 interface BalanceResponse {
   member_id: string;
@@ -109,6 +109,19 @@ export const deleteGroupWithIdAPI = async (
   return data as { data: { id: string } };
 };
 
+export const getGroupWithIdAPI = async (
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: GroupExtended } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: GroupExtended };
+};
+
 export const addExpenseAPI = async (
   group_id: string,
   payerId: string,
@@ -145,12 +158,6 @@ export const getBalanceOfUserInGroup = async (
     `${API_BASE}/api/groups/${group_id}/balances/${user_id}`,
   );
   if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
-};
-
-export const getGroupWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/overview`);
-  if (!res.ok) throw new Error("Failed to fetch group overview");
   return await res.json();
 };
 
