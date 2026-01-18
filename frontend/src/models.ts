@@ -46,3 +46,9 @@ interface GroupExpense {
   paidBy: string;
   created_at: string;
 }
+
+export interface Balance {
+  member_id: string;
+  member_name: string;
+  balance: string;
+}

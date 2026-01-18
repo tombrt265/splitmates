@@ -756,66 +756,97 @@ app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
   });
 });
 
-// GET /api/groups/:groupId/balances
-app.get("/api/groups/:groupId/balances", async (req, res) => {
+app.get("/api/groups/:groupId/balance", async (req, res) => {
   const { groupId } = req.params;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) {
-    return res.status(404).json({ error: "Gruppe nicht gefunden" });
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
   }
 
-  // Mitglieder laden
-  const members = await qAll(
-    `select u.id, u.username as name
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    const group = await qOne("select id from groups where id = $1", [groupId]);
+    if (!group) {
+      return res.status(404).json({
+        error: {
+          code: "GROUP_NOT_FOUND",
+          message: "group has not been found",
+        },
+      });
+    }
+
+    /** Collect Data */
+    const members = await qAll(
+      `select u.id, u.username as name
        from group_members gm
        join users u on u.id = gm.user_id
       where gm.group_id = $1`,
-    [groupId],
-  );
+      [groupId],
+    );
 
-  // Initiale Balances
-  const balances = {};
-  members.forEach((m) => {
-    balances[m.id] = 0;
-  });
+    const balances = {};
+    members.forEach((m) => {
+      balances[m.id] = 0;
+    });
 
-  // Gutschriften: was andere dem Zahler schulden
-  const credits = await qAll(
-    `select e.payer_id, sum(ed.share_cents) as credit
+    const credits = await qAll(
+      `select e.payer_id, sum(ed.share_cents) as credit
        from expenses e
        join expense_debtors ed on ed.expense_id = e.id
       where e.group_id = $1
       group by e.payer_id`,
-    [groupId],
-  );
+      [groupId],
+    );
+    credits.forEach((c) => {
+      balances[c.payer_id] += Number(c.credit);
+    });
 
-  credits.forEach((c) => {
-    balances[c.payer_id] += Number(c.credit);
-  });
-
-  // Schulden: eigener Anteil
-  const owed = await qAll(
-    `select ed.debtor_id, sum(ed.share_cents) as owed
+    const owed = await qAll(
+      `select ed.debtor_id, sum(ed.share_cents) as owed
        from expense_debtors ed
        join expenses e on e.id = ed.expense_id
       where e.group_id = $1
       group by ed.debtor_id`,
-    [groupId],
-  );
+      [groupId],
+    );
+    owed.forEach((o) => {
+      balances[o.debtor_id] -= Number(o.owed);
+    });
 
-  owed.forEach((o) => {
-    balances[o.debtor_id] -= Number(o.owed);
-  });
+    const result = members.map((m) => ({
+      member_id: m.id,
+      member_name: m.name,
+      balance: (balances[m.id] / 100).toFixed(2),
+    }));
 
-  // In gewünschtes Format mappen
-  const result = members.map((m) => ({
-    member_id: m.id,
-    member_name: m.name,
-    balance: (balances[m.id] / 100).toFixed(2),
-  }));
-
-  res.json(result);
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.error("Fetching Balances Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when fetching balances",
+      },
+    });
+  }
 });
 
 // Root

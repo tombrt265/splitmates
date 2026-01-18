@@ -27,6 +27,7 @@ export const GroupOverviewPage = () => {
   const navigate = useNavigate();
   const [group, setGroup] = useState<GroupExtended | null>(null);
   const [balances, setBalances] = useState<Balance[] | null>(null);
+  const [balanceError, setBalanceError] = useState<string>("");
   const [groupInfoLoading, setGroupInfoLoading] = useState(true);
   const [groupError, setGroupError] = useState<string>("");
   const [balancesLoading, setBalancesLoading] = useState(true);
@@ -47,14 +48,14 @@ export const GroupOverviewPage = () => {
   }, [groupId]);
 
   const fetchGroupBalances = useCallback(async () => {
-    if (!groupId) return;
+    if (!groupId || !auth0_sub) return;
     setBalancesLoading(true);
     try {
-      const balances = await getGroupBalancesWithIdAPI(groupId);
-      setBalances(balances);
-      console.log(balances);
+      const res = await getGroupBalancesWithIdAPI(groupId, auth0_sub);
+      setBalances(res.data);
     } catch (err) {
-      console.error(err);
+      const error = err as ApiErrorResponse;
+      setBalanceError(error.error.message);
     } finally {
       setBalancesLoading(false);
     }
@@ -184,11 +185,18 @@ export const GroupOverviewPage = () => {
         {group ? (
           <Carousel>
             <BarChart title="Debt By Category [€]" data={debtbyCategory} />
-            <BarChart
-              title="Debt By Person [€]"
-              data={debtByMember}
-              maxBars={3}
-            />
+            {balanceError === "" ? (
+              <BarChart
+                title="Debt By Person [€]"
+                data={debtByMember}
+                maxBars={3}
+              />
+            ) : (
+              <div className="bg-gray-50 rounded-xl px-10 py-4 flex flex-col items-center justify-center h-80 text-red-500 font-semibold">
+                {balanceError}
+              </div>
+            )}
+
             <BarChart
               title="Money Spent Upfront [€]"
               data={moneySpentByMember}

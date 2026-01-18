@@ -1,11 +1,11 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-import { ApiErrorResponse, User, Group, GroupExtended } from "./models";
-
-interface BalanceResponse {
-  member_id: string;
-  member_name: string;
-  balance: string;
-}
+import {
+  ApiErrorResponse,
+  User,
+  Group,
+  GroupExtended,
+  Balance,
+} from "./models";
 
 export const signUpUserAPI = async (
   username: string,
@@ -149,6 +149,19 @@ export const addExpenseAPI = async (
   return data as { data: {} };
 };
 
+export const getGroupBalancesWithIdAPI = async (
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balance`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: Balance[] } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Balance[] };
+};
+
 export const getBalanceOfUserInGroup = async (
   user_id: string,
   group_id: string,
@@ -156,14 +169,6 @@ export const getBalanceOfUserInGroup = async (
   const res = await fetch(
     `${API_BASE}/api/groups/${group_id}/balances/${user_id}`,
   );
-  if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
-};
-
-export const getGroupBalancesWithIdAPI = async (
-  group_id: string,
-): Promise<BalanceResponse[]> => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balances`);
   if (!res.ok) throw new Error("Failed to load balances");
   return await res.json();
 };
