@@ -123,6 +123,7 @@ export const getGroupWithIdAPI = async (
 };
 
 export const addExpenseAPI = async (
+  auth0_sub: string,
   group_id: string,
   payerId: string,
   amount: number,
@@ -130,10 +131,10 @@ export const addExpenseAPI = async (
   category: string | null,
   description: string,
   debtors: string[],
-): Promise<any> => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/expenses`, {
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balance`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
     body: JSON.stringify({
       payerId: payerId,
       amount: amount,
@@ -143,11 +144,9 @@ export const addExpenseAPI = async (
       debtors: debtors,
     }),
   });
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.error || "Fehler beim Erstellen des Eintrags");
-  }
-  return await res.json();
+  const data: { data: {} } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: {} };
 };
 
 export const getBalanceOfUserInGroup = async (

@@ -561,27 +561,72 @@ app.get("/api/groups/:groupId", async (req, res) => {
   }
 });
 
-// POST /api/groups/:groupId/expenses
-app.post("/api/groups/:groupId/expenses", async (req, res) => {
+app.post("/api/groups/:groupId/balance", async (req, res) => {
   const { groupId } = req.params;
   const { payerId, amount, currency, category, description, debtors } =
     req.body;
+  const auth0_sub = req.headers["x-auth0-sub"];
 
-  if (
-    !payerId ||
-    !amount ||
-    !currency ||
-    !category ||
-    !description ||
-    !Array.isArray(debtors)
-  ) {
-    return res.status(400).json({ error: "Fehlende Felder im Request" });
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
   }
 
-  const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
-
   try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    /** Input Validation */
+    if (
+      !payerId ||
+      !amount ||
+      !currency ||
+      !category ||
+      !description ||
+      !Array.isArray(debtors)
+    ) {
+      let missingFields = [];
+      if (!payerId) missingFields.push("payer");
+      if (!amount) missingFields.push("amount");
+      if (!currency) missingFields.push("currency");
+      if (!category) missingFields.push("category");
+      if (!description) missingFields.push("description");
+      if (!Array.isArray(debtors)) missingFields.push("debtors");
+
+      return res.status(400).json({
+        error: {
+          code: "MISSING_FIELDS",
+          message:
+            "payer, amount, currency, category, description and debtors must be submitted",
+          details: { missing: missingFields },
+        },
+      });
+    }
+
+    const group = await qOne("select id from groups where id = $1", [groupId]);
+    if (!group)
+      return res.status(404).json({
+        error: {
+          code: "GROUP_NOT_FOUND",
+          message: "group has not been found",
+        },
+      });
+
+    /** Creating Expense */
     const expense = await qOne(
       `insert into expenses (group_id, payer_id, amount_cents, currency, category, description)
        values ($1, $2, $3, $4, $5, $6)
@@ -612,10 +657,15 @@ app.post("/api/groups/:groupId/expenses", async (req, res) => {
       );
     }
 
-    res.status(201).json({ ...expense, debtors });
+    res.status(201).json({ data: { ...expense, debtors } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fehler beim Erstellen der Ausgabe" });
+    console.error("Adding Expense Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when adding expense",
+      },
+    });
   }
 });
 
