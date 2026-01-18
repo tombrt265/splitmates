@@ -5,6 +5,7 @@ import {
   Group,
   GroupExtended,
   Balance,
+  BalanceDetailed,
 } from "./models";
 
 export const signUpUserAPI = async (
@@ -163,12 +164,20 @@ export const getGroupBalancesWithIdAPI = async (
 };
 
 export const getBalanceOfUserInGroup = async (
+  auth0_sub: string,
   user_id: string,
   group_id: string,
 ) => {
   const res = await fetch(
-    `${API_BASE}/api/groups/${group_id}/balances/${user_id}`,
+    `${API_BASE}/api/groups/${group_id}/balance/${user_id}`,
+    {
+      method: "GET",
+      headers: { "x-auth0-sub": auth0_sub },
+    },
   );
-  if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
+  const data:
+    | { data: { userId: string; balances: BalanceDetailed[] } }
+    | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: { userId: string; balances: BalanceDetailed[] } };
 };

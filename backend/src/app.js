@@ -669,93 +669,6 @@ app.post("/api/groups/:groupId/balance", async (req, res) => {
   }
 });
 
-// GET /api/groups/:groupId/balances/:userId
-app.get("/api/groups/:groupId/balances/:userId", async (req, res) => {
-  const { groupId, userId } = req.params;
-
-  const group = await qOne("select id from groups where id = $1", [groupId]);
-  if (!group) return res.status(404).json({ error: "Gruppe nicht gefunden" });
-
-  const members = await qAll(
-    `select u.id, u.username as name
-     from group_members gm
-     join users u on u.id = gm.user_id
-    where gm.group_id = $1`,
-    [groupId],
-  );
-
-  const balances = {};
-  members.forEach((m) => (balances[m.id] = 0));
-
-  // Compute how much each payer should receive from others:
-  // sum of debtor shares on their expenses (not the full amount paid).
-  const credits = await qAll(
-    `select e.payer_id, sum(ed.share_cents) as credit
-       from expenses e
-       join expense_debtors ed on ed.expense_id = e.id
-      where e.group_id = $1
-      group by e.payer_id`,
-    [groupId],
-  );
-  credits.forEach((p) => (balances[p.payer_id] += Number(p.credit)));
-
-  const owed = await qAll(
-    `select debtor_id, sum(share_cents) as owed
-       from expense_debtors ed
-       join expenses e on e.id = ed.expense_id
-      where e.group_id = $1
-      group by debtor_id`,
-    [groupId],
-  );
-  owed.forEach((o) => (balances[o.debtor_id] -= Number(o.owed)));
-
-  const creditors = [];
-  const debtors = [];
-
-  for (const [id, balance] of Object.entries(balances)) {
-    if (balance > 0) creditors.push({ id, balance });
-    else if (balance < 0) debtors.push({ id, balance });
-  }
-
-  const settlements = [];
-  let i = 0,
-    j = 0;
-
-  while (i < creditors.length && j < debtors.length) {
-    const creditor = creditors[i];
-    const debtor = debtors[j];
-    const amount = Math.min(creditor.balance, -debtor.balance);
-
-    settlements.push({
-      from: debtor.id,
-      to: creditor.id,
-      amount_cents: amount,
-    });
-
-    creditor.balance -= amount;
-    debtor.balance += amount;
-
-    if (creditor.balance === 0) i++;
-    if (debtor.balance === 0) j++;
-  }
-
-  const userSettlements = settlements
-    .filter((s) => s.from === userId || s.to === userId)
-    .map((s) => ({
-      direction: s.from === userId ? "outgoing" : "incoming",
-      counterparty:
-        members.find((m) => m.id === (s.from === userId ? s.to : s.from))
-          ?.name || "Unbekannt",
-      amount: (s.amount_cents / 100).toFixed(2),
-      currency: "EUR",
-    }));
-
-  res.json({
-    userId,
-    balances: userSettlements,
-  });
-});
-
 app.get("/api/groups/:groupId/balance", async (req, res) => {
   const { groupId } = req.params;
   const auth0_sub = req.headers["x-auth0-sub"];
@@ -849,7 +762,133 @@ app.get("/api/groups/:groupId/balance", async (req, res) => {
   }
 });
 
-// Root
+app.get("/api/groups/:groupId/balance/:userId", async (req, res) => {
+  const { groupId, userId } = req.params;
+  const auth0_sub = req.headers["x-auth0-sub"];
+
+  /** Authentification */
+  if (!auth0_sub) {
+    return res.status(401).json({
+      error: {
+        code: "UNAUTHORIZED",
+        message: "authentification is missing",
+      },
+    });
+  }
+
+  try {
+    const user = await qOne("SELECT id FROM users WHERE auth0_sub = $1", [
+      auth0_sub,
+    ]);
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "user is not authorized to join group",
+        },
+      });
+    }
+
+    /** Input Validation */
+    const group = await qOne("select id from groups where id = $1", [groupId]);
+    if (!group)
+      return res.status(404).json({
+        error: {
+          code: "GROUP_NOT_FOUND",
+          message: "group has not been found",
+        },
+      });
+
+    /** Collect Data */
+    const members = await qAll(
+      `select u.id, u.username as name
+     from group_members gm
+     join users u on u.id = gm.user_id
+    where gm.group_id = $1`,
+      [groupId],
+    );
+
+    const balances = {};
+    members.forEach((m) => (balances[m.id] = 0));
+
+    const credits = await qAll(
+      `select e.payer_id, sum(ed.share_cents) as credit
+       from expenses e
+       join expense_debtors ed on ed.expense_id = e.id
+      where e.group_id = $1
+      group by e.payer_id`,
+      [groupId],
+    );
+    credits.forEach((p) => (balances[p.payer_id] += Number(p.credit)));
+
+    const owed = await qAll(
+      `select debtor_id, sum(share_cents) as owed
+       from expense_debtors ed
+       join expenses e on e.id = ed.expense_id
+      where e.group_id = $1
+      group by debtor_id`,
+      [groupId],
+    );
+    owed.forEach((o) => (balances[o.debtor_id] -= Number(o.owed)));
+
+    const creditors = [];
+    const debtors = [];
+
+    for (const [id, balance] of Object.entries(balances)) {
+      if (balance > 0) creditors.push({ id, balance });
+      else if (balance < 0) debtors.push({ id, balance });
+    }
+
+    const settlements = [];
+    let i = 0,
+      j = 0;
+
+    while (i < creditors.length && j < debtors.length) {
+      const creditor = creditors[i];
+      const debtor = debtors[j];
+      const amount = Math.min(creditor.balance, -debtor.balance);
+
+      settlements.push({
+        from: debtor.id,
+        to: creditor.id,
+        amount_cents: amount,
+      });
+
+      creditor.balance -= amount;
+      debtor.balance += amount;
+
+      if (creditor.balance === 0) i++;
+      if (debtor.balance === 0) j++;
+    }
+
+    const userSettlements = settlements
+      .filter((s) => s.from === userId || s.to === userId)
+      .map((s) => ({
+        direction: s.from === userId ? "outgoing" : "incoming",
+        counterparty:
+          members.find((m) => m.id === (s.from === userId ? s.to : s.from))
+            ?.name || "Unbekannt",
+        amount: (s.amount_cents / 100).toFixed(2),
+        currency: "EUR",
+      }));
+
+    return res.status(200).json({
+      data: {
+        userId,
+        balances: userSettlements,
+      },
+    });
+  } catch (err) {
+    console.error("Fetching User Balances Error:", err);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "error when fetching user balances",
+      },
+    });
+  }
+});
+
 app.get("/", (_req, res) => {
   res.send(
     "Splitmates backend (Supabase Postgres) is running. See /api/health.",

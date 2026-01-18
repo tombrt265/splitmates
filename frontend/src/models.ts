@@ -52,3 +52,10 @@ export interface Balance {
   member_name: string;
   balance: string;
 }
+
+export interface BalanceDetailed {
+  direction: "incoming" | "outgoing";
+  counterparty: string;
+  amount: string;
+  currency: string;
+}
