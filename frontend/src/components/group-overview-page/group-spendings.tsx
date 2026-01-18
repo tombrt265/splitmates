@@ -82,7 +82,7 @@ export const GroupSpendings = ({
                   className={
                     "transition-colors " +
                     (idx % 2 === 0
-                      ? "bg-secondary hover:bg-widget"
+                      ? "bg-widget hover:bg-secondary"
                       : "hover:bg-secondary")
                   }
                 >
