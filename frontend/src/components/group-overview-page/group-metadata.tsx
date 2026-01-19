@@ -42,7 +42,7 @@ export const GroupMetadata = ({
             day: "numeric",
           })}
         </span>
-        <span className="bg-blue-400 rounded-md font-semibold text-white! py-1 px-2">
+        <span className="bg-blue-400 rounded-md text-white! py-1 px-2">
           {category}
         </span>
       </div>
@@ -83,18 +83,18 @@ export const GroupMetadata = ({
           }}
         >
           {copySuccess ? (
-            <FiCheck aria-hidden="true" className="text-white" />
+            <FiCheck aria-hidden="true" className="" />
           ) : (
-            <FiCopy aria-hidden="true" className="text-white" />
+            <FiCopy aria-hidden="true" className="" />
           )}
-          <span className="text-md font-semibold text-white">
+          <span className="text-md font-semibold">
             {copySuccess ? "Link copied!" : "Copy Invitation Link"}
           </span>
         </button>
 
         {/* Delete Button */}
         <button
-          className="action-button action-button--danger w-fit self-center text-white!"
+          className="action-button action-button--danger w-fit self-center font-semibold!"
           onClick={onDelete}
         >
           <FiTrash2 aria-hidden="true" />
