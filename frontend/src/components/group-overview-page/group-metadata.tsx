@@ -94,7 +94,7 @@ export const GroupMetadata = ({
 
         {/* Delete Button */}
         <button
-          className="action-button action-button--danger w-fit self-center"
+          className="action-button action-button--danger w-fit self-center text-white!"
           onClick={onDelete}
         >
           <FiTrash2 aria-hidden="true" />
