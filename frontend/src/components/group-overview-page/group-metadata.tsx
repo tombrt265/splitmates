@@ -31,7 +31,7 @@ export const GroupMetadata = ({
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+    <div className="bg-background rounded-2xl shadow-md p-6 flex flex-col gap-4">
       {/* Group Info */}
       <div className="flex flex-col items-center gap-1 text-center">
         <h1 className="text-4xl! font-semibold m-0!">{name}</h1>
@@ -42,7 +42,7 @@ export const GroupMetadata = ({
             day: "numeric",
           })}
         </span>
-        <span className="bg-blue-400 rounded-md font-semibold text-white py-1 px-2">
+        <span className="bg-blue-400 rounded-md text-white! py-1 px-2">
           {category}
         </span>
       </div>
@@ -83,18 +83,18 @@ export const GroupMetadata = ({
           }}
         >
           {copySuccess ? (
-            <FiCheck aria-hidden="true" className="text-white" />
+            <FiCheck aria-hidden="true" className="" />
           ) : (
-            <FiCopy aria-hidden="true" className="text-white" />
+            <FiCopy aria-hidden="true" className="" />
           )}
-          <span className="text-md font-semibold text-white">
+          <span className="text-md font-semibold">
             {copySuccess ? "Link copied!" : "Copy Invitation Link"}
           </span>
         </button>
 
         {/* Delete Button */}
         <button
-          className="action-button action-button--danger w-fit self-center"
+          className="action-button action-button--danger w-fit self-center font-semibold!"
           onClick={onDelete}
         >
           <FiTrash2 aria-hidden="true" />

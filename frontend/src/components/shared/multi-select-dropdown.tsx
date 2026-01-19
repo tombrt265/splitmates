@@ -51,11 +51,11 @@ export const MultiSelectDropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex justify-between items-center border border-gray-300 rounded-2xl px-4 py-2 bg-white shadow-sm hover:shadow-md transition"
+        className="w-full flex justify-between items-center border border-widget rounded-2xl px-4 py-2 bg-primary shadow-sm hover:bg-secondary transition"
       >
         <span>{headline}</span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-500 transition-transform ${
+          className={`h-4 w-4 text-primary transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -63,7 +63,7 @@ export const MultiSelectDropdown = ({
 
       {isOpen && (
         <ul
-          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-2"
+          className="absolute z-10 mt-2 w-full max-h-48 overflow-y-auto bg-primary border border-widget rounded-2xl shadow-lg p-2"
           style={{
             position: "absolute",
             overflowY: "auto",
@@ -71,12 +71,12 @@ export const MultiSelectDropdown = ({
           }}
         >
           {options.length === 0 ? (
-            <li className="px-2 py-2 text-gray-500">No options available</li>
+            <li className="px-2 py-2 text-primary">No options available</li>
           ) : (
             options.map((option) => (
               <li
                 key={option.id}
-                className="flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                className="flex items-center px-2 py-2 hover:bg-widget rounded-lg cursor-pointer text-primary"
                 onClick={() => toggleSelect(option.id)}
               >
                 <input
@@ -91,7 +91,7 @@ export const MultiSelectDropdown = ({
                     style={{ backgroundImage: `url(${option.avatarUrl})` }}
                   ></div>
                 )}
-                <span className="text-gray-700 text-base">
+                <span className="text-base">
                   {option.name}
                 </span>
               </li>
