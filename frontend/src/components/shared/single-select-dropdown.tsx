@@ -53,7 +53,7 @@ export const SingleSelectDropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex justify-between items-center border text-primary border-white rounded-2xl px-4 py-2 bg-primary shadow-sm hover:bg-secondary transition"
+        className="w-full flex justify-between items-center border text-primary rounded-2xl px-4 py-2 bg-primary shadow-sm hover:bg-secondary transition"
       >
         <span>{selectedLabel}</span>
         <ChevronDown
