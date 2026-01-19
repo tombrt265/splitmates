@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
+import { ApiErrorResponse } from "../models";
 
 import { signUpUserAPI } from "../api";
 import { PageLoader } from "../components/page-loader";
@@ -31,12 +32,12 @@ export const CallbackPage = () => {
       }
 
       try {
-        const data = signUpUserAPI(username, email, auth0_sub, picture);
-        console.log("User erfolgreich registriert:", data);
-
+        const result = signUpUserAPI(username, email, auth0_sub, picture);
         navigate("/groups");
       } catch (err) {
-        console.error("Signup-Fehler:", err);
+        const error = err as ApiErrorResponse;
+        console.log(error.error.code);
+        console.log(error.error.details);
       }
     };
 

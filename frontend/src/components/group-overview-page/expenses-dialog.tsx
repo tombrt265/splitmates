@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import { addExpenseAPI } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
 import { FiCheck, FiShuffle, FiX } from "react-icons/fi";
+import { useAuth0 } from "@auth0/auth0-react";
+import { ApiErrorResponse } from "../../models";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -20,6 +22,7 @@ export const ExpensesDialog = ({
   updateExpenses,
   members,
 }: ExpensesDialogProps) => {
+  const auth0_sub = useAuth0().user?.sub;
   const { groupId } = useParams<{ groupId: string }>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [description, setDescription] = useState("");
@@ -62,6 +65,7 @@ export const ExpensesDialog = ({
   };
 
   const handleExpensesCreation = async () => {
+    if (!auth0_sub) return;
     if (!amount || !description || !indebtedMembers || !groupId || !payer) {
       alert("Bitte füllen Sie alle Felder aus.");
       return;
@@ -82,19 +86,20 @@ export const ExpensesDialog = ({
 
     try {
       const data = await addExpenseAPI(
+        auth0_sub,
         groupId,
         expense.payerId,
         expense.amount,
         expense.currency,
         expense.category,
         expense.description,
-        expense.debtors
+        expense.debtors,
       );
       updateExpenses(data);
       onClose();
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Ein Fehler ist aufgetreten.");
+    } catch (err) {
+      const error = err as ApiErrorResponse;
+      alert(error.error.message);
     }
   };
 
@@ -102,7 +107,7 @@ export const ExpensesDialog = ({
   useEffect(() => {
     if (payer) {
       setIndebtedMembers((prev) =>
-        prev.filter((memberId) => memberId !== payer)
+        prev.filter((memberId) => memberId !== payer),
       );
     }
   }, [payer]);

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Dialog } from "../shared/dialog";
 import { getBalanceOfUserInGroup } from "../../api";
 import { PageLoader } from "../page-loader";
 import { FiX } from "react-icons/fi";
+import { ApiErrorResponse, BalanceDetailed } from "../../models";
 
 interface BalancesDialogProps {
   isOpen: boolean;
@@ -12,13 +14,6 @@ interface BalancesDialogProps {
   memberName: string;
 }
 
-interface Balance {
-  direction: "incoming" | "outgoing";
-  counterparty: string;
-  amount: string;
-  currency: string;
-}
-
 export const BalancesDialog = ({
   isOpen,
   onClose,
@@ -26,18 +21,21 @@ export const BalancesDialog = ({
   userId,
   memberName,
 }: BalancesDialogProps) => {
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const auth0_sub = useAuth0().user?.sub;
+  const [balances, setBalances] = useState<BalanceDetailed[]>([]);
+  const [balanceError, setBalanceError] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !userId) return;
+    if (!isOpen || !userId || !auth0_sub) return;
     const fetchBalances = async () => {
       try {
         setLoading(true);
-        const data = await getBalanceOfUserInGroup(userId, groupId);
-        setBalances(data.balances);
+        const res = await getBalanceOfUserInGroup(auth0_sub, userId, groupId);
+        setBalances(res.data.balances);
       } catch (err) {
-        console.error(err);
+        const error = err as ApiErrorResponse;
+        setBalanceError(error.error.message);
       } finally {
         setLoading(false);
       }
@@ -58,7 +56,13 @@ export const BalancesDialog = ({
       {loading ? (
         <PageLoader page={false} />
       ) : balances.length === 0 ? (
-        <p className="text-center text-primary py-4">No balances found.</p>
+        balanceError === "" ? (
+          <p className="text-center text-primary py-4">No balances found.</p>
+        ) : (
+          <p className="text-center text-red-500 py-4 font-semibold">
+            {balanceError}
+          </p>
+        )
       ) : (
         <ul className="divide-y divide-gray-200">
           {balances.map((b, idx) => (
@@ -66,9 +70,7 @@ export const BalancesDialog = ({
               key={idx}
               className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-secondary rounded-lg transition"
             >
-              <span className="font-medium text-primary">
-                {b.counterparty}
-              </span>
+              <span className="font-medium text-primary">{b.counterparty}</span>
               <span
                 className={`text-base font-semibold ${
                   b.direction === "incoming"

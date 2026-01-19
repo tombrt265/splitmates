@@ -1,82 +1,141 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-
-type JoinGroupAPIResponse = {
-  group_id: string;
-};
-
-type UserResponse = {
-  id: string;
-  username: string;
-  email: string;
-  auth0_sub: string;
-  avatar_url: string;
-  created_at: string;
-};
-
-interface BalanceResponse {
-  member_id: string;
-  member_name: string;
-  balance: string;
-}
+import {
+  ApiErrorResponse,
+  User,
+  Group,
+  GroupExtended,
+  Balance,
+  BalanceDetailed,
+} from "./models";
 
 export const signUpUserAPI = async (
   username: string,
   email: string,
   auth0_sub: string,
-  picture: string
-): Promise<UserResponse> => {
-  const res = await fetch(`${API_BASE}/api/users/signup`, {
+  picture: string,
+): Promise<{ data: User }> => {
+  const res = await fetch(`${API_BASE}/api/users`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-auth0-sub": auth0_sub,
+    },
     body: JSON.stringify({
       username: username,
       email: email,
-      auth0_sub: auth0_sub,
       picture: picture,
     }),
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Fehler beim Signup");
-  }
+  const data: { data: User } | ApiErrorResponse = await res.json();
 
-  return await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+
+  return data as { data: User };
+};
+
+export const createInviteLinkAPI = async (group_id: string) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data: { data: { invite_link: string } } | ApiErrorResponse =
+    await res.json();
+
+  if (!res.ok) throw data as ApiErrorResponse;
+
+  return data as { data: { invite_link: string } };
 };
 
 export const joinGroupAPI = async (
   token: string,
-  auth0_sub: string
-): Promise<JoinGroupAPIResponse> => {
+  auth0_sub: string,
+): Promise<{ data: { group_id: string } }> => {
   const res = await fetch(`${API_BASE}/api/groups/join`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
+    body: JSON.stringify({ token }),
+  });
+
+  const data: { data: { group_id: string } } | ApiErrorResponse =
+    await res.json();
+
+  if (!res.ok) throw data as ApiErrorResponse;
+
+  return data as { data: { group_id: string } };
+};
+
+export const getGroupsOfUserAPI = async (auth0_sub: string) => {
+  const res = await fetch(`${API_BASE}/api/groups`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+
+  const data: { data: Group[] } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Group[] };
+};
+
+export const createGroupAPI = async (
+  name: string,
+  category: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
     body: JSON.stringify({
-      token,
-      auth0_sub: auth0_sub,
+      name,
+      category,
+      avatar_url: "https://example.com/avatar.jpg",
     }),
   });
 
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.error || "Fehler beim Beitreten");
-  }
+  const data: { data: Group } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Group };
+};
 
-  return await res.json();
+export const deleteGroupWithIdAPI = async (
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
+    method: "DELETE",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: { id: string } } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: { id: string } };
+};
+
+export const getGroupWithIdAPI = async (
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: GroupExtended } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: GroupExtended };
 };
 
 export const addExpenseAPI = async (
+  auth0_sub: string,
   group_id: string,
   payerId: string,
   amount: number,
   currency: string,
   category: string | null,
   description: string,
-  debtors: string[]
-): Promise<any> => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/expenses`, {
+  debtors: string[],
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balance`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-auth0-sub": auth0_sub },
     body: JSON.stringify({
       payerId: payerId,
       amount: amount,
@@ -86,88 +145,39 @@ export const addExpenseAPI = async (
       debtors: debtors,
     }),
   });
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.error || "Fehler beim Erstellen des Eintrags");
-  }
-  return await res.json();
-};
-
-export const getBalanceOfUserInGroup = async (
-  user_id: string,
-  group_id: string
-) => {
-  const res = await fetch(
-    `${API_BASE}/api/groups/${group_id}/balances/${user_id}`
-  );
-  if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
-};
-
-export const createGroupAPI = async (
-  name: string,
-  category: string,
-  auth0_sub: string
-) => {
-  const res = await fetch(`${API_BASE}/api/groups`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      category,
-      avatar_url: "https://example.com/avatar.jpg",
-      auth0_sub: auth0_sub,
-    }),
-  });
-  if (!res.ok) throw new Error("Fehler beim Erstellen der Gruppe");
-
-  return await res.json();
-};
-
-export const createInviteLinkAPI = async (group_id: string) => {
-  const inviteRes = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!inviteRes.ok) throw new Error("Fehler beim Abrufen des Gruppenlinks");
-
-  return await inviteRes.json();
-};
-
-export const getGroupsOfUserAPI = async (user_id: string) => {
-  const res = await fetch(
-    `${API_BASE}/api/groups?user_id=${encodeURIComponent(user_id)}`
-  );
-  if (!res.ok) throw new Error("Failed to fetch groups");
-  return await res.json();
-};
-
-export const getGroupWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/overview`);
-  if (!res.ok) throw new Error("Failed to fetch group overview");
-  return await res.json();
-};
-
-export const deleteGroupWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete group");
-  return res.json();
-};
-
-export const createGroupInviteLinkWithIdAPI = async (group_id: string) => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/invite`, {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error("Failed to create invite link");
-  return await res.json();
+  const data: { data: {} } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: {} };
 };
 
 export const getGroupBalancesWithIdAPI = async (
-  group_id: string
-): Promise<BalanceResponse[]> => {
-  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balances`);
-  if (!res.ok) throw new Error("Failed to load balances");
-  return await res.json();
+  group_id: string,
+  auth0_sub: string,
+) => {
+  const res = await fetch(`${API_BASE}/api/groups/${group_id}/balance`, {
+    method: "GET",
+    headers: { "x-auth0-sub": auth0_sub },
+  });
+  const data: { data: Balance[] } | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: Balance[] };
+};
+
+export const getBalanceOfUserInGroup = async (
+  auth0_sub: string,
+  user_id: string,
+  group_id: string,
+) => {
+  const res = await fetch(
+    `${API_BASE}/api/groups/${group_id}/balance/${user_id}`,
+    {
+      method: "GET",
+      headers: { "x-auth0-sub": auth0_sub },
+    },
+  );
+  const data:
+    | { data: { userId: string; balances: BalanceDetailed[] } }
+    | ApiErrorResponse = await res.json();
+  if (!res.ok) throw data as ApiErrorResponse;
+  return data as { data: { userId: string; balances: BalanceDetailed[] } };
 };

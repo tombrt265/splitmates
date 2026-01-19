@@ -2,18 +2,22 @@ import { useState } from "react";
 import { FiArrowRight, FiCheck, FiCopy, FiPlus, FiX } from "react-icons/fi";
 import { Dialog } from "./shared/dialog";
 import { ImageUploader } from "./shared/image-uploader";
+import { ApiErrorResponse } from "../models";
 
 interface GroupsDialogProps {
   dialogState: boolean;
   onClose: () => void;
   onCreateGroup: (
     name: string,
-    category: string
-  ) => Promise<{
-    group: { id: number };
-    inviteLink: string;
-  }>;
-  viewGroup: (groupId: number) => void;
+    category: string,
+  ) => Promise<
+    | {
+        group: { id: string };
+        inviteLink: string;
+      }
+    | ApiErrorResponse
+  >;
+  viewGroup: (groupId: string) => void;
 }
 
 export const GroupsDialog = ({
@@ -25,28 +29,29 @@ export const GroupsDialog = ({
   const [groupName, setGroupName] = useState("");
   const [category, setCategory] = useState("");
   const [inviteLink, setInviteLink] = useState("");
-  const [groupId, setGroupId] = useState<number | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
   const [groupSetUp, setGroupSetUp] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [createGroupError, setCreateGroupError] = useState<string>("");
 
   const handleCreate = async () => {
     if (!groupName || !category) {
       alert("Bitte füllen Sie alle Felder aus.");
       return;
     }
-
     setIsLoading(true);
-    try {
-      const { group, inviteLink } = await onCreateGroup(groupName, category);
-      setGroupId(group.id);
-      setInviteLink(inviteLink);
+
+    const res = await onCreateGroup(groupName, category);
+    if ("error" in res) {
+      setCreateGroupError(res.error.message);
+    } else {
+      setGroupId(res.group.id);
+      setInviteLink(res.inviteLink);
       setGroupSetUp(true);
-    } catch (err) {
-      alert("Fehler beim Erstellen der Gruppe");
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   const handleClose = () => {
@@ -113,7 +118,9 @@ export const GroupsDialog = ({
                 setCopySuccess(true);
               }}
               className="ml-2 action-button action-button--icon action-button--primary"
-              aria-label={copySuccess ? "Invite link copied" : "Copy invite link"}
+              aria-label={
+                copySuccess ? "Invite link copied" : "Copy invite link"
+              }
               title={copySuccess ? "Invite link copied" : "Copy invite link"}
             >
               {copySuccess ? <FiCheck /> : <FiCopy />}
@@ -138,6 +145,7 @@ export const GroupsDialog = ({
         <FiX aria-hidden="true" />
         Close
       </button>
+      <span className="mt-8 text-red-500">{createGroupError}</span>
     </Dialog>
   );
 };
