@@ -132,7 +132,7 @@ export const RouletteWheel = ({ items, onResult }: RouletteWheelProps) => {
       {/* Spin Button unter dem Rad */}
       <button
         onClick={spin}
-        className="action-button action-button--primary mt-4"
+        className="action-button action-button--primary mt-4 text-primary"
       >
         <FiRefreshCw aria-hidden="true" />
         Spin

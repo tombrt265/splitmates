@@ -141,7 +141,7 @@ export const ExpensesDialog = ({
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
-          className="flex-1 border rounded-lg p-3"
+          className="flex-1 border rounded-lg p-3 text-primary bg-primary"
         />
         <SingleSelectDropdown
           options={currencyOptions}

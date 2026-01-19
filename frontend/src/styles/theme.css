@@ -1,14 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap");
 
-@theme {
-  --animate-spin-2s: spin 2s linear infinite;
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-}
-
 :root {
   --orange: #ff4f40;
   --indigo: #635dff;
@@ -30,5 +21,116 @@
   --font-secondary: "Space Grotesk", sans-serif;
   --font-mono: "Fira Code", monospace;
 
-  --bg-widget: #d1d5dc;
+  --bg-primary: #ffffff;
+  --bg-widget: #f3f6fb;
+  --bg-secondary: #e8eef7;
+  --text-primary: #000000;
+  --text-secondary: #5e5e5e;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-widget: #1e222e;
+  --bg-secondary: #2b3441;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --scrollbar-bg: #2a2e35;
+
+  --orange: #ff6b5b;
+  --indigo: #7c77ff;
+  --white: #1a1a1a;
+  --light-aluminium: #3a3f47;
+  --aluminium: #5a5f67;
+  --dark-aluminium: #0f1117;
+  --black: #ffffff;
+  --yellow: #ffd966;
+  --mandarine: #ff9c4d;
+  --pink: #ff66ee;
+  --blue: #5ba3ff;
+  --aqua: #5dd9ff;
+  --emerald: #3dd9b5;
+
+  --font-primary: "Inter", sans-serif;
+  --font-secondary: "Space Grotesk", sans-serif;
+  --font-mono: "Fira Code", monospace;
+}
+
+/* Dialog styling */
+dialog {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: none;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Select/Dropdown styling */
+select {
+  background-color: var(--bg-widget);
+  color: var(--text-primary);
+  border: 1px solid var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  appearance: none;
+  cursor: pointer;
+  font-family: var(--font-primary);
+}
+
+select:hover {
+  opacity: 0.9;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Custom utility classes using CSS variables since Tailwind doesn't support them directly */
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-widget {
+  background-color: var(--bg-widget);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+/* Hover variants - use these when you want hover effects */
+.hover\:bg-primary:hover {
+  background-color: var(--bg-primary);
+  opacity: 0.9;
+}
+
+.hover\:bg-widget:hover {
+  background-color: var(--bg-widget);
+  opacity: 0.9;
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--bg-secondary);
+  opacity: 0.9;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

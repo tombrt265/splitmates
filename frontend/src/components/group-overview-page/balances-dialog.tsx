@@ -47,7 +47,7 @@ export const BalancesDialog = ({
     <Dialog
       isDialogOpen={isOpen}
       closeDialog={onClose}
-      className="p-6 w-full max-w-md bg-white rounded-2xl shadow-xl"
+      className="p-6 w-full max-w-md bg-background rounded-2xl shadow-xl"
     >
       <h3 className="text-2xl font-semibold mb-4 text-center">
         {memberName}'s balances
@@ -57,7 +57,7 @@ export const BalancesDialog = ({
         <PageLoader page={false} />
       ) : balances.length === 0 ? (
         balanceError === "" ? (
-          <p className="text-center text-gray-500 py-4">No balances found.</p>
+          <p className="text-center text-primary py-4">No balances found.</p>
         ) : (
           <p className="text-center text-red-500 py-4 font-semibold">
             {balanceError}
@@ -68,11 +68,9 @@ export const BalancesDialog = ({
           {balances.map((b, idx) => (
             <li
               key={idx}
-              className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-gray-50 rounded-lg transition"
+              className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-secondary rounded-lg transition"
             >
-              <span className="font-medium text-gray-700">
-                {b.counterparty}
-              </span>
+              <span className="font-medium text-primary">{b.counterparty}</span>
               <span
                 className={`text-base font-semibold ${
                   b.direction === "incoming"
@@ -90,7 +88,7 @@ export const BalancesDialog = ({
 
       <button
         onClick={onClose}
-        className="action-button action-button--danger action-button--full mt-6"
+        className="action-button action-button--danger action-button--full mt-6 text-primary"
       >
         <FiX aria-hidden="true" />
         Close

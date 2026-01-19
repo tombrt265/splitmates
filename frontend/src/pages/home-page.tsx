@@ -16,7 +16,7 @@ export const HomePage = () => {
         </p>
         <button
           onClick={handleSignUp}
-          className="action-button action-button--success action-button--lg shadow"
+          className="action-button action-button--success action-button--lg shadow text-primary"
         >
           <FiArrowRight aria-hidden="true" />
           Get started
