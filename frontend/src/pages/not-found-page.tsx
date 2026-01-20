@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { FiHome } from "react-icons/fi";
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -17,8 +18,9 @@ export const NotFoundPage = () => {
         </p>
         <button
           onClick={handleHomeClick}
-          className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+          className="action-button action-button--success action-button--lg shadow"
         >
+          <FiHome aria-hidden="true" />
           Return To Home
         </button>
       </section>

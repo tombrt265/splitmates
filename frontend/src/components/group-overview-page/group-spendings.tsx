@@ -5,9 +5,10 @@ import { FiPlus } from "react-icons/fi";
 interface Expense {
   id: number;
   description: string;
-  amount: number;
+  category: string;
+  amount_cents: number;
   paidBy: string;
-  date: string;
+  created_at: string;
 }
 
 interface Member {
@@ -31,7 +32,7 @@ export const GroupSpendings = ({
 
   const formattedExpenses = expenses.map((expense) => ({
     ...expense,
-    date: new Date(expense.date).toLocaleDateString("en-EN", {
+    date: new Date(expense.created_at).toLocaleDateString("en-EN", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -39,15 +40,17 @@ export const GroupSpendings = ({
   }));
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
+    <div className="bg-background rounded-2xl shadow-md p-6 flex flex-col gap-2 w-full">
       {/* Header with Add Button */}
       <div className="flex gap-4 items-center">
-        <h3 className="text-2xl! my-2! font-semibold! text-black!">
+        <h3 className="text-2xl! my-2! font-semibold! text-primary">
           Recent Transactions
         </h3>
         <button
-          className="p-2 bg-blue-400 text-white rounded-md hover:bg-blue-500 transition-colors"
+          className="action-button text-primary action-button--icon action-button--success"
           onClick={() => setDialogOpen(true)}
+          aria-label="Add transaction"
+          title="Add transaction"
         >
           <FiPlus size={14} />
         </button>
@@ -65,26 +68,27 @@ export const GroupSpendings = ({
           <table className="w-full border-collapse">
             <thead className="sticky top-0 z-10">
               <tr>
-                <th className="text-left pl-2 text-lg text-blue-400">
-                  Description
-                </th>
-                <th className="text-left p-2 text-lg text-blue-400">Amount</th>
-                <th className="text-left p-2 text-lg text-blue-400">Paid By</th>
-                <th className="text-left p-2 text-lg text-blue-400">
-                  Involved
-                </th>
-                <th className="text-left p-2 text-lg text-blue-400">Date</th>
+                {["Description", "Amount", "Paid By", "Involved", "Date"].map(
+                  (column) => (
+                    <th className="text-left pl-2 pb-2 text-lg">{column}</th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
-              {formattedExpenses.map((expense) => (
+              {formattedExpenses.map((expense, idx) => (
                 <tr
                   key={expense.id}
-                  className=" hover:bg-blue-50 transition-colors"
+                  className={
+                    "transition-colors " +
+                    (idx % 2 === 0
+                      ? "bg-widget hover:bg-secondary"
+                      : "hover:bg-secondary")
+                  }
                 >
                   <td className="p-2">{expense.description}</td>
                   <td className="p-2">
-                    {expense.amount.toLocaleString("de-DE", {
+                    {(expense.amount_cents / 100).toLocaleString("de-DE", {
                       style: "currency",
                       currency: "EUR",
                     })}

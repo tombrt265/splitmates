@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PageLayout } from "../components/page-layout";
 import { ProfileView } from "../components/profile-page/profile-view";
 import { SecurityView } from "../components/profile-page/security-view";
@@ -59,22 +60,26 @@ export const ProfilePage = () => {
         {Object.values(ViewMode).map((mode) => (
           <div
             key={mode}
-            className="bg-white rounded-2xl shadow-md overflow-hidden"
+            className="rounded-2xl shadow-md overflow-hidden"
           >
             {/* Header */}
             <button
-              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-blue-100 hover:bg-blue-200 transition-colors"
+              className="w-full px-6 py-4 text-left flex justify-between items-center text-xl! font-medium text-blue-400 bg-secondary hover:bg-widget transition-colors"
               onClick={() => toggleSection(mode)}
             >
               <span>{mode}</span>
               <span className="text-blue-400">
-                {openSections[mode] ? "▲" : "▼"}
+                {openSections[mode] ? (
+                  <FiChevronUp aria-hidden="true" />
+                ) : (
+                  <FiChevronDown aria-hidden="true" />
+                )}
               </span>
             </button>
 
             {/* Content */}
             {openSections[mode] && (
-              <div className="px-6 py-4 border-t border-gray-100">
+              <div className="px-6 py-4 border-t border-gray-100 bg-widget">
                 {renderView(mode)}
               </div>
             )}

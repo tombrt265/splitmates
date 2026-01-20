@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../api";
+import { ApiErrorResponse } from "../models";
+
+import { signUpUserAPI } from "../api";
 import { PageLoader } from "../components/page-loader";
 
 export const CallbackPage = () => {
@@ -15,11 +17,14 @@ export const CallbackPage = () => {
       const username = user["https://splitmates.vercel.app/username"];
       const email = user.email;
       const auth0_sub = user.sub;
-      const picture = user.picture;
+      let picture = user.picture;
 
       if (!email) console.error("Email fehlt");
       if (!username) console.error("Username fehlt");
       if (!auth0_sub) console.error("Auth0 Sub fehlt");
+      if (!picture)
+        picture =
+          "https://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?d=identicon";
 
       if (!email || !username || !auth0_sub) {
         console.error("Fehlende Userdaten von Auth0");
@@ -27,28 +32,12 @@ export const CallbackPage = () => {
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/users/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: username,
-            email: email,
-            auth0_sub: auth0_sub,
-            picture: picture,
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Fehler beim Signup");
-        }
-
-        const data = await res.json();
-        console.log("User erfolgreich registriert:", data);
-
+        const result = signUpUserAPI(username, email, auth0_sub, picture);
         navigate("/groups");
       } catch (err) {
-        console.error("Signup-Fehler:", err);
+        const error = err as ApiErrorResponse;
+        console.log(error.error.code);
+        console.log(error.error.details);
       }
     };
 

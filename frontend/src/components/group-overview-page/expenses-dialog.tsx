@@ -3,8 +3,11 @@ import { Dialog } from "../shared/dialog";
 import { MultiSelectDropdown } from "../shared/multi-select-dropdown";
 import { SingleSelectDropdown } from "../shared/single-select-dropdown";
 import { useParams } from "react-router-dom";
-import { API_BASE } from "../../api";
+import { addExpenseAPI } from "../../api";
 import { RouletteWheel } from "../roulette-wheel";
+import { FiCheck, FiShuffle, FiX } from "react-icons/fi";
+import { useAuth0 } from "@auth0/auth0-react";
+import { ApiErrorResponse } from "../../models";
 
 interface ExpensesDialogProps {
   dialogState: boolean;
@@ -19,6 +22,7 @@ export const ExpensesDialog = ({
   updateExpenses,
   members,
 }: ExpensesDialogProps) => {
+  const auth0_sub = useAuth0().user?.sub;
   const { groupId } = useParams<{ groupId: string }>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [description, setDescription] = useState("");
@@ -61,6 +65,7 @@ export const ExpensesDialog = ({
   };
 
   const handleExpensesCreation = async () => {
+    if (!auth0_sub) return;
     if (!amount || !description || !indebtedMembers || !groupId || !payer) {
       alert("Bitte füllen Sie alle Felder aus.");
       return;
@@ -80,23 +85,21 @@ export const ExpensesDialog = ({
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${groupId}/expenses`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(expense),
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.error || "Fehler beim Erstellen des Eintrags"
-        );
-      }
-      const data = await res.json();
+      const data = await addExpenseAPI(
+        auth0_sub,
+        groupId,
+        expense.payerId,
+        expense.amount,
+        expense.currency,
+        expense.category,
+        expense.description,
+        expense.debtors,
+      );
       updateExpenses(data);
       onClose();
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Ein Fehler ist aufgetreten.");
+    } catch (err) {
+      const error = err as ApiErrorResponse;
+      alert(error.error.message);
     }
   };
 
@@ -104,7 +107,7 @@ export const ExpensesDialog = ({
   useEffect(() => {
     if (payer) {
       setIndebtedMembers((prev) =>
-        prev.filter((memberId) => memberId !== payer)
+        prev.filter((memberId) => memberId !== payer),
       );
     }
   }, [payer]);
@@ -138,7 +141,7 @@ export const ExpensesDialog = ({
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
-          className="flex-1 border rounded-lg p-3"
+          className="flex-1 border rounded-lg p-3 text-primary bg-primary"
         />
         <SingleSelectDropdown
           options={currencyOptions}
@@ -163,7 +166,7 @@ export const ExpensesDialog = ({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         maxLength={50}
-        className="border rounded-lg p-3 my-2 w-full text-[1.6rem]"
+        className="border rounded-lg p-3 my-2 w-full text-base"
       />
 
       <div className="flex flex-row items-baseline gap-4 w-full">
@@ -175,12 +178,13 @@ export const ExpensesDialog = ({
           returnSelected={setPayer}
         />
         <button
-          className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-lg font-semibold hover:bg-indigo-700 transition"
+          className="action-button action-button--primary"
           type="button"
           onClick={() => {
             setDialogOpen(true);
           }}
         >
+          <FiShuffle aria-hidden="true" />
           <span>Roulette</span>
         </button>
         <Dialog
@@ -223,14 +227,16 @@ export const ExpensesDialog = ({
       <div className="flex gap-4 justify-center w-full mt-8">
         <button
           onClick={handleExpensesCreation}
-          className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+          className="action-button action-button--success flex-1"
         >
+          <FiCheck aria-hidden="true" />
           Submit
         </button>
         <button
           onClick={handleClose}
-          className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-3 text-[1.6rem] font-semibold transition-colors"
+          className="action-button action-button--danger flex-1"
         >
+          <FiX aria-hidden="true" />
           Close
         </button>
       </div>

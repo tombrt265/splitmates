@@ -9,7 +9,9 @@
   cursor: pointer;
   user-select: none;
 
-  transition: background 0.3s ease-out, color 0.3s ease-out;
+  transition:
+    background 0.3s ease-out,
+    color 0.3s ease-out;
 
   /* responsive */
 
@@ -30,11 +32,11 @@
 }
 
 .button--primary {
-  background-color: var(--indigo);
+  background-color: var(--blue);
 }
 
 .button--primary:hover {
-  background: rgba(99, 93, 255, 0.85);
+  background: rgba(56, 133, 255, 0.85);
 }
 
 .button--secondary {
@@ -68,12 +70,10 @@
 }
 
 .button__login,
-.button__logout {
+.button__logout,
+.button__sign-up {
   min-width: 8.4rem;
 
-  border: 0.1rem solid var(--indigo);
-  color: var(--white);
-  background: var(--indigo);
   width: 50%;
   font-size: 1.6rem;
 
@@ -90,29 +90,112 @@
   cursor: pointer;
   user-select: none;
 
-  transition: background 0.3s ease-out, color 0.3s ease-out;
+  transition:
+    background 0.3s ease-out,
+    color 0.3s ease-out;
+}
+
+.button__login {
+  border: 0.1rem solid var(--emerald);
+  color: var(--white);
+  background: var(--emerald);
+}
+
+.button__login:hover {
+  background: rgba(27, 201, 159, 0.85);
+}
+
+.button__logout {
+  border: 0.1rem solid var(--red);
+  color: var(--white);
+  background: var(--red);
+}
+
+.button__logout:hover {
+  background: rgba(239, 68, 68, 0.85);
 }
 
 .button__sign-up {
-  min-width: 8.4rem;
-
-  border: 0.1rem solid var(--black);
-  color: var(--black);
+  border: 0.1rem solid var(--emerald);
+  color: var(--emerald);
   background-color: transparent;
-  width: 50%;
-  font-size: 1.6rem;
 
-  margin-right: 1.6rem;
+  font-weight: 600;
+}
 
-  font-style: normal;
-  font-weight: 500;
-  line-height: 3.2rem;
-  padding: 0.8rem 0;
-  border-radius: 0.8rem;
-  text-align: center;
+.button__sign-up:hover {
+  background: rgba(27, 201, 159, 0.12);
+}
+
+.action-button {
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.65rem 1rem;
+
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
   cursor: pointer;
   user-select: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    filter 0.2s ease;
+}
+
+.action-button:hover {
+  filter: brightness(0.95);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.action-button--full {
+  width: 100%;
+}
+
+.action-button--lg {
+  padding: 0.9rem 1.6rem;
+  font-size: 1.125rem;
+  border-radius: 1rem;
+}
+
+.action-button--icon {
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  line-height: 1;
+}
+
+.action-button--primary {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.action-button--success {
+  background: var(--emerald);
+  color: var(--white);
+}
+
+.action-button--danger {
+  background: var(--red);
+  color: var(--white);
+}
+
+.action-button :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  font: inherit;
+  color: inherit;
 }
 
 .button__login:last-child,
@@ -129,5 +212,80 @@
 
     font-size: 1.4rem;
     line-height: 1.6rem;
+  }
+}
+
+.theme-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-toggle-label {
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 1.1 rem;
+  font-weight: 500;
+  user-select: none;
+}
+
+.theme-toggle-switch {
+  position: relative;
+  width: 5rem;
+  height: 2.6rem;
+  border: none;
+  border-radius: 1.3rem;
+  background-color: var(--light-aluminium);
+  cursor: pointer;
+  transition: background-color 0.3s ease-out;
+  padding: 0.3rem;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-switch:hover {
+  opacity: 0.9;
+}
+
+.theme-toggle-switch.active {
+  background-color: var(--blue);
+}
+
+.theme-toggle-slider {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--white);
+  left: 0.3rem;
+  transition: left 0.3s ease-out;
+  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-switch.active .theme-toggle-slider {
+  left: calc(100% - 2.3rem);
+}
+
+@media only screen and (max-width: 480px) {
+  .theme-toggle-container {
+    gap: 0.8rem;
+  }
+
+  .theme-toggle-label {
+    font-size: 1.2rem;
+  }
+
+  .theme-toggle-switch {
+    width: 4.4rem;
+    height: 2.4rem;
+  }
+
+  .theme-toggle-slider {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .theme-toggle-switch.active .theme-toggle-slider {
+    left: calc(100% - 2.1rem);
   }
 }

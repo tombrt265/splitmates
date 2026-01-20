@@ -19,11 +19,11 @@ export const App = () => {
 
   return (
     <Routes>
-      {/* Öffentlich zugänglich */}
+      {/* Public */}
       <Route path="/" element={<HomePage />} />
       <Route path="/callback" element={<CallbackPage />} />
 
-      {/* Geschützte Seiten */}
+      {/* Protected */}
       <Route
         path="/account"
         element={
@@ -57,6 +57,7 @@ export const App = () => {
         }
       />
 
+      {/* Not Found */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FiPlus } from "react-icons/fi";
 
 interface User {
   id: number;
@@ -80,6 +81,7 @@ export default function UserSearch({ onSelectedUsersChange }: UserSearchProps) {
               >
                 <span className="font-bold text-xl">{user.name[0]}</span>
                 <span className="font-bold text-xl">{user.name}</span>
+                <FiPlus aria-hidden="true" className="ml-auto text-gray-500" />
               </button>
             </li>
           ))}

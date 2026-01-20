@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Dialog } from "../shared/dialog";
-import { API_BASE } from "../../api";
+import { getBalanceOfUserInGroup } from "../../api";
 import { PageLoader } from "../page-loader";
+import { FiX } from "react-icons/fi";
+import { ApiErrorResponse, BalanceDetailed } from "../../models";
 
 interface BalancesDialogProps {
   isOpen: boolean;
@@ -11,13 +14,6 @@ interface BalancesDialogProps {
   memberName: string;
 }
 
-interface Balance {
-  direction: "incoming" | "outgoing";
-  counterparty: string;
-  amount: string;
-  currency: string;
-}
-
 export const BalancesDialog = ({
   isOpen,
   onClose,
@@ -25,22 +21,21 @@ export const BalancesDialog = ({
   userId,
   memberName,
 }: BalancesDialogProps) => {
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const auth0_sub = useAuth0().user?.sub;
+  const [balances, setBalances] = useState<BalanceDetailed[]>([]);
+  const [balanceError, setBalanceError] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !userId) return;
+    if (!isOpen || !userId || !auth0_sub) return;
     const fetchBalances = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          `${API_BASE}/api/groups/${groupId}/balances/${userId}`
-        );
-        if (!res.ok) throw new Error("Failed to load balances");
-        const data = await res.json();
-        setBalances(data.balances);
+        const res = await getBalanceOfUserInGroup(auth0_sub, userId, groupId);
+        setBalances(res.data.balances);
       } catch (err) {
-        console.error(err);
+        const error = err as ApiErrorResponse;
+        setBalanceError(error.error.message);
       } finally {
         setLoading(false);
       }
@@ -52,7 +47,7 @@ export const BalancesDialog = ({
     <Dialog
       isDialogOpen={isOpen}
       closeDialog={onClose}
-      className="p-6 w-full max-w-md bg-white rounded-2xl shadow-xl"
+      className="p-6 w-full max-w-md bg-background rounded-2xl shadow-xl"
     >
       <h3 className="text-2xl font-semibold mb-4 text-center">
         {memberName}'s balances
@@ -61,20 +56,26 @@ export const BalancesDialog = ({
       {loading ? (
         <PageLoader page={false} />
       ) : balances.length === 0 ? (
-        <p className="text-center text-gray-500 py-4">No balances found.</p>
+        balanceError === "" ? (
+          <p className="text-center text-primary py-4">No balances found.</p>
+        ) : (
+          <p className="text-center text-red-500 py-4 font-semibold">
+            {balanceError}
+          </p>
+        )
       ) : (
         <ul className="divide-y divide-gray-200">
           {balances.map((b, idx) => (
             <li
               key={idx}
-              className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-gray-50 rounded-lg transition"
+              className="flex justify-between gap-2 items-center py-3 px-2 hover:bg-secondary rounded-lg transition"
             >
-              <span className="font-medium text-gray-700">
-                {b.counterparty}
-              </span>
+              <span className="font-medium text-primary">{b.counterparty}</span>
               <span
-                className={`text-[1.6rem] font-semibold ${
-                  b.direction === "incoming" ? "text-green-600" : "text-red-500"
+                className={`text-base font-semibold ${
+                  b.direction === "incoming"
+                    ? "text-emerald-600"
+                    : "text-red-600"
                 }`}
               >
                 {b.direction === "incoming" ? "+" : "-"}
@@ -87,8 +88,9 @@ export const BalancesDialog = ({
 
       <button
         onClick={onClose}
-        className="mt-6 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg py-3 transition"
+        className="action-button action-button--danger action-button--full mt-6 text-primary"
       >
+        <FiX aria-hidden="true" />
         Close
       </button>
     </Dialog>
