@@ -5,6 +5,7 @@ import { PageLoader } from "../components/page-loader";
 import {
   createInviteLinkAPI,
   deleteGroupWithIdAPI,
+  getBalanceOfUserInGroup,
   getGroupBalancesWithIdAPI,
   getGroupWithIdAPI,
 } from "../api";
@@ -14,12 +15,20 @@ import { Carousel } from "../components/shared/carousel";
 import { BarChart } from "../components/shared/bar-chart";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ApiErrorResponse, GroupExtended } from "../models";
+import {
+  clearBalanceDetailsCacheForGroup,
+  hasCachedBalanceDetails,
+  setCachedBalanceDetails,
+} from "../cache/balance-details-cache";
 
 interface Balance {
   member_id: string;
   member_name: string;
   balance: string;
 }
+
+const groupCache = new Map<string, GroupExtended>();
+const balancesCache = new Map<string, Balance[]>();
 
 export const GroupOverviewPage = () => {
   const auth0_sub = useAuth0().user?.sub;
@@ -33,33 +42,61 @@ export const GroupOverviewPage = () => {
   const [balancesLoading, setBalancesLoading] = useState(true);
 
   /** === API Calls === */
-  const fetchGroupInfo = useCallback(async () => {
-    if (!groupId || !auth0_sub) return;
-    setGroupInfoLoading(true);
-    try {
-      const data = await getGroupWithIdAPI(groupId, auth0_sub);
-      setGroup(data.data);
-    } catch (err) {
-      const error = err as ApiErrorResponse;
-      setGroupError(error.error.message);
-    } finally {
-      setGroupInfoLoading(false);
-    }
-  }, [groupId]);
+  const fetchGroupInfo = useCallback(
+    async (forceRefresh = false) => {
+      if (!groupId || !auth0_sub) return;
+      if (!forceRefresh) {
+        const cachedGroup = groupCache.get(groupId);
+        if (cachedGroup) {
+          setGroup(cachedGroup);
+          setGroupError("");
+          setGroupInfoLoading(false);
+          return;
+        }
+      }
+      setGroupInfoLoading(true);
+      setGroupError("");
+      try {
+        const data = await getGroupWithIdAPI(groupId, auth0_sub);
+        setGroup(data.data);
+        groupCache.set(groupId, data.data);
+      } catch (err) {
+        const error = err as ApiErrorResponse;
+        setGroupError(error.error.message);
+      } finally {
+        setGroupInfoLoading(false);
+      }
+    },
+    [groupId, auth0_sub],
+  );
 
-  const fetchGroupBalances = useCallback(async () => {
-    if (!groupId || !auth0_sub) return;
-    setBalancesLoading(true);
-    try {
-      const res = await getGroupBalancesWithIdAPI(groupId, auth0_sub);
-      setBalances(res.data);
-    } catch (err) {
-      const error = err as ApiErrorResponse;
-      setBalanceError(error.error.message);
-    } finally {
-      setBalancesLoading(false);
-    }
-  }, [groupId]);
+  const fetchGroupBalances = useCallback(
+    async (forceRefresh = false) => {
+      if (!groupId || !auth0_sub) return;
+      if (!forceRefresh) {
+        const cachedBalances = balancesCache.get(groupId);
+        if (cachedBalances) {
+          setBalances(cachedBalances);
+          setBalanceError("");
+          setBalancesLoading(false);
+          return;
+        }
+      }
+      setBalancesLoading(true);
+      setBalanceError("");
+      try {
+        const res = await getGroupBalancesWithIdAPI(groupId, auth0_sub);
+        setBalances(res.data);
+        balancesCache.set(groupId, res.data);
+      } catch (err) {
+        const error = err as ApiErrorResponse;
+        setBalanceError(error.error.message);
+      } finally {
+        setBalancesLoading(false);
+      }
+    },
+    [groupId, auth0_sub],
+  );
 
   const handleDeleteGroup = async () => {
     if (!groupId || !auth0_sub) return;
@@ -86,8 +123,9 @@ export const GroupOverviewPage = () => {
   };
 
   const handleUpdateExpense = async () => {
-    fetchGroupInfo;
-    fetchGroupBalances;
+    if (groupId) clearBalanceDetailsCacheForGroup(groupId);
+    await fetchGroupInfo(true);
+    await fetchGroupBalances(true);
   };
 
   /** === Lifecycle === */
@@ -98,6 +136,28 @@ export const GroupOverviewPage = () => {
   useEffect(() => {
     fetchGroupBalances();
   }, [fetchGroupBalances]);
+
+  useEffect(() => {
+    if (!group || !auth0_sub) return;
+    const prefetchBalanceDetails = async () => {
+      await Promise.all(
+        group.members.map(async (member) => {
+          if (hasCachedBalanceDetails(group.id, member.userID)) return;
+          try {
+            const res = await getBalanceOfUserInGroup(
+              auth0_sub,
+              member.userID,
+              group.id,
+            );
+            setCachedBalanceDetails(group.id, member.userID, res.data.balances);
+          } catch {
+            // Prefetch failures are non-blocking for the UI.
+          }
+        }),
+      );
+    };
+    prefetchBalanceDetails();
+  }, [group, auth0_sub]);
 
   /** === Debt By Category === */
   let debtbyCategory = [{ label: "", value: 0 }];

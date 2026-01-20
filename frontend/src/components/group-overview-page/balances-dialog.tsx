@@ -5,6 +5,10 @@ import { getBalanceOfUserInGroup } from "../../api";
 import { PageLoader } from "../page-loader";
 import { FiX } from "react-icons/fi";
 import { ApiErrorResponse, BalanceDetailed } from "../../models";
+import {
+  getCachedBalanceDetails,
+  setCachedBalanceDetails,
+} from "../../cache/balance-details-cache";
 
 interface BalancesDialogProps {
   isOpen: boolean;
@@ -28,11 +32,20 @@ export const BalancesDialog = ({
 
   useEffect(() => {
     if (!isOpen || !userId || !auth0_sub) return;
+    const cachedBalances = getCachedBalanceDetails(groupId, userId);
+    if (cachedBalances) {
+      setBalances(cachedBalances);
+      setBalanceError("");
+      setLoading(false);
+      return;
+    }
     const fetchBalances = async () => {
       try {
         setLoading(true);
+        setBalanceError("");
         const res = await getBalanceOfUserInGroup(auth0_sub, userId, groupId);
         setBalances(res.data.balances);
+        setCachedBalanceDetails(groupId, userId, res.data.balances);
       } catch (err) {
         const error = err as ApiErrorResponse;
         setBalanceError(error.error.message);
@@ -41,7 +54,7 @@ export const BalancesDialog = ({
       }
     };
     fetchBalances();
-  }, [isOpen, userId, groupId]);
+  }, [isOpen, userId, groupId, auth0_sub]);
 
   return (
     <Dialog

@@ -9,6 +9,7 @@ interface Expense {
   amount_cents: number;
   paidBy: string;
   created_at: string;
+  debtors: Member[];
 }
 
 interface Member {
@@ -104,16 +105,14 @@ export const GroupSpendings = ({
                     />
                   </td>
                   <td className="p-2 flex flex-row gap-2">
-                    {members
-                      .filter((m) => m.name !== expense.paidBy)
-                      .map((m) => (
-                        <img
-                          key={m.userID}
-                          src={m.avatarUrl}
-                          alt={m.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ))}
+                    {expense.debtors.map((debtor) => (
+                      <img
+                        key={debtor.userID}
+                        src={debtor.avatarUrl}
+                        alt={debtor.name}
+                        className="w-8 h-8 rounded-full"
+                      />
+                    ))}
                   </td>
                   <td className="p-2">{expense.date}</td>
                 </tr>

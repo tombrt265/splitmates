@@ -134,3 +134,7 @@ option {
     transform: rotate(360deg);
   }
 }
+
+.animate-spin-2s {
+  animation: spin 2s linear infinite;
+}
