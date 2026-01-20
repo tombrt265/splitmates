@@ -45,6 +45,7 @@ interface GroupExpense {
   amount_cents: number;
   paidBy: string;
   created_at: string;
+  debtors: GroupMember[];
 }
 
 export interface Balance {
